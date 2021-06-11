@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :style="computedStyles">
 
   </div>
 </template>
@@ -10,8 +10,14 @@
   export default defineComponent({
     name: "ToolbarItem",
     props: {
+      color: String
     },
-    setup: () => {
+    computed: {
+      computedStyles () {
+        return {
+          backgroundColor: this.color
+        }
+      }
     },
     methods: {
     },
@@ -27,5 +33,8 @@
   div {
     width: 50px;
     height: 50px;
+    border-radius: 5px;
+    border: 2px solid rgba(0, 0, 0, 0.25);
+    margin: 5px;
   }
 </style>
