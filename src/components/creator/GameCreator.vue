@@ -16,9 +16,15 @@
 </template>
 
 <script lang="ts">
-  import { ref, defineComponent, provide } from "vue"
+  import { ref, defineComponent, provide, InjectionKey} from "vue"
   import Toolbar from "./Toolbar.vue";
   import Ground from "./Ground.vue";
+
+  const svgCoordsKey: InjectionKey<(clientX: number, number) => number> = Symbol();
+
+  export const injections = {
+    svgCoords: svgCoordsKey
+  }
 
   export default defineComponent({
     name: "GameCreator",
@@ -37,7 +43,7 @@
         return pt.matrixTransform( svg.value.getScreenCTM().inverse() );
       }
 
-      provide("svgCoords", svgCoords);
+      provide(svgCoordsKey, svgCoords);
 
       return {
         svg

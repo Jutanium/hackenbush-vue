@@ -20,7 +20,8 @@
 </template>
 
 <script lang="ts">
-  import { ref, defineComponent } from "vue"
+  import { ref, defineComponent, inject} from "vue"
+  import { injections } from "./GameCreator.vue"
   import DragCircle from "./DragCircle.vue";
   export default defineComponent({
     name: "Ground",
@@ -40,8 +41,11 @@
       }
     },
     setup: () => {
+      const svgCoords = inject(injections.svgCoords);
+      return {
+        svgCoords
+      }
     },
-    inject: ['svgCoords'],
     methods: {
       onMouseMove(event: MouseEvent) {
         this.circleX = this.svgCoords(event.clientX, event.clientY).x;
