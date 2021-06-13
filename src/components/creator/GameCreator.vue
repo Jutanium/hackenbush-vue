@@ -11,7 +11,7 @@
 
       <Ground :y="95" height="5"></Ground>
 
-      <g v-if="showDrawingSegment">
+      <g v-if="drawingSegment.drawing">
         <line
           :x1="drawingSegment.startX" :x2="drawingSegment.endX"
           :y1="drawingSegment.startY" :y2="drawingSegment.endY"
@@ -59,8 +59,8 @@
 
       const segmentStart = (svgX: number, svgY: number) => {
         drawingSegment.drawing = true;
-        drawingSegment.startX = svgX;
-        drawingSegment.startY = svgY;
+        drawingSegment.startX = drawingSegment.endX = svgX;
+        drawingSegment.startY = drawingSegment.endY = svgY;
       }
 
       provide(svgCoordsKey, svgCoords);
@@ -73,10 +73,6 @@
       }
     },
     computed: {
-      showDrawingSegment(): boolean {
-        const { drawing, startX, startY, endX, endY} = this.drawingSegment;
-        return drawing && Math.min(startX, startY, endX, endY) > 0
-      }
     },
     methods: {
       bgClick (event: MouseEvent) {
@@ -92,8 +88,8 @@
 
       bgMouseUp (event: MouseEvent) {
         this.drawingSegment.drawing = false;
-        this.drawingSegment.endX = this.drawingSegment.endY = -1;
       },
+
       bgMouseDown (event: MouseEvent) {
 
       }
