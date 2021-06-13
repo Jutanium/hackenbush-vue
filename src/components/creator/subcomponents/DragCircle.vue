@@ -4,7 +4,7 @@
 
 <script lang="ts">
   import { ref, inject, defineComponent } from "vue"
-  import { injections } from "./GameCreator.vue"
+  import { injections } from "../GameCreator.vue"
 
   export default defineComponent({
     name: "DragCircle",

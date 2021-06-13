@@ -26,8 +26,8 @@
 
 <script lang="ts">
   import { ref, reactive, defineComponent, provide, InjectionKey} from "vue"
-  import Toolbar from "./Toolbar.vue";
-  import Ground from "./Ground.vue";
+  import Toolbar from "./subcomponents/Toolbar.vue";
+  import Ground from "./subcomponents/Ground.vue";
 
   const svgCoordsKey: InjectionKey<(clientX: number, clientY: number) => number> = Symbol();
   const segmentStartKey: InjectionKey<(svgX: number, svgY: number) => void> = Symbol();

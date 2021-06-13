@@ -21,7 +21,7 @@
 
 <script lang="ts">
   import { ref, defineComponent, inject} from "vue"
-  import { injections } from "./GameCreator.vue"
+  import { injections } from "../GameCreator.vue"
   import DragCircle from "./DragCircle.vue";
   export default defineComponent({
     name: "Ground",
