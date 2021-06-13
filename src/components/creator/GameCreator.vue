@@ -11,19 +11,30 @@
 
       <Ground :y="95" height="5"></Ground>
 
+      <g v-if="showDrawingSegment">
+        <line
+          :x1="drawingSegment.startX" :x2="drawingSegment.endX"
+          :y1="drawingSegment.startY" :y2="drawingSegment.endY"
+          stroke="black"
+          stroke-width="1"
+        ></line>
+      </g>
+
     </svg>
   </div>
 </template>
 
 <script lang="ts">
-  import { ref, defineComponent, provide, InjectionKey} from "vue"
+  import { ref, reactive, defineComponent, provide, InjectionKey} from "vue"
   import Toolbar from "./Toolbar.vue";
   import Ground from "./Ground.vue";
 
-  const svgCoordsKey: InjectionKey<(clientX: number, number) => number> = Symbol();
+  const svgCoordsKey: InjectionKey<(clientX: number, clientY: number) => number> = Symbol();
+  const segmentStartKey: InjectionKey<(svgX: number, svgY: number) => void> = Symbol();
 
   export const injections = {
-    svgCoords: svgCoordsKey
+    svgCoords: svgCoordsKey,
+    segmentStart: segmentStartKey
   }
 
   export default defineComponent({
@@ -32,9 +43,12 @@
     props: {
     },
     setup: () => {
-      const svg = ref(null);
+      const svg = ref();
+
+      const drawingSegment = reactive({drawing: false, startX: -1, startY: -1, endX: -1, endY: -1});
 
       const svgCoords = (clientX: number, clientY: number) => {
+        if (!svg.value) return;
         const pt = svg.value.createSVGPoint();
 
         pt.x = clientX;
@@ -43,21 +57,42 @@
         return pt.matrixTransform( svg.value.getScreenCTM().inverse() );
       }
 
+      const segmentStart = (svgX: number, svgY: number) => {
+        drawingSegment.drawing = true;
+        drawingSegment.startX = svgX;
+        drawingSegment.startY = svgY;
+      }
+
       provide(svgCoordsKey, svgCoords);
+      provide(segmentStartKey, segmentStart)
 
       return {
-        svg
+        svg,
+        svgCoords,
+        drawingSegment
+      }
+    },
+    computed: {
+      showDrawingSegment(): boolean {
+        const { drawing, startX, startY, endX, endY} = this.drawingSegment;
+        return drawing && Math.min(startX, startY, endX, endY) > 0
       }
     },
     methods: {
       bgClick (event: MouseEvent) {
-        console.log("yo", this.svg)
+        console.log("click");
       },
       bgMouseMove (event: MouseEvent) {
-
+        if (this.drawingSegment.drawing) {
+          const coords = this.svgCoords(event.clientX, event.clientY);
+          this.drawingSegment.endX = coords.x;
+          this.drawingSegment.endY = coords.y;
+        }
       },
-      bgMouseUp (event: MouseEvent) {
 
+      bgMouseUp (event: MouseEvent) {
+        this.drawingSegment.drawing = false;
+        this.drawingSegment.endX = this.drawingSegment.endY = -1;
       },
       bgMouseDown (event: MouseEvent) {
 

@@ -1,9 +1,11 @@
 <template>
-  <circle :cx="x" :cy="y" :r="radius"></circle>
+  <circle :cx="x" :cy="y" :r="radius" @mousedown="segmentStart(x, y)"></circle>
 </template>
 
 <script lang="ts">
-  import { ref, defineComponent } from "vue"
+  import { ref, inject, defineComponent } from "vue"
+  import { injections } from "./GameCreator.vue"
+
   export default defineComponent({
     name: "DragCircle",
     props: {
@@ -15,6 +17,9 @@
       }
     },
     setup: () => {
+      return {
+        segmentStart: inject(injections.segmentStart)
+      }
     },
     data () {
       return {
