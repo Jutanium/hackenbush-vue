@@ -11,6 +11,8 @@
 
       <Ground :y="95" height="5"></Ground>
 
+      <Piece :segment="testSegment"></Piece>
+
       <g v-if="drawingSegment.drawing">
         <line
           :x1="drawingSegment.startX" :x2="drawingSegment.endX"
@@ -28,8 +30,12 @@
   import { ref, reactive, defineComponent, provide, InjectionKey} from "vue"
   import Toolbar from "./subcomponents/Toolbar.vue";
   import Ground from "./subcomponents/Ground.vue";
+  import Piece from "./subcomponents/Piece.vue"
 
-  const svgCoordsKey: InjectionKey<(clientX: number, clientY: number) => number> = Symbol();
+  import {Color} from "@/model/segmentColor";
+  import {Segment} from "@/model/segment";
+
+  const svgCoordsKey: InjectionKey<(clientX: number, clientY: number) => {x, y}> = Symbol();
   const segmentStartKey: InjectionKey<(svgX: number, svgY: number) => void> = Symbol();
 
   export const injections = {
@@ -39,7 +45,7 @@
 
   export default defineComponent({
     name: "GameCreator",
-    components: {Toolbar, Ground},
+    components: {Piece, Toolbar, Ground},
     props: {
     },
     setup: () => {
@@ -47,7 +53,7 @@
 
       const drawingSegment = reactive({drawing: false, startX: -1, startY: -1, endX: -1, endY: -1});
 
-      const svgCoords = (clientX: number, clientY: number) => {
+      const svgCoords = (clientX: number, clientY: number): {x,y} => {
         if (!svg.value) return;
         const pt = svg.value.createSVGPoint();
 
@@ -97,7 +103,22 @@
     data () {
       return {
         drawing: false,
-        someState: "hey"
+        someState: "hey",
+        testSegment: {
+          start: {
+            x: 20,
+            y: 20
+          },
+          end: {
+            x: 50,
+            y: 50,
+          },
+          curveControl: {
+            x: 30,
+            y: 30,
+          },
+          color: Color.Blue,
+        } as Segment
       }
     }
   })
