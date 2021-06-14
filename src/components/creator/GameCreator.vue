@@ -113,9 +113,13 @@
             x: 50,
             y: 50,
           },
-          curveControl: {
+          curveControlStart: {
             x: 30,
             y: 30,
+          },
+          curveControlEnd: {
+            x: 40,
+            y: 40
           },
           color: Color.Blue,
         } as Segment

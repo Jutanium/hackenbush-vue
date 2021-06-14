@@ -11,7 +11,8 @@ export type Segment = {
   color: Color,
   start: Point,
   end: Point
-  curveControl?: Point,
+  curveControlStart?: Point,
+  curveControlEnd?: Point,
   startConnection?: string,
   endConnection?: string,
 }

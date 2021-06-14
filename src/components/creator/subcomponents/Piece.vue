@@ -1,13 +1,30 @@
 <template>
-  <path fill="none" :d="path" :stroke="segment.color" stroke-width="1"></path>
-  <DragCircle :x="segment.start.x" :y="segment.start.y"></DragCircle>
-  <DragCircle :x="segment.end.x" :y="segment.end.y"></DragCircle>
-  <circle :cx="segment.curveControl.x" :cy="segment.curveControl.y" :r="1"
-          fill="orange"
-          @mousedown="onMouseDown"
-          @mousemove="onMouseMove"
-          @mouseup="onMouseUp"
-  ></circle>
+  <g @mouseup="onMouseUp" @mousemove="onMouseMove">
+    <path fill="none" :d="path" :stroke="segment.color" stroke-width="1"></path>
+    <DragCircle :x="segment.start.x" :y="segment.start.y"></DragCircle>
+    <DragCircle :x="segment.end.x" :y="segment.end.y"></DragCircle>
+
+
+    <line :x1="segment.start.x" :y1="segment.start.y" :x2="segment.curveControlStart.x" :y2="segment.curveControlStart.y"
+          stroke-width="0.5" stroke="black" opacity="0.5"
+    >
+    </line>
+
+    <line :x1="segment.end.x" :y1="segment.end.y" :x2="segment.curveControlEnd.x" :y2="segment.curveControlEnd.y"
+          stroke-width="0.5" stroke="black" opacity="0.5"
+    >
+    </line>
+
+    <circle :cx="segment.curveControlStart.x" :cy="segment.curveControlStart.y" :r="1"
+            fill="orange"
+            @mousedown="draggingCurveControl = segment.curveControlStart"
+    ></circle>
+
+    <circle :cx="segment.curveControlEnd.x" :cy="segment.curveControlEnd.y" :r="1"
+            fill="turquoise"
+            @mousedown="draggingCurveControl = segment.curveControlEnd"
+    ></circle>
+  </g>
 </template>
 
 <script lang="ts">
@@ -34,44 +51,39 @@
     computed: {
       path (): string {
         let path = `M ${this.segment.start.x},${this.segment.start.y}`
-        if (this.segment.curveControl) {
-          const c = this.segment.curveControl;
-          const s = this.segment.start;
-          const e = this.segment.end;
-
-          const xRadius = Math.sqrt(Math.pow(c.x - s.x, 2) + Math.pow(c.y - s.y, 2));
-          const yRadius = Math.sqrt(Math.pow(c.x - e.x, 2) + Math.pow(c.y - e.y, 2));
-
-          const angle = Math.atan2(c.y - s.y, c.x - s.x) * 180 / Math.PI;
-
-          path += `A ${xRadius} ${yRadius} ${angle} 1 0 ${e.x} ${e.y}`
-        } else {
-          path += `L ${this.segment.end.x},${this.segment.end.y}`
+        if (this.segment.curveControlStart && this.segment.curveControlEnd) {
+          const cS = this.segment.curveControlStart;
+          const cE = this.segment.curveControlEnd;
+          const end = this.segment.end;
+          path += `C ${cS.x},${cS.y} ${cE.x},${cE.y} ${end.x},${end.y}`
         }
+        path += `L ${this.segment.end.x},${this.segment.end.y}`
         return path;
       }
     },
     methods: {
-      onMouseDown(e) {
-        this.draggingCurve = true;
-      },
       onMouseMove(e: MouseEvent) {
-        const { x, y } = this.svgCoords(e.clientX, e.clientY);
-        this.segment.curveControl.x = x;
-        this.segment.curveControl.y = y;
+        if (this.draggingCurveControl) {
+          const { x, y } = this.svgCoords(e.clientX, e.clientY);
+          this.draggingCurveControl.x = x;
+          this.draggingCurveControl.y = y;
+        }
       },
       onMouseUp(e) {
-        this.draggingCurve = false;
+        this.draggingCurveControl = false;
       }
     },
     data () {
       return {
-        draggingCurve: false,
+        draggingCurveControl: false,
       }
     }
   })
 </script>
 
 <style scoped>
+g {
+  pointer-events: bounding-box;
+}
 
 </style>
