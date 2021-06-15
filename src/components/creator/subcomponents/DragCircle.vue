@@ -1,5 +1,5 @@
 <template>
-  <circle :cx="x" :cy="y" :r="radius" @mousedown="segmentStart(x, y)"></circle>
+  <circle :cx="x" :cy="y" :r="radius" @mouseover="segmentSnap(x,y)" @mousedown="segmentStart(x, y)"></circle>
 </template>
 
 <script lang="ts">
@@ -18,7 +18,8 @@
     },
     setup: () => {
       return {
-        segmentStart: inject(injections.segmentStart)
+        segmentStart: inject(injections.segmentStart),
+        segmentSnap: inject(injections.segmentSnap)
       }
     },
     data () {
