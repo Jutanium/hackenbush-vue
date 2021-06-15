@@ -1,5 +1,8 @@
 <template>
-  <circle :cx="x" :cy="y" :r="radius" @mouseover="segmentSnap(x,y)" @mousedown="segmentStart(x, y)"></circle>
+  <g @mouseover="onMouseOver">
+    <circle :cx="x" :cy="y" :r="snapRadius" opacity="0"></circle>
+    <circle :cx="x" :cy="y" :r="radius" @mousedown="segmentStart(x, y)"></circle>
+  </g>
 </template>
 
 <script lang="ts">
@@ -19,7 +22,15 @@
     setup: () => {
       return {
         segmentStart: inject(injections.segmentStart),
-        segmentSnap: inject(injections.segmentSnap)
+        segmentSnap: inject(injections.segmentSnap),
+        snapRadius: inject(injections.snapRadius)
+      }
+    },
+    methods: {
+      onMouseOver () {
+        if (this.segmentSnap && this.x && this.y) {
+          this.segmentSnap(this.x, this.y);
+        }
       }
     },
     data () {
@@ -31,5 +42,7 @@
 </script>
 
 <style scoped>
-
+ g {
+   pointer-events: bounding-box;
+ }
 </style>

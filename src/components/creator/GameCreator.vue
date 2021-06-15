@@ -35,22 +35,28 @@
   import {Color} from "@/model/segmentColor";
   import {Segment} from "@/model/segment";
 
-  const svgCoordsKey: InjectionKey<(clientX: number, clientY: number) => {x, y}> = Symbol();
+  const svgCoordsKey: InjectionKey<(clientX: number, clientY: number) => {x: number, y: number} | false> = Symbol();
   const segmentStartKey: InjectionKey<(svgX: number, svgY: number) => void> = Symbol();
   const segmentSnapKey: InjectionKey<(svgX: number, svgY: number) => void> = Symbol();
+  const snapRadiusKey: InjectionKey<number> = Symbol();
 
   export const injections = {
     svgCoords: svgCoordsKey,
     segmentStart: segmentStartKey,
-    segmentSnap: segmentSnapKey
+    segmentSnap: segmentSnapKey,
+    snapRadius: snapRadiusKey
   }
 
   export default defineComponent({
     name: "GameCreator",
     components: {Piece, Toolbar, Ground},
     props: {
+      snapRadius: {
+        type: Number,
+        default: 2
+      }
     },
-    setup: () => {
+    setup: (props) => {
       const svg = ref();
 
       const drawingSegment = reactive({
@@ -58,11 +64,10 @@
         snapping: false,
         startX: -1, startY: -1,
         endX: -1, endY: -1,
-        snapX: -1, snapY: -1
       });
 
-      const svgCoords = (clientX: number, clientY: number): {x,y} => {
-        if (!svg.value) return;
+      const svgCoords = (clientX: number, clientY: number) => {
+        if (!svg.value) return false;
         const pt = svg.value.createSVGPoint();
 
         pt.x = clientX;
@@ -78,17 +83,17 @@
       }
 1
       const segmentSnap = (svgX: number, svgY: number) => {
-        console.log("snap")
         if (drawingSegment.drawing) {
           drawingSegment.snapping = true;
-          drawingSegment.snapX = drawingSegment.endX = svgX;
-          drawingSegment.snapY = drawingSegment.endY = svgY;
+          drawingSegment.endX = svgX;
+          drawingSegment.endY = svgY;
         }
       }
 
       provide(svgCoordsKey, svgCoords);
       provide(segmentStartKey, segmentStart);
       provide(segmentSnapKey, segmentSnap);
+      provide(snapRadiusKey, props.snapRadius);
 
       return {
         svg,
@@ -106,10 +111,9 @@
         if (this.drawingSegment.drawing) {
           const coords = this.svgCoords(event.clientX, event.clientY);
           if (this.drawingSegment.snapping) {
-            const { snapX, snapY } = this.drawingSegment;
-            const distanceFromSnap = Math.sqrt((coords.x - snapX)**2 + (coords.y - snapY)**2);
-            if (distanceFromSnap < 3) {
-              console.log(distanceFromSnap, snapX, this.drawingSegment.endX);
+            const { endX, endY } = this.drawingSegment;
+            const distanceFromSnap = Math.sqrt((coords.x - endX)**2 + (coords.y - endY)**2);
+            if (distanceFromSnap < this.snapRadius) {
               return;
             }
             this.drawingSegment.snapping = false;
