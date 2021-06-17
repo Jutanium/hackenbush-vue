@@ -29,7 +29,7 @@
 
 <script lang="ts">
   import { ref, defineComponent, PropType, inject } from "vue"
-  import { Segment } from "@/model/segment.ts"
+  import { Segment } from "@/model/segment"
   import DragCircle from "./DragCircle.vue";
   import { injections } from "@/components/creator/GameCreator.vue"
 
@@ -63,10 +63,12 @@
     },
     methods: {
       onMouseMove(e: MouseEvent) {
-        if (this.draggingCurveControl) {
-          const { x, y } = this.svgCoords(e.clientX, e.clientY);
-          this.draggingCurveControl.x = x;
-          this.draggingCurveControl.y = y;
+        if (this.draggingCurveControl && this.svgCoords) {
+          const coords = this.svgCoords(e.clientX, e.clientY);
+          if (coords) {
+            this.draggingCurveControl.x = coords.x;
+            this.draggingCurveControl.y = coords.y;
+          }
         }
       },
       onMouseUp(e) {
@@ -75,7 +77,7 @@
     },
     data () {
       return {
-        draggingCurveControl: false,
+        draggingCurveControl: false as { x: number, y: number} | false,
       }
     }
   })
