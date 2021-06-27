@@ -1,5 +1,5 @@
 
-import type {Connection, Segment} from "@/model/segment";
+import type {Connection, Point, Segment} from "@/model/segment";
 import {ref, readonly, reactive} from "vue";
 import {Color} from "@/model/segment-color";
 
@@ -53,7 +53,23 @@ export function addSegment(segment: Segment) {
   const id = segment.id;
   segments[id] = segment;
 
-
   updateConnection({id, side: "start"}, segment.startConnection);
   updateConnection({id, side: "end"}, segment.endConnection);
+}
+
+export function removeSegment(segment: Segment | string) {
+  const removeId = (typeof segment == "string") ? segment : segment.id;
+  delete segments[removeId];
+}
+
+export function moveEndpoint(endpoint: Connection, point: Point, connectingTo?: Connection) {
+  const segmentToUpdate = segments[endpoint.id]
+  segmentToUpdate[endpoint.side] = point;
+  if (connectingTo) {
+    const newConnections = [connectingTo];
+    segmentToUpdate[endpoint.side + "Connection"] = newConnections
+    updateConnection(endpoint, newConnections);
+  } else {
+    segmentToUpdate[endpoint.side + "Connection"] = [];
+  }
 }

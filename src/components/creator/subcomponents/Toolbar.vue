@@ -7,8 +7,12 @@
     <ToolbarItem :selected="mode == 2"
                  color="green" @click="modeSelect(2)"></ToolbarItem>
     <ToolbarItem :selected="mode == 3" @click="modeSelect(3)">
-      <img :src="moveImg" alt="">
+      <img :src="img.move" alt="">
     </ToolbarItem>
+    <ToolbarItem :selected="mode == 4" @click="modeSelect(4)">
+      <img :src="img.eraser" alt="">
+    </ToolbarItem>
+
   </div>
 </template>
 
@@ -16,6 +20,7 @@
 import {ref, defineComponent, PropType} from "vue";
   import { Color } from "@/model/segment-color"
   import moveImg from "@/assets/move.png"
+  import eraserImg from "@/assets/eraser.png"
 
   import ToolbarItem from "./ToolbarItem.vue";
 
@@ -23,7 +28,8 @@ import {ref, defineComponent, PropType} from "vue";
     DrawingRed,
     DrawingBlue,
     DrawingGreen,
-    Moving
+    Moving,
+    Deleting,
   }
 
   export default defineComponent({
@@ -42,7 +48,10 @@ import {ref, defineComponent, PropType} from "vue";
     },
     data () {
       return {
-        moveImg: moveImg
+        img: {
+          move: moveImg,
+          eraser: eraserImg
+        }
       }
     }
   })
