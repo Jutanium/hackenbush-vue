@@ -4,14 +4,11 @@
 
     <rect v-if="draggingCurveControl" :x="0" :y="0" :width="100" :height="100" :opacity="0"></rect>
 
-    <path fill="none" class="path"
-          :style="pathStyle"
-          :d="path"
-          pointer-events="visiblePainted"
-          @mouseenter="mouseIsOverPath = true"
-          @mouseleave="mouseIsOverPath = false"
-          :stroke="segment.color" stroke-width="1"
-    ></path>
+    <PiecePath :segment="segment"
+               @mouseenter="mouseIsOverPath = true"
+               @mouseleave="mouseIsOverPath = false">
+              :style="pathStyle"
+    </PiecePath>
 
     <transition name="fade">
       <g v-if="showingCurveControls">
@@ -49,10 +46,11 @@
   import DragCircle from "./DragCircle.vue";
   import { injections } from "@/components/creator/GameCreator.vue"
   import {Mode} from "@/components/creator/subcomponents/Toolbar.vue";
+  import PiecePath from "@/components/shared/PiecePath.vue";
 
   export default defineComponent({
     name: "Piece",
-    components: {DragCircle},
+    components: {DragCircle, PiecePath},
     props: {
       segment: {
         type: Object as PropType<Segment>,
@@ -70,17 +68,6 @@
     computed: {
       showingCurveControls () {
         return this.selectedMode == Mode.Moving || (this.selectedMode < Mode.Deleting && this.mouseIsOver)
-      },
-      path (): string {
-        let path = `M ${this.segment.start.x},${this.segment.start.y}`
-        if (this.segment.curveControlStart && this.segment.curveControlEnd) {
-          const cS = this.segment.curveControlStart;
-          const cE = this.segment.curveControlEnd;
-          const end = this.segment.end;
-          path += `C ${cS.x},${cS.y} ${cE.x},${cE.y} ${end.x},${end.y}`
-        }
-        path += `L ${this.segment.end.x},${this.segment.end.y}`
-        return path;
       },
       pathStyle () {
         if (this.selectedMode == Mode.Deleting && this.mouseIsOverPath) {
