@@ -1,40 +1,58 @@
 <template>
   <div :style="computedStyles">
-
+    <slot></slot>
   </div>
 </template>
 
 <script lang="ts">
-  import { ref, defineComponent } from "vue"
+import {ref, defineComponent} from "vue"
 
-  export default defineComponent({
-    name: "ToolbarItem",
-    props: {
-      color: String
-    },
-    computed: {
-      computedStyles () {
+export default defineComponent({
+  name: "ToolbarItem",
+  props: {
+    color: String,
+    selected: Boolean
+  },
+  computed: {
+    computedStyles(): object {
+      if (this.color) {
+        if (this.selected) {
+          return {
+            backgroundColor: this.color,
+            borderColor: "rgba(0,0,0,0.25)"
+          }
+        }
         return {
-          backgroundColor: this.color
+          borderColor: this.color,
         }
       }
-    },
-    methods: {
-    },
-    data () {
+      if (this.selected) {
+        return {
+          backgroundColor: "lightgray"
+        }
+      }
       return {
-
+        backgroundColor: "white"
       }
     }
-  })
+  },
+  methods: {},
+  data() {
+    return {}
+  }
+})
 </script>
 
 <style scoped>
-  div {
-    width: 50px;
-    height: 50px;
-    border-radius: 5px;
-    border: 2px solid rgba(0, 0, 0, 0.25);
-    margin: 5px;
-  }
+div {
+  width: 40px;
+  height: 40px;
+  border-radius: 5px;
+  border-width: 4px;
+  border-style: solid;
+  margin: 3px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 </style>

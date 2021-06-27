@@ -1,9 +1,14 @@
 
-import type { Color } from "./segmentColor"
+import type { Color } from "./segment-color"
 
 export type Point = {
   x: number,
   y: number
+}
+
+export type Connection = {
+  id: string,
+  side: "start" | "end"
 }
 
 export type Segment = {
@@ -13,6 +18,6 @@ export type Segment = {
   end: Point
   curveControlStart?: Point,
   curveControlEnd?: Point,
-  startConnection?: string,
-  endConnection?: string,
+  startConnection: Connection[],
+  endConnection: Connection[],
 }

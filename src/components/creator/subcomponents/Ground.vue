@@ -13,7 +13,9 @@
 
       </rect>
 
-      <DragCircle v-if="circleX" :x="circleX" fill="black" z-index="10" :y="y"/>
+      <DragCircle v-if="circleX"
+                  :x="circleX" :y="y"
+                  :connection="connection" fill="black" z-index="10" />
     </g>
 
   </g>
@@ -23,6 +25,7 @@
 import {defineComponent, inject} from "vue"
 import {injections} from "../GameCreator.vue"
 import DragCircle from "./DragCircle.vue";
+import {Connection} from "@/model/segment";
 
 export default defineComponent({
     name: "Ground",
@@ -57,6 +60,10 @@ export default defineComponent({
     },
     data () {
       return {
+        connection: {
+          id: "ground",
+          side: "end"
+        } as Connection,
         circleX: false as number | false,
       }
     }

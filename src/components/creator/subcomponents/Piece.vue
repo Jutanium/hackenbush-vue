@@ -1,8 +1,10 @@
 <template>
   <g @mouseup="onMouseUp" @mousemove="onMouseMove">
+
+    <rect v-if="draggingCurveControl" :x="0" :y="0" :width="100" :height="100" :opacity="0"></rect>
     <path fill="none" :d="path" :stroke="segment.color" stroke-width="1"></path>
-    <DragCircle :x="segment.start.x" :y="segment.start.y"></DragCircle>
-    <DragCircle :x="segment.end.x" :y="segment.end.y"></DragCircle>
+    <DragCircle :x="segment.start.x" :y="segment.start.y" :connection="connections.start"></DragCircle>
+    <DragCircle :x="segment.end.x" :y="segment.end.y" :connection="connections.end"></DragCircle>
 
 
     <line :x1="segment.start.x" :y1="segment.start.y" :x2="segment.curveControlStart.x" :y2="segment.curveControlStart.y"
@@ -29,7 +31,7 @@
 
 <script lang="ts">
   import { ref, defineComponent, PropType, inject } from "vue"
-  import { Segment } from "@/model/segment"
+  import {Connection, Segment} from "@/model/segment"
   import DragCircle from "./DragCircle.vue";
   import { injections } from "@/components/creator/GameCreator.vue"
 
@@ -59,6 +61,21 @@
         }
         path += `L ${this.segment.end.x},${this.segment.end.y}`
         return path;
+      },
+      connections () {
+        const id = this.segment.id;
+        const start: Connection = {
+          id,
+          side: "start"
+        }
+        const end: Connection = {
+          id,
+          side: "end"
+        }
+        return {
+          start,
+          end
+        }
       }
     },
     methods: {
