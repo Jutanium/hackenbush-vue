@@ -27,7 +27,6 @@ const defaultSegment: Segment = {
 }
 
 const segments = reactive<{ [id: string]: Segment}>({
-  default: defaultSegment,
 });
 
 const groundConnections = reactive<Array<Connection>>([]);
@@ -59,6 +58,15 @@ export function addSegment(segment: Segment) {
 
 export function removeSegment(segment: Segment | string) {
   const removeId = (typeof segment == "string") ? segment : segment.id;
+  const toRemove = segments[removeId];
+  const filterOutThis = c => c.id != removeId;
+  [...toRemove.startConnection, ...toRemove.endConnection].forEach(({id}) => {
+    const s = segments[id];
+    if (s) {
+      s.startConnection = s.startConnection.filter(filterOutThis);
+      s.endConnection = s.endConnection.filter(filterOutThis);
+    }
+  });
   delete segments[removeId];
 }
 
@@ -72,4 +80,12 @@ export function moveEndpoint(endpoint: Connection, point: Point, connectingTo?: 
   } else {
     segmentToUpdate[endpoint.side + "Connection"] = [];
   }
+}
+
+export function fileString() {
+  const string = JSON.stringify({
+    segments,
+    groundConnections: groundConnections
+  })
+  return string;
 }

@@ -218,7 +218,7 @@ export default defineComponent({
         const {startX, startY, endX, endY, startConnection, endConnection} = this.drawingSegment;
         const xDiff = endX - startX;
         const yDiff = endY - startY;
-        const id = "segment" + this.segmentsArray.length;
+        const id = "segment" + Date.now() % 100 + this.counter++;
         const newSegment: Segment = {
           id,
           color: this.drawingColor,
@@ -256,7 +256,9 @@ export default defineComponent({
     }
   },
   data() {
-    return {}
+    return {
+      counter: 0,
+    }
   }
 })
 </script>

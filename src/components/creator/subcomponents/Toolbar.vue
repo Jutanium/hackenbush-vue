@@ -12,7 +12,7 @@
     <ToolbarItem :selected="mode == 4" @click="modeSelect(4)">
       <img :src="img.eraser" alt="">
     </ToolbarItem>
-
+    <a href="#" @click="print">Print data string to console...</a>
   </div>
 </template>
 
@@ -24,7 +24,9 @@ import {ref, defineComponent, PropType} from "vue";
 
   import ToolbarItem from "./ToolbarItem.vue";
 
-  export enum Mode {
+  import {fileString} from "@/state/game-file";
+
+export enum Mode {
     DrawingRed,
     DrawingBlue,
     DrawingGreen,
@@ -44,6 +46,9 @@ import {ref, defineComponent, PropType} from "vue";
     methods: {
       modeSelect (mode: Mode) {
         this.$emit('update:mode', mode);
+      },
+      print() {
+        console.log(fileString())
       }
     },
     data () {
@@ -60,9 +65,17 @@ import {ref, defineComponent, PropType} from "vue";
 <style scoped>
   div.root {
     display: flex;
+    align-items: flex-end;
   }
   img {
     width: 30px;
     height: 30px;
+  }
+  a {
+    text-decoration: none;
+    font-family: Cambria
+  }
+  a:hover {
+    color: green;
   }
 </style>
