@@ -1,19 +1,22 @@
 <template>
 
   <div>
-    <div class="turnBox">
-      <div v-if="turn == 1">
-        <button :class="currentPlayerClass"
-        @click="togglePlayer">
-          {{playerString}}
-        </button> will go first. Take your turn!
+    <div v-if="!pictureMode" class="turnBox">
+      <div v-if="!currentPlayer.red && !currentPlayer.blue">
+        Who goes first?
+        <button class="blue" @click="currentPlayer.blue = true">
+          bLue
+        </button> or
+        <button class="red" @click="currentPlayer.red = true">
+          Red
+        </button>
       </div>
-      <div v-else :class="currentPlayerClass">
-        Turn {{turn}}.
-      </div>
-      <div v-if="gameOver">
+      <div v-else-if="gameOver">
         <span :class="currentPlayerClass">{{playerString}}</span> loses!
       </div>
+      <div v-else :class="currentPlayerClass">
+          Turn {{turn}}.
+        </div>
     </div>
     <svg ref="svg" viewBox="0 0 100 100">
 
@@ -22,12 +25,12 @@
       </rect>
 
       <g v-for="segment in segmentRenders">
-        <PiecePath :segment="segment" :class="{clickable: clickable(segment)}"
+        <PiecePath class="piece" :segment="segment" :class="{clickable: clickable(segment)}"
                    @click="pieceClicked(segment)"
         >
         </PiecePath>
-        <circle :cx="segment.start.x" :cy="segment.start.y" :r="1"></circle>
-        <circle :cx="segment.end.x" :cy="segment.end.y" :r="1"></circle>
+        <circle :cx="segment.start.x" :cy="segment.start.y" :r="2"></circle>
+        <circle :cx="segment.end.x" :cy="segment.end.y" :r="2"></circle>
       </g>
 
     </svg>
@@ -43,6 +46,10 @@ import {buildGraph} from "@/model/graph";
 export default defineComponent({
   components: {PiecePath},
   props: {
+    pictureMode: {
+      type: Boolean,
+      default: false,
+    },
     segments: {
       type: Object as PropType<{ [id: string]: Segment }>,
       required: true
@@ -58,7 +65,7 @@ export default defineComponent({
     return {
       turn: 1,
       currentPlayer: {
-        red: true,
+        red: false,
         blue: false
       }
     }
@@ -71,7 +78,7 @@ export default defineComponent({
       return {red: this.currentPlayer.red, blue: this.currentPlayer.blue}
     },
     playerString () {
-      return this.currentPlayer.red ? "Red" : "Blue";
+      return this.currentPlayer.red ? "Red" : "bLue";
     },
     segmentRenders (): Array<Segment> {
       this.turn;
@@ -86,6 +93,7 @@ export default defineComponent({
   },
   methods: {
     clickable (segment: Segment): Boolean {
+      if (this.pictureMode) return false;
       return segment.color == "green" || this.currentPlayer[segment.color]
     },
     pieceClicked (segment: Segment) {
@@ -116,7 +124,7 @@ export default defineComponent({
     font-size: 18pt;
   }
   svg {
-    width: 60%
+    width: 100%
   }
   .clickable:hover {
     opacity: 40%
@@ -127,4 +135,13 @@ export default defineComponent({
   .blue {
     color: blue
   }
+  .piece {
+    stroke-width: 3;
+  }
+  @media (min-width:1025px) {
+    .piece {
+      stroke-width: 1
+    }
+  }
+
 </style>

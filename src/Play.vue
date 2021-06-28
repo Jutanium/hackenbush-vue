@@ -31,4 +31,9 @@
 
 <style scoped>
 
+@media (min-width:1025px) {
+  div {
+    width: 70%
+  }
+}
 </style>
