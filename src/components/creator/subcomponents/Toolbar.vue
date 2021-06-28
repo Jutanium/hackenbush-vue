@@ -24,7 +24,7 @@ import {ref, defineComponent, PropType} from "vue";
 
   import ToolbarItem from "./ToolbarItem.vue";
 
-  import {fileString} from "@/state/game-file";
+  import {fileString} from "@/components/creator/state/game-file";
 
 export enum Mode {
     DrawingRed,

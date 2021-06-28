@@ -36,7 +36,7 @@ import Piece from "./subcomponents/Piece.vue"
 
 import {Color} from "@/model/segment-color";
 import {Connection, Point, Segment} from "@/model/segment";
-import {state, addSegment, removeSegment, moveEndpoint} from "@/state/game-file"
+import {state, addSegment, removeSegment, moveEndpoint} from "@/components/creator/state/game-file"
 
 const selectedModeKey: InjectionKey<Mode> = Symbol();
 const svgCoordsKey: InjectionKey<(clientX: number, clientY: number) => { x: number, y: number } | false> = Symbol();
