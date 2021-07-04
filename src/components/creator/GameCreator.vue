@@ -181,14 +181,13 @@ export default defineComponent({
         if (this.movingPoint.connection) {
           const exclude = [this.movingPoint.connection, ...this.movingPoint.movingWith];
           exclude.forEach(connection => {
-            const otherSide = connection.side == "start" ? "end" : "start";
-            points.push(clonedSegments[connection.id][otherSide]);
-            delete clonedSegments[connection.id]
+            const segment = Object.assign({}, clonedSegments[connection.id]);
+            delete segment[connection.side];
+            clonedSegments[connection.id] = segment;
           })
         }
         Object.values(clonedSegments).forEach(s => {
-          points.push(s.start);
-          points.push(s.end);
+          points.push(...[s.start, s.end].filter(Boolean));
         })
       }
       return points;
