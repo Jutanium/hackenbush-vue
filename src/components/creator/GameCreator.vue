@@ -36,13 +36,12 @@ import {addSegment, removeSegment, state} from "@/components/creator/state/game-
 
 const selectedModeKey: InjectionKey<Ref<Mode>> = Symbol();
 const svgCoordsKey: InjectionKey<(clientX: number, clientY: number) => { x: number, y: number } | false> = Symbol();
-const segmentStartKey: InjectionKey<(svgX: number, svgY: number, connection: Connection) => void> = Symbol();
-const segmentSnapKey: InjectionKey<(svgX: number, svgY: number, connection: Connection) => void> = Symbol();
+const connectionPressedKey: InjectionKey<(svgX: number, svgY: number, connection: Connection, ctrlKey: boolean) => void> = Symbol();
 const snapRadiusKey: InjectionKey<number> = Symbol();
 
 export const injections = {
   svgCoords: svgCoordsKey,
-  segmentStart: segmentStartKey,
+  connectionPressed: connectionPressedKey,
   snapRadius: snapRadiusKey,
   selectedMode: selectedModeKey
 }
@@ -109,10 +108,9 @@ export default defineComponent({
       return pt.matrixTransform(svg.value.getScreenCTM().inverse());
     }
 
-    const segmentStart = (svgX: number, svgY: number, connection: Connection) => {
+    const connectionPressed = (svgX: number, svgY: number, connection: Connection, ctrlKey = false) => {
       if (selectedMode.value == Mode.Moving) {
         if (connection.id == "ground") return;
-        movingPoint.snapping = false;
         movingPoint.point = segments[connection.id][connection.side];
         movingPoint.connection = connection;
         return;
@@ -130,7 +128,7 @@ export default defineComponent({
 
 
     provide(svgCoordsKey, svgCoords);
-    provide(segmentStartKey, segmentStart);
+    provide(connectionPressedKey, connectionPressed);
     provide(snapRadiusKey, props.snapRadius);
     provide(selectedModeKey, selectedMode);
 
