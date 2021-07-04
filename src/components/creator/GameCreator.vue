@@ -9,11 +9,10 @@
          @mousedown="bgMouseDown"
     >
 
-      <Ground :y="95" height="5"></Ground>
+      <Ground :y="groundY" height="5"></Ground>
 
       <g v-if="isDrawing">
         <PiecePath :segment="newSegment"></PiecePath>
-
       </g>
 
       <template v-for="segment in segmentsArray">
@@ -32,7 +31,7 @@ import Piece from "./subcomponents/Piece.vue"
 import PiecePath from "@/components/shared/PiecePath.vue";
 
 import {Color} from "@/model/segment-color";
-import {Connection, Point, Segment} from "@/model/segment";
+import {Connection, connectionsEqual, Point, Segment, Side, Sides} from "@/model/segment";
 import {addSegment, removeSegment, state} from "@/components/creator/state/game-file"
 
 const selectedModeKey: InjectionKey<Ref<Mode>> = Symbol();
@@ -44,7 +43,6 @@ const snapRadiusKey: InjectionKey<number> = Symbol();
 export const injections = {
   svgCoords: svgCoordsKey,
   segmentStart: segmentStartKey,
-  segmentSnap: segmentSnapKey,
   snapRadius: snapRadiusKey,
   selectedMode: selectedModeKey
 }
@@ -61,7 +59,7 @@ export default defineComponent({
   setup: (props) => {
     const svg = ref();
 
-    const {segments} = state;
+    const {segments, groundY} = state;
 
     // const _updatingPoint = {
     //   moving: false,
@@ -72,7 +70,7 @@ export default defineComponent({
 
     const selectedMode = ref<Mode>(Mode.DrawingBlue);
 
-    const drawingColor = computed( () => {
+    const drawingColor = computed(() => {
       const mode = unref(selectedMode);
       switch (mode) {
         case Mode.DrawingBlue:
@@ -90,14 +88,13 @@ export default defineComponent({
     const _newSegment = {
       id: "",
       color: Color.Blue,
-      start: {x: -1, y:-1},
-      end: {x: -1, y:-1},
+      start: {x: -1, y: -1},
+      end: {x: -1, y: -1},
     };
 
     const newSegment = reactive<Segment>(_newSegment);
 
     const movingPoint = reactive({
-      snapping: false,
       point: false as Point | false,
       connection: {} as Connection
     });
@@ -130,20 +127,10 @@ export default defineComponent({
       }
     }
 
-    const segmentSnap = (svgX: number, svgY: number, connection: Connection) => {
-      if (movingPoint.point) {
-        if (connection.id == movingPoint.connection.id && connection.side == movingPoint.connection.side)
-          return;
-        movingPoint.point.x = svgX;
-        movingPoint.point.y = svgY;
-        movingPoint.snapping = true;
-      }
-    }
 
 
     provide(svgCoordsKey, svgCoords);
     provide(segmentStartKey, segmentStart);
-    provide(segmentSnapKey, segmentSnap);
     provide(snapRadiusKey, props.snapRadius);
     provide(selectedModeKey, selectedMode);
 
@@ -151,6 +138,7 @@ export default defineComponent({
     return {
       selectedMode,
       segments,
+      groundY,
       svg,
       svgCoords,
       newSegment,
@@ -163,6 +151,24 @@ export default defineComponent({
     segmentsArray(): Segment[] {
       return Object.values(this.segments);
     },
+    pointsArray() {
+      const points: Array<{
+        connection: Connection,
+        point: Point
+      }> = [];
+      this.segmentsArray.forEach(segment => {
+        Sides.forEach(side => {
+          points.push({
+            connection: {
+              id: segment.id,
+              side,
+            },
+            point: segment[side]
+          })
+        })
+      })
+      return points;
+    }
   },
   methods: {
     pieceClicked(segment: Segment) {
@@ -179,21 +185,38 @@ export default defineComponent({
     },
 
     bgMouseMove(event: MouseEvent) {
-
-      const coords = this.svgCoords(event.clientX, event.clientY);
-
-      const beyondSnap = (point: Point) =>
-        Math.sqrt((coords.x - point.x) ** 2 + (coords.y - point.y) ** 2) > this.snapRadius;
-
       if (this.movingPoint.point) {
-        if (this.movingPoint.snapping) {
-          if (!beyondSnap(this.movingPoint.point)) {
-            return;
+        const coords = this.svgCoords(event.clientX, event.clientY);
+
+        const distanceSquared = (point1: Point, point2: Point) => (point1.x - point2.x) ** 2 + (point1.y - point2.y) ** 2;
+
+        let closestPoint;
+        let closestDistance;
+        for (const p of this.pointsArray) {
+          const {connection, point} = p;
+          if (connectionsEqual(connection, this.movingPoint.connection)) continue;
+          const dist = distanceSquared(point, coords);
+          if (dist > this.snapRadius ** 2) continue;
+          if (!closestDistance || dist < closestDistance) {
+            closestPoint = point;
+            closestDistance = dist;
           }
-          this.movingPoint.snapping = false;
         }
-        this.movingPoint.point.x = coords.x;
-        this.movingPoint.point.y = coords.y;
+
+        const groundProj = {x: coords.x, y: this.groundY};
+        const distToGround = distanceSquared(groundProj, coords);
+        if (!closestDistance && distToGround <= this.snapRadius ** 2) {
+          closestPoint = groundProj;
+          closestDistance = distToGround;
+        }
+
+        if (!closestPoint || !closestDistance) {
+          this.movingPoint.point.x = coords.x;
+          this.movingPoint.point.y = coords.y;
+          return;
+        }
+        this.movingPoint.point.x = closestPoint.x;
+        this.movingPoint.point.y = closestPoint.y;
       }
     },
 

@@ -1,6 +1,5 @@
 <template>
-  <g @mouseover="onMouseOver">
-    <circle :cx="x" :cy="y" :r="snapRadius" opacity="0"></circle>
+  <g>
     <circle :cx="x" :cy="y" :r="radius"  @mousedown="segmentStart(x, y, connection)"></circle>
   </g>
 </template>
@@ -24,21 +23,7 @@
     setup: () => {
       return {
         segmentStart: inject(injections.segmentStart),
-        segmentSnap: inject(injections.segmentSnap),
         snapRadius: inject(injections.snapRadius)
-      }
-    },
-    methods: {
-      onMouseOver () {
-        if (this.segmentSnap && this.x && this.y) {
-          console.log("snapping")
-          this.segmentSnap(this.x, this.y, this.connection);
-        }
-      }
-    },
-    data () {
-      return {
-
       }
     },
   })
