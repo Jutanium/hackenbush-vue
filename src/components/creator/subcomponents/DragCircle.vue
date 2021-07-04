@@ -38,7 +38,7 @@
     methods: {
       onMouseDown(e: MouseEvent): void {
         if (this.connectionPressed) {
-          this.connectionPressed(this.x, this.y, this.connection, e.ctrlKey);
+          this.connectionPressed(this.x, this.y, this.connection, e.ctrlKey || e.metaKey);
         }
       }
     }

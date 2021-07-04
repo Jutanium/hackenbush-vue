@@ -31,7 +31,7 @@ import Piece from "./subcomponents/Piece.vue"
 import PiecePath from "@/components/shared/PiecePath.vue";
 
 import {Color} from "@/model/segment-color";
-import {Connection, connectionsEqual, Point, Segment, Side, Sides} from "@/model/segment";
+import {Connection, connectionsEqual, Point, pointsEqual, Segment, Side, Sides} from "@/model/segment";
 import {addSegment, removeSegment, state} from "@/components/creator/state/game-file"
 
 const selectedModeKey: InjectionKey<Ref<Mode>> = Symbol();
@@ -60,12 +60,28 @@ export default defineComponent({
 
     const {segments, groundY} = state;
 
-    // const _updatingPoint = {
-    //   moving: false,
-    //   connection: {} as Connection,
-    //   snapping: false,
-    //   snapPoint: {} as Point | undefined,
-    // }
+    const segmentsArray = computed( () => {
+      return Object.values(segments);
+    })
+
+    const pointsArray = computed( () => {
+      const points: Array<{
+        connection: Connection,
+        point: Point
+      }> = [];
+      segmentsArray.value.forEach(segment => {
+        Sides.forEach(side => {
+          points.push({
+            connection: {
+              id: segment.id,
+              side,
+            },
+            point: segment[side]
+          })
+        })
+      })
+      return points;
+    })
 
     const selectedMode = ref<Mode>(Mode.DrawingBlue);
 
@@ -95,8 +111,10 @@ export default defineComponent({
 
     const movingPoint = reactive({
       point: false as Point | false,
-      connection: {} as Connection
+      connection: false as Connection | false,
+      movingWith: [] as Connection[]
     });
+
 
     const svgCoords = (clientX: number, clientY: number) => {
       if (!svg.value) return false;
@@ -110,9 +128,18 @@ export default defineComponent({
 
     const connectionPressed = (svgX: number, svgY: number, connection: Connection, ctrlKey = false) => {
       if (selectedMode.value == Mode.Moving) {
-        if (connection.id == "ground") return;
+        if (connection.id == "ground") {
+          return;
+        }
         movingPoint.point = segments[connection.id][connection.side];
         movingPoint.connection = connection;
+        if (!ctrlKey) {
+          movingPoint.movingWith = pointsArray.value
+            .filter(p => !connectionsEqual(p.connection, connection) && pointsEqual(p.point, movingPoint.point as Point))
+            .map(p => p.connection);
+        } else {
+          movingPoint.movingWith = [];
+        }
         return;
       }
 
@@ -125,8 +152,6 @@ export default defineComponent({
       }
     }
 
-
-
     provide(svgCoordsKey, svgCoords);
     provide(connectionPressedKey, connectionPressed);
     provide(snapRadiusKey, props.snapRadius);
@@ -136,6 +161,8 @@ export default defineComponent({
     return {
       selectedMode,
       segments,
+      segmentsArray,
+      pointsArray,
       groundY,
       svg,
       svgCoords,
@@ -146,29 +173,38 @@ export default defineComponent({
     }
   },
   computed: {
-    segmentsArray(): Segment[] {
-      return Object.values(this.segments);
-    },
-    pointsArray() {
-      const points: Array<{
-        connection: Connection,
-        point: Point
-      }> = [];
-      this.segmentsArray.forEach(segment => {
-        Sides.forEach(side => {
-          points.push({
-            connection: {
-              id: segment.id,
-              side,
-            },
-            point: segment[side]
+    snappingPoints(): Point[] {
+      const points: Point[] = [];
+      if (this.movingPoint.point) {
+        if (this.pointsArray.length == 0) return points;
+        const clonedSegments = Object.assign({}, this.segments);
+        if (this.movingPoint.connection) {
+          const exclude = [this.movingPoint.connection, ...this.movingPoint.movingWith];
+          exclude.forEach(connection => {
+            const otherSide = connection.side == "start" ? "end" : "start";
+            points.push(clonedSegments[connection.id][otherSide]);
+            delete clonedSegments[connection.id]
           })
+        }
+        Object.values(clonedSegments).forEach(s => {
+          points.push(s.start);
+          points.push(s.end);
         })
-      })
+      }
       return points;
     }
   },
   methods: {
+    moveTo (point: Point) {
+      const updatePoint = (toUpdate: Point) => {
+        toUpdate.x = point.x;
+        toUpdate.y = point.y;
+      }
+      if (this.movingPoint.point) {
+        updatePoint(this.movingPoint.point);
+        this.movingPoint.movingWith.forEach(c => updatePoint(this.segments[c.id][c.side]));
+      }
+    },
     pieceClicked(segment: Segment) {
       if (this.drawingColor) {
         segment.color = this.drawingColor;
@@ -190,9 +226,8 @@ export default defineComponent({
 
         let closestPoint;
         let closestDistance;
-        for (const p of this.pointsArray) {
-          const {connection, point} = p;
-          if (connectionsEqual(connection, this.movingPoint.connection)) continue;
+
+        for (const point of this.snappingPoints) {
           const dist = distanceSquared(point, coords);
           if (dist > this.snapRadius ** 2) continue;
           if (!closestDistance || dist < closestDistance) {
@@ -209,18 +244,17 @@ export default defineComponent({
         }
 
         if (!closestPoint || !closestDistance) {
-          this.movingPoint.point.x = coords.x;
-          this.movingPoint.point.y = coords.y;
+          this.moveTo(coords);
           return;
         }
-        this.movingPoint.point.x = closestPoint.x;
-        this.movingPoint.point.y = closestPoint.y;
+        this.moveTo(closestPoint);
       }
     },
 
     bgMouseUp(event: MouseEvent) {
       if (this.movingPoint.point) {
         this.movingPoint.point = false;
+        this.movingPoint.connection = false;
       }
 
       if (this.isDrawing) {
