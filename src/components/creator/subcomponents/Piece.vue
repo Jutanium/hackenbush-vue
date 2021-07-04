@@ -1,24 +1,25 @@
 <template>
-  <g class="root"
-     @mouseup="onMouseUp" @mousemove="onMouseMove" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave">
+  <g class="root" @mouseleave="onMouseLeave" @mouseup="onMouseUp" @mousemove="onMouseMove"
+    @mouseenter="onMouseEnter">
 
     <rect v-if="draggingCurveControl" :x="0" :y="0" :width="100" :height="100" :opacity="0"></rect>
 
     <PiecePath :segment="segment"
-               @mouseenter="mouseIsOverPath = true"
-               @mouseleave="mouseIsOverPath = false">
-              :style="pathStyle"
+               :style="pathStyle"
+       >
     </PiecePath>
 
     <transition name="fade">
       <g v-if="showingCurveControls">
         <line :x1="segment.start.x" :y1="segment.start.y" :x2="segment.curveControlStart.x" :y2="segment.curveControlStart.y"
               stroke-width="0.5" stroke="black" opacity="0.5"
+              pointer-events="none"
         >
         </line>
 
         <line :x1="segment.end.x" :y1="segment.end.y" :x2="segment.curveControlEnd.x" :y2="segment.curveControlEnd.y"
               stroke-width="0.5" stroke="black" opacity="0.5"
+              pointer-events="none"
         >
 
         </line>
@@ -66,11 +67,11 @@
       }
     },
     computed: {
-      showingCurveControls () {
+      showingCurveControls (): Boolean {
         return this.selectedMode == Mode.Moving || (this.selectedMode < Mode.Deleting && this.mouseIsOver)
       },
       pathStyle () {
-        if (this.selectedMode == Mode.Deleting && this.mouseIsOverPath) {
+        if (this.selectedMode == Mode.Deleting && this.mouseIsOver) {
           return {
             opacity: 0.4,
           }
@@ -118,7 +119,6 @@
     data () {
       return {
         mouseIsOver: false,
-        mouseIsOverPath: false,
         draggingCurveControl: false as { x: number, y: number} | false,
       }
     }
@@ -127,11 +127,10 @@
 
 <style scoped>
 g.root {
-  pointer-events: bounding-box;
 }
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s;
+  transition: opacity 0.2s;
 }
 
 .fade-enter-from,

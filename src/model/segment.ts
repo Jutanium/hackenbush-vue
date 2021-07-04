@@ -18,6 +18,4 @@ export type Segment = {
   end: Point
   curveControlStart?: Point,
   curveControlEnd?: Point,
-  startConnection: Connection[],
-  endConnection: Connection[],
 }

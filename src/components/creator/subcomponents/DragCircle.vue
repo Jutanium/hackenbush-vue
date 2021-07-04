@@ -31,6 +31,7 @@
     methods: {
       onMouseOver () {
         if (this.segmentSnap && this.x && this.y) {
+          console.log("snapping")
           this.segmentSnap(this.x, this.y, this.connection);
         }
       }

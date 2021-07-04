@@ -17,7 +17,7 @@ type GraphData = {
 
 
 
-export function buildGraph (segments: {[id]: Segment}, groundConnections: Connection[]) {
+export function buildGraph (segments: {[id: string]: Segment}, groundConnections: Connection[]) {
 
   const segmentArray: Segment[] = Object.values(segments);
 
