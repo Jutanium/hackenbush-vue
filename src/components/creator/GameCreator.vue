@@ -149,6 +149,7 @@ export default defineComponent({
         newSegment.start = {x: svgX, y: svgY};
         newSegment.end = {x: svgX, y: svgY};
         movingPoint.point = newSegment.end;
+        movingPoint.movingWith = [];
       }
     }
 
