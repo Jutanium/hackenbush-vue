@@ -54,9 +54,9 @@ export default defineComponent({
       type: Object as PropType<{ [id: string]: Segment }>,
       required: true
     },
-    groundConnections: {
-      type: Array as PropType<Array<Connection>>,
-      required: true
+    groundY: {
+      type: Number,
+      default: 95
     }
   },
   setup: () => {
@@ -86,7 +86,7 @@ export default defineComponent({
     },
     graph () {
       if (this.segments) {
-        return buildGraph(this.segments, this.groundConnections);
+        return buildGraph(this.segments, this.groundY);
       }
     }
 
