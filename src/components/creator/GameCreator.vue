@@ -9,7 +9,7 @@
          @mousedown="bgMouseDown"
     >
 
-      <Ground :y="groundY" height="5"></Ground>
+      <Ground :y="groundY" :height="100 - groundY"></Ground>
 
       <g v-if="isDrawing">
         <PiecePath :segment="newSegment"></PiecePath>
