@@ -41,7 +41,7 @@
 import {ref, defineComponent, PropType} from "vue"
 import {Connection, Segment} from "@/model/segment";
 import PiecePath from "@/components/shared/PiecePath.vue";
-import {buildGraph} from "@/model/graph";
+import {buildGraph, Graph} from "@/model/graph";
 
 export default defineComponent({
   components: {PiecePath},
@@ -82,9 +82,12 @@ export default defineComponent({
     },
     segmentRenders (): Array<Segment> {
       this.turn;
-      return Object.values(this.segments).filter(s => this.graph.touchesGround(s.id));
+      if (this.graph) {
+        return Object.values(this.segments).filter(s => this.graph?.reachesGround(s.id));
+      }
+      return []
     },
-    graph () {
+    graph (): Graph | undefined {
       if (this.segments) {
         return buildGraph(this.segments, this.groundY);
       }

@@ -15,6 +15,11 @@ type GraphData = {
   ground: Edge[]
 }
 
+export type Graph = {
+  reachesGround: (segmentId: string) => boolean,
+  removeEdge: (segmentId: string) => void,
+  graphData: GraphData
+}
 
 export function buildGraph(segments: { [id: string]: Segment }, groundY: number) {
 
@@ -95,14 +100,14 @@ export function buildGraph(segments: { [id: string]: Segment }, groundY: number)
     delete edgeMap[segmentId];
   }
 
-  return {
-    touchesGround: reachesGround,
-    removeEdge,
-    graphData: {
-      ground,
-      edgeMap
-    }
+  const graphData: GraphData = {
+    ground, edgeMap
+  }
 
+  return {
+    reachesGround,
+    removeEdge,
+    graphData
   }
 
 }
