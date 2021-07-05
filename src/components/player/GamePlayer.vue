@@ -71,13 +71,13 @@ export default defineComponent({
     }
   },
   computed: {
-    gameOver () {
+    gameOver (): Boolean {
       return this.segmentRenders.filter(this.clickable).length == 0;
     },
-    currentPlayerClass () {
+    currentPlayerClass (): {red: Boolean, blue: Boolean} {
       return {red: this.currentPlayer.red, blue: this.currentPlayer.blue}
     },
-    playerString () {
+    playerString (): String {
       return this.currentPlayer.red ? "Red" : "bLue";
     },
     segmentRenders (): Array<Segment> {
