@@ -1,0 +1,73 @@
+{
+  "segments": {
+    "segment700": {
+      "id": "segment700",
+      "color": "green",
+      "start": {
+        "x": 19.33333396911621,
+        "y": 95
+      },
+      "end": {
+        "x": 52.5,
+        "y": 35.5
+      },
+      "curveControlStart": {
+        "x": 30.38888931274414,
+        "y": 75.16666666666667
+      },
+      "curveControlEnd": {
+        "x": 81,
+        "y": 65.83333587646484
+      },
+      "startConnection": [
+        {
+          "id": "ground",
+          "side": "end"
+        }
+      ],
+      "endConnection": [
+        {
+          "id": "segment681",
+          "side": "end"
+        }
+      ]
+    },
+    "segment681": {
+      "id": "segment681",
+      "color": "blue",
+      "start": {
+        "x": 64.16666412353516,
+        "y": 95
+      },
+      "end": {
+        "x": 38.16666793823242,
+        "y": 56.16666793823242
+      },
+      "curveControlStart": {
+        "x": 60.27777608235677,
+        "y": 75.16666666666667
+      },
+      "curveControlEnd": {
+        "x": 56.38888804117838,
+        "y": 55.33333333333333
+      },
+      "startConnection": [
+        {
+          "id": "ground",
+          "side": "end"
+        }
+      ],
+      "endConnection": []
+    }
+  },
+  "groundConnections": [
+    {
+      "id": "segment700",
+      "side": "start"
+    },
+    {
+      "id": "segment681",
+      "side": "start"
+    }
+  ]
+}

@@ -1,7 +1,6 @@
 <template>
-  <g @mouseover="onMouseOver">
-    <circle :cx="x" :cy="y" :r="snapRadius" opacity="0"></circle>
-    <circle :cx="x" :cy="y" :r="radius"  @mousedown="segmentStart(x, y, connection)"></circle>
+  <g>
+    <circle :cx="x" :cy="y" :r="radius"  @mousedown="onMouseDown"></circle>
   </g>
 </template>
 
@@ -13,9 +12,18 @@
   export default defineComponent({
     name: "DragCircle",
     props: {
-      x: Number,
-      y: Number,
-      connection: Object as PropType<Connection>,
+      x: {
+        type: Number,
+        required: true
+      },
+      y: {
+        type: Number,
+        required: true
+      },
+      connection: {
+        type: Object as PropType<Connection>,
+        required: true,
+      },
       radius: {
         type: Number,
         default: 1
@@ -23,23 +31,17 @@
     },
     setup: () => {
       return {
-        segmentStart: inject(injections.segmentStart),
-        segmentSnap: inject(injections.segmentSnap),
+        connectionPressed: inject(injections.connectionPressed),
         snapRadius: inject(injections.snapRadius)
       }
     },
     methods: {
-      onMouseOver () {
-        if (this.segmentSnap && this.x && this.y) {
-          this.segmentSnap(this.x, this.y, this.connection);
+      onMouseDown(e: MouseEvent): void {
+        if (this.connectionPressed) {
+          this.connectionPressed(this.x, this.y, this.connection, e.ctrlKey || e.metaKey);
         }
       }
-    },
-    data () {
-      return {
-
-      }
-    },
+    }
   })
 </script>
 

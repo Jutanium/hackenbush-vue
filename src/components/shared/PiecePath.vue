@@ -1,7 +1,7 @@
 <template>
   <path fill="none"
         :d="path"
-        pointer-events="visiblePainted"
+        pointer-events="visible"
         :stroke="segment.color" stroke-width="1"
   ></path>
 </template>

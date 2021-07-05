@@ -9,15 +9,10 @@
          @mousedown="bgMouseDown"
     >
 
-      <Ground :y="95" height="5"></Ground>
+      <Ground :y="groundY" :height="100 - groundY"></Ground>
 
-      <g v-if="drawingSegment.drawing">
-        <line
-            :x1="drawingSegment.startX" :x2="drawingSegment.endX"
-            :y1="drawingSegment.startY" :y2="drawingSegment.endY"
-            :stroke="drawingColor"
-            stroke-width="1"
-        ></line>
+      <g v-if="isDrawing">
+        <PiecePath :segment="newSegment"></PiecePath>
       </g>
 
       <template v-for="segment in segmentsArray">
@@ -29,32 +24,31 @@
 </template>
 
 <script lang="ts">
-import {ref, reactive, defineComponent, provide, InjectionKey} from "vue"
+import {computed, defineComponent, InjectionKey, provide, reactive, Ref, ref, unref} from "vue"
 import Toolbar, {Mode} from "./subcomponents/Toolbar.vue";
 import Ground from "./subcomponents/Ground.vue";
 import Piece from "./subcomponents/Piece.vue"
+import PiecePath from "@/components/shared/PiecePath.vue";
 
 import {Color} from "@/model/segment-color";
-import {Connection, Point, Segment} from "@/model/segment";
-import {state, addSegment, removeSegment, moveEndpoint} from "@/components/creator/state/game-file"
+import {Connection, connectionsEqual, Point, pointsEqual, Segment, Side, Sides} from "@/model/segment";
+import {addSegment, removeSegment, state} from "@/components/creator/state/game-file"
 
-const selectedModeKey: InjectionKey<Mode> = Symbol();
+const selectedModeKey: InjectionKey<Ref<Mode>> = Symbol();
 const svgCoordsKey: InjectionKey<(clientX: number, clientY: number) => { x: number, y: number } | false> = Symbol();
-const segmentStartKey: InjectionKey<(svgX: number, svgY: number, connection: Connection) => void> = Symbol();
-const segmentSnapKey: InjectionKey<(svgX: number, svgY: number, connection: Connection) => void> = Symbol();
+const connectionPressedKey: InjectionKey<(svgX: number, svgY: number, connection: Connection, ctrlKey: boolean) => void> = Symbol();
 const snapRadiusKey: InjectionKey<number> = Symbol();
 
 export const injections = {
   svgCoords: svgCoordsKey,
-  segmentStart: segmentStartKey,
-  segmentSnap: segmentSnapKey,
+  connectionPressed: connectionPressedKey,
   snapRadius: snapRadiusKey,
   selectedMode: selectedModeKey
 }
 
 export default defineComponent({
   name: "GameCreator",
-  components: {Piece, Toolbar, Ground},
+  components: {Piece, Toolbar, Ground, PiecePath},
   props: {
     snapRadius: {
       type: Number,
@@ -64,27 +58,63 @@ export default defineComponent({
   setup: (props) => {
     const svg = ref();
 
-    const drawingSegment = reactive({
-      drawing: false,
-      startConnection: undefined,
-      snapping: false,
-      endConnection: undefined,
-      startX: -1, startY: -1,
-      endX: -1, endY: -1,
+    const {segments, groundY} = state;
+
+    const segmentsArray = computed( () => {
+      return Object.values(segments);
+    })
+
+    const pointsArray = computed( () => {
+      const points: Array<{
+        connection: Connection,
+        point: Point
+      }> = [];
+      segmentsArray.value.forEach(segment => {
+        Sides.forEach(side => {
+          points.push({
+            connection: {
+              id: segment.id,
+              side,
+            },
+            point: segment[side]
+          })
+        })
+      })
+      return points;
+    })
+
+    const selectedMode = ref<Mode>(Mode.DrawingBlue);
+
+    const drawingColor = computed(() => {
+      const mode = unref(selectedMode);
+      switch (mode) {
+        case Mode.DrawingBlue:
+          return Color.Blue;
+        case Mode.DrawingRed:
+          return Color.Red;
+        case Mode.DrawingGreen:
+          return Color.Green;
+      }
+      return undefined;
     });
 
-    const _updatingPoint = {
-      moving: false,
-      connection: {} as Connection,
-      snapping: false,
-      snapPoint: {} as Point | undefined,
-    }
-    const updatingPoint = reactive({});
+    const isDrawing = ref(false);
 
-    const stopMoving = () => {
-      Object.assign(updatingPoint, _updatingPoint);
-    }
-    stopMoving();
+    const _newSegment = {
+      id: "",
+      color: Color.Blue,
+      start: {x: -1, y: -1},
+      end: {x: -1, y: -1},
+    };
+
+    const newSegment = reactive<Segment>(_newSegment);
+
+    const movingPoint = reactive({
+      point: false as Point | false,
+      connection: false as Connection | false,
+      movingWith: [] as Connection[]
+    });
+
 
     const svgCoords = (clientX: number, clientY: number) => {
       if (!svg.value) return false;
@@ -96,73 +126,85 @@ export default defineComponent({
       return pt.matrixTransform(svg.value.getScreenCTM().inverse());
     }
 
-    const segmentStart = (svgX: number, svgY: number, connection: Connection) => {
+    const connectionPressed = (svgX: number, svgY: number, connection: Connection, ctrlKey = false) => {
       if (selectedMode.value == Mode.Moving) {
-        if (connection.id == "ground") return;
-        updatingPoint.moving = true;
-        updatingPoint.connection = connection;
+        if (connection.id == "ground") {
+          return;
+        }
+        movingPoint.point = segments[connection.id][connection.side];
+        movingPoint.connection = connection;
+        if (!ctrlKey) {
+          movingPoint.movingWith = pointsArray.value
+            .filter(p => !connectionsEqual(p.connection, connection) && pointsEqual(p.point, movingPoint.point as Point))
+            .map(p => p.connection);
+        } else {
+          movingPoint.movingWith = [];
+        }
         return;
       }
 
-      drawingSegment.drawing = true;
-      drawingSegment.startConnection = connection;
-      drawingSegment.startX = drawingSegment.endX = svgX;
-      drawingSegment.startY = drawingSegment.endY = svgY;
-    }
-
-    const segmentSnap = (svgX: number, svgY: number, connection: Connection) => {
-      if (drawingSegment.drawing) {
-        drawingSegment.snapping = true;
-        drawingSegment.endX = svgX;
-        drawingSegment.endY = svgY;
-        drawingSegment.endConnection = connection;
-        return;
-      }
-      if (updatingPoint.moving && (connection.id != updatingPoint.connection.id)) {
-        updatingPoint.snapping = true
-        updatingPoint.snapPoint = {x: svgX, y: svgY}
-        moveEndpoint(updatingPoint.connection, updatingPoint.snapPoint, connection);
+      if (drawingColor.value) {
+        isDrawing.value = true;
+        newSegment.color = drawingColor.value;
+        newSegment.start = {x: svgX, y: svgY};
+        newSegment.end = {x: svgX, y: svgY};
+        movingPoint.point = newSegment.end;
+        movingPoint.movingWith = [];
       }
     }
-
-    const selectedMode = ref<Mode>(Mode.DrawingBlue);
 
     provide(svgCoordsKey, svgCoords);
-    provide(segmentStartKey, segmentStart);
-    provide(segmentSnapKey, segmentSnap);
+    provide(connectionPressedKey, connectionPressed);
     provide(snapRadiusKey, props.snapRadius);
     provide(selectedModeKey, selectedMode);
 
-    const {segments} = state;
 
     return {
       selectedMode,
       segments,
+      segmentsArray,
+      pointsArray,
+      groundY,
       svg,
       svgCoords,
-      drawingSegment,
-      updatingPoint,
-      stopMoving,
+      newSegment,
+      isDrawing,
+      movingPoint,
+      drawingColor
     }
   },
   computed: {
-    segmentsArray() {
-      return Object.values(this.segments);
-    },
-    drawingColor() {
-      if (this.selectedMode == Mode.DrawingBlue) {
-        return Color.Blue;
+    snappingPoints(): Point[] {
+      const points: Point[] = [];
+      if (this.movingPoint.point) {
+        if (this.pointsArray.length == 0) return points;
+        const clonedSegments = Object.assign({}, this.segments);
+        if (this.movingPoint.connection) {
+          const exclude = [this.movingPoint.connection, ...this.movingPoint.movingWith];
+          exclude.forEach(connection => {
+            const segment = Object.assign({}, clonedSegments[connection.id]);
+            delete segment[connection.side];
+            clonedSegments[connection.id] = segment;
+          })
+        }
+        Object.values(clonedSegments).forEach(s => {
+          points.push(...[s.start, s.end].filter(Boolean));
+        })
       }
-      if (this.selectedMode == Mode.DrawingRed) {
-        return Color.Red;
-      }
-      if (this.selectedMode == Mode.DrawingGreen) {
-        return Color.Green;
-      }
-      return undefined;
+      return points;
     }
   },
   methods: {
+    moveTo (point: Point) {
+      const updatePoint = (toUpdate: Point) => {
+        toUpdate.x = point.x;
+        toUpdate.y = point.y;
+      }
+      if (this.movingPoint.point) {
+        updatePoint(this.movingPoint.point);
+        this.movingPoint.movingWith.forEach(c => updatePoint(this.segments[c.id][c.side]));
+      }
+    },
     pieceClicked(segment: Segment) {
       if (this.drawingColor) {
         segment.color = this.drawingColor;
@@ -177,76 +219,65 @@ export default defineComponent({
     },
 
     bgMouseMove(event: MouseEvent) {
+      if (this.movingPoint.point) {
+        const coords = this.svgCoords(event.clientX, event.clientY);
 
-      const coords = this.svgCoords(event.clientX, event.clientY);
+        const distanceSquared = (point1: Point, point2: Point) => (point1.x - point2.x) ** 2 + (point1.y - point2.y) ** 2;
 
-      const beyondSnap = (snapX: number, snapY: number) => Math.sqrt((coords.x - snapX) ** 2 + (coords.y - snapY) ** 2) > this.snapRadius;
+        let closestPoint;
+        let closestDistance;
 
-      if (this.drawingSegment.drawing) {
-        if (this.drawingSegment.snapping) {
-          const {endX, endY} = this.drawingSegment;
-          if (!beyondSnap(endX, endY)) return;
-          this.drawingSegment.snapping = false;
-          this.drawingSegment.endConnection = undefined;
-        }
-        this.drawingSegment.endX = coords.x;
-        this.drawingSegment.endY = coords.y;
-        return;
-      }
-
-      if (this.updatingPoint.moving) {
-
-        if (this.updatingPoint.snapping) {
-          const {x, y} = this.updatingPoint.snapPoint;
-          if (!beyondSnap(x, y)) {
-            return;
+        for (const point of this.snappingPoints) {
+          const dist = distanceSquared(point, coords);
+          if (dist > this.snapRadius ** 2) continue;
+          if (!closestDistance || dist < closestDistance) {
+            closestPoint = point;
+            closestDistance = dist;
           }
-          this.updatingPoint.snapping = false;
-          this.updatingPoint.snapPoint = undefined;
         }
-        moveEndpoint(this.updatingPoint.connection,
-            {x: coords.x, y: coords.y})
+
+        const groundProj = {x: coords.x, y: this.groundY};
+        const distToGround = distanceSquared(groundProj, coords);
+        if (!closestDistance && distToGround <= this.snapRadius ** 2) {
+          closestPoint = groundProj;
+          closestDistance = distToGround;
+        }
+
+        if (!closestPoint || !closestDistance) {
+          this.moveTo(coords);
+          return;
+        }
+        this.moveTo(closestPoint);
       }
     },
 
     bgMouseUp(event: MouseEvent) {
-      if (this.updatingPoint.moving) {
-        this.stopMoving();
+      if (this.movingPoint.point) {
+        this.movingPoint.point = false;
+        this.movingPoint.connection = false;
       }
-      if (!this.drawingSegment.drawing) return;
-      if (this.drawingColor) {
-        const {startX, startY, endX, endY, startConnection, endConnection} = this.drawingSegment;
-        const xDiff = endX - startX;
-        const yDiff = endY - startY;
+
+      if (this.isDrawing) {
+        const {start, end} = this.newSegment
+        const xDiff = end.x - start.x;
+        const yDiff = end.y - start.y;
         const id = "segment" + Date.now() % 100 + this.counter++;
-        const newSegment: Segment = {
+
+        addSegment(Object.assign({}, this.newSegment, {
           id,
           color: this.drawingColor,
-          start: {
-            x: startX,
-            y: startY
-          },
-          end: {
-            x: endX,
-            y: endY
-          },
           curveControlStart: {
-            x: startX + xDiff / 3,
-            y: startY + yDiff / 3
+            x: start.x + xDiff / 3,
+            y: start.y + yDiff / 3
           },
           curveControlEnd: {
-            x: endX - xDiff / 3,
-            y: endY - yDiff / 3
+            x: end.x - xDiff / 3,
+            y: end.y - yDiff / 3
           },
-          startConnection: startConnection ? [startConnection] : [],
-          endConnection: endConnection ? [endConnection] : []
-        };
+        }));
 
-        addSegment(newSegment);
 
-        this.drawingSegment.drawing = false;
-        this.drawingSegment.startConnection = undefined;
-        this.drawingSegment.endConnection = undefined;
+        this.isDrawing = false;
       }
 
     },
