@@ -1,8 +1,8 @@
 <template>
 
   <div>
-    <div v-if="!pictureMode" class="turnBox">
-      <div v-if="!currentPlayer.red && !currentPlayer.blue">
+    <div v-if="!pictureMode && showTurn" class="turnBox">
+      <div v-if="!currentPlayer.red && !currentPlayer.blue && !puppetMode">
         Who goes first?
         <button class="blue" @click="currentPlayer.blue = true">
           bLue
@@ -30,8 +30,8 @@
                    @click="pieceClicked(segment)"
         >
         </PiecePath>
-        <circle :cx="segment.start.x" :cy="segment.start.y" :r="2"></circle>
-        <circle :cx="segment.end.x" :cy="segment.end.y" :r="2"></circle>
+        <circle :cx="segment.start.x" :cy="segment.start.y" :r="1.5"></circle>
+        <circle :cx="segment.end.x" :cy="segment.end.y" :r="1.5"></circle>
       </g>
 
     </svg>
@@ -40,9 +40,11 @@
 
 <script lang="ts">
 import {ref, defineComponent, PropType} from "vue"
-import {Connection, Segment} from "@/model/segment";
+import {Segment} from "@/model/segment";
 import PiecePath from "@/components/shared/PiecePath.vue";
 import {buildGraph, Graph} from "@/model/graph";
+
+import {gsap} from "gsap";
 
 export default defineComponent({
   components: {PiecePath},
@@ -52,6 +54,14 @@ export default defineComponent({
       default: false,
     },
     debugMode: {
+      type: Boolean,
+      default: true
+    },
+    puppetMode: {
+      type: Boolean,
+      default: false,
+    },
+    showTurn: {
       type: Boolean,
       default: true
     },
@@ -76,8 +86,11 @@ export default defineComponent({
     }
   },
   computed: {
+    gameStarted(): Boolean {
+      return this.currentPlayer.red || this.currentPlayer.blue;
+    },
     gameOver (): Boolean {
-      return this.segmentRenders.filter(this.clickable).length == 0;
+      return this.gameStarted && this.segmentRenders.filter(this.clickable).length == 0;
     },
     currentPlayerClass (): {red: Boolean, blue: Boolean} {
       return {red: this.currentPlayer.red, blue: this.currentPlayer.blue}
@@ -101,7 +114,7 @@ export default defineComponent({
   },
   methods: {
     clickable (segment: Segment): Boolean {
-      if (this.pictureMode) return false;
+      if (this.puppetMode || this.pictureMode) return false;
       return segment.color == "green" || this.currentPlayer[segment.color]
     },
     pieceClicked (segment: Segment) {
@@ -124,6 +137,7 @@ export default defineComponent({
 
 <style scoped>
   .turnBox {
+    position: absolute;
     margin-left: 20px;
     margin-top:20px;
     font-size: 18pt;

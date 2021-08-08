@@ -10,6 +10,12 @@
       <template v-slot:group3>
         Test group 3
       </template>
+      <template v-slot:sticky="{current, progress}">
+        {{current}} {{progress}}
+        <div class="w-3/4">
+          <GamePlayer :segments="current > 1 ? dog.segments : square.segments" :puppet-mode="false"></GamePlayer>
+        </div>
+      </template>
     </ScrollytellSection>
   </div>
 </template>
@@ -17,15 +23,20 @@
 <script lang="ts">
   import { ref, defineComponent } from "vue"
   import ScrollytellSection from "@/components/scrollytell/ScrollytellSection.vue";
+  import GamePlayer from "@/components/player/GamePlayer.vue";
+  import square from "@/game-files/square.json"
+  import dog from "@/game-files/dog.json"
+
   export default defineComponent({
-    components: {ScrollytellSection},
+    components: {ScrollytellSection, GamePlayer},
     props: {
     },
     setup: () => {
     },
     data () {
       return {
-
+        square,
+        dog
       }
     },
   })

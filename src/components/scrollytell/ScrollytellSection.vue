@@ -1,25 +1,25 @@
 <template>
   <div class="w-full ml-3 lg:ml-12">
     <div class="w-1/2 h-screen"></div>
-    <div v-for="(i, zeroIndexed) in numGroups" class="w-1/2 flex items-center"
-         :ref="el => { if (el) groups[zeroIndexed] = el }"
-         :style="collectStyle(zeroIndexed)">
-      <div>
-        <slot :name="'group' + i"></slot>
+    <div class="flex w-full flex-row px-12">
+      <div class="flex-grow">
+        <div v-for="(i, zeroIndexed) in numGroups" class="w-1/2 flex items-center"
+             :ref="el => { if (el) groups[zeroIndexed] = el }"
+             :style="collectStyle(zeroIndexed)">
+          <div>
+            <slot :name="'group' + i"></slot>
+          </div>
+        </div>
+        <div class="w-1/2 h-screen"></div>
+      </div>
+      <div class="w-1/2">
+        <div :style="collectStyle(0)">
+          <slot name="sticky" v-bind="scrollData"/>
+        </div>
       </div>
     </div>
-    <div class="w-1/2 h-screen"></div>
+
   </div>
-<!--  <div>-->
-<!--    <div class="w-96 h-screen">sc</div>-->
-<!--    <div class="sticky top-2">-->
-<!--      One-->
-<!--    </div>-->
-<!--    <div class="sticky top-8 mt-96">-->
-<!--      Two-->
-<!--    </div>-->
-<!--    <div class="w-96 h-screen">sc</div>-->
-<!--  </div>-->
 </template>
 
 <script lang="ts">
@@ -48,18 +48,17 @@ import {ref, defineComponent, onBeforeUpdate, onMounted, reactive, watch} from "
       })
       const cumulativeHeights = ref<Array<number>>([]);
       const scrollData = reactive({
-        progress: -1,
+        progress: 0,
         current: -1,
         leaveProgress: 0,
       })
-
-      watch(scrollData, (val) => console.log(val));
 
       const leaveOffset = ref(0);
       onMounted( () => {
         let cumulative = top;
         const _cumulativeHeights = [];
         _cumulativeHeights.push(cumulative);
+
         groups.value.forEach((el, i) => {
           cumulative += el.scrollHeight;
           _cumulativeHeights.push(cumulative);
@@ -82,6 +81,7 @@ import {ref, defineComponent, onBeforeUpdate, onMounted, reactive, watch} from "
             }
           })
         })
+
         ScrollTrigger.create({
           trigger: groups.value[numGroups - 1],
           start: `bottom ${cumulative}px`,
