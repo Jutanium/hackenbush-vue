@@ -1,11 +1,13 @@
 import {createRouter, createWebHistory} from "vue-router"
-import Creator from "@/Creator.vue";
-import Home from "@/Home.vue";
-import Play from "@/Play.vue";
+import Creator from "@/pages/Creator.vue";
+import Demo from "@/pages/Demo.vue";
+import Play from "@/pages/Play.vue";
+import Explorable from "@/pages/Explorable.vue"
 
 
 const routes = [
-  {path: '/', name: "Home", component: Home},
+  {path: '/', name: "Explorable", component: Explorable},
+  {path: '/demo', name: "Demo", component: Demo},
   {path: '/creator', name: "Creator", component: Creator},
   {path: '/play/:file', component: Play, props: true}
 ]

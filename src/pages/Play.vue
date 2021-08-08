@@ -17,7 +17,7 @@
     },
     async mounted () {
       if (!this.gameFile) {
-        const gameFile = await import("./game-files/" + this.file + ".json");
+        const gameFile = await import("../game-files/" + this.file + ".json");
         this.gameFile = gameFile;
       }
     },

@@ -27,7 +27,7 @@
   },
   async mounted () {
     for (const file of this.games) {
-      const gameFile = await import("./game-files/" + file + ".json");
+      const gameFile = await import("../game-files/" + file + ".json");
       this.gameFiles.push(gameFile)
     }
   }

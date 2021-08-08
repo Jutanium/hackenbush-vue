@@ -25,6 +25,7 @@
       </rect>
 
       <g v-for="segment in segmentRenders">
+        <title v-if="debugMode">{{segment.id}}</title>
         <PiecePath class="piece" :segment="segment" :class="{clickable: clickable(segment)}"
                    @click="pieceClicked(segment)"
         >
@@ -49,6 +50,10 @@ export default defineComponent({
     pictureMode: {
       type: Boolean,
       default: false,
+    },
+    debugMode: {
+      type: Boolean,
+      default: true
     },
     segments: {
       type: Object as PropType<{ [id: string]: Segment }>,
@@ -100,7 +105,7 @@ export default defineComponent({
       return segment.color == "green" || this.currentPlayer[segment.color]
     },
     pieceClicked (segment: Segment) {
-      if (this.clickable(segment)) {
+      if (this.clickable(segment) && this.graph) {
         this.graph.removeEdge(segment.id);
         this.nextTurn();
       }
