@@ -2,17 +2,25 @@
 
   <div>
     <div v-if="!pictureMode && showTurn" class="turnBox">
-      <div v-if="!currentPlayer.red && !currentPlayer.blue && !puppetMode">
+      <div v-if="!currentPlayer && !puppetMode">
         Who goes first?
-        <button class="blue" @click="currentPlayer.blue = true">
-          bLue
+        <button :class="playerDisplay.blue.class" @click="currentPlayer = 'blue'">
+          {{playerDisplay.blue.text}}
         </button> or
-        <button class="red" @click="currentPlayer.red = true">
-          Red
+        <button :class="playerDisplay.red.class" @click="currentPlayer = 'red'">
+          {{playerDisplay.red.text}}
         </button>
       </div>
-      <div v-else-if="gameOver">
-        <span :class="currentPlayerClass">{{playerString}}</span> loses!
+      <div v-else-if="playerWon">
+        <!--Red can't move, so bLue wins!-->
+        <span :class="playerDisplay[otherPlayer(playerWon)].class">
+          {{playerDisplay[otherPlayer(playerWon)].text}}
+        </span>
+          can't move, so
+        <span :class="playerDisplay[playerWon].class">
+         {{playerDisplay[playerWon].text}}
+        </span>
+         wins
       </div>
       <div v-else :class="currentPlayerClass">
           Turn {{turn}}.
@@ -39,13 +47,13 @@
 </template>
 
 <script lang="ts">
-import {ref, defineComponent, PropType} from "vue"
+import {defineComponent, PropType} from "vue"
 import {Segment} from "@/model/segment";
 import PiecePath from "@/components/shared/PiecePath.vue";
 import {buildGraph, Graph} from "@/model/graph";
+import {Color} from "@/model/segment-color";
 
-import {gsap} from "gsap";
-
+type Player = "red" | "blue";
 export default defineComponent({
   components: {PiecePath},
   props: {
@@ -75,28 +83,48 @@ export default defineComponent({
     }
   },
   setup: () => {
+    const playerDisplay = {
+      red: {
+        class: "red",
+        text: "Red"
+      },
+      blue: {
+        class: "blue",
+        text: "bLue"
+      },
+    }
+    const otherPlayer = (player: Player) => player == "red" ? "blue" : "red";
+    return {
+      playerDisplay,
+      otherPlayer
+    }
   },
   data() {
     return {
       turn: 1,
-      currentPlayer: {
-        red: false,
-        blue: false
-      }
+      currentPlayer: false as Player | false,
     }
   },
   computed: {
-    gameStarted(): Boolean {
-      return this.currentPlayer.red || this.currentPlayer.blue;
+    playerWon (): false | Player {
+      const colorsLeft = this.segmentRenders.map(segment => segment.color);
+      if (!colorsLeft.includes(Color.Red)) {
+        return "blue"
+      }
+      if (!colorsLeft.includes(Color.Blue)) {
+        return "red";
+      }
+      return false;
     },
-    gameOver (): Boolean {
-      return this.gameStarted && this.segmentRenders.filter(this.clickable).length == 0;
+    currentPlayerClass (): String {
+      if (this.currentPlayer) {
+        return this.playerDisplay[this.currentPlayer].class;
+      }
     },
-    currentPlayerClass (): {red: Boolean, blue: Boolean} {
-      return {red: this.currentPlayer.red, blue: this.currentPlayer.blue}
-    },
-    playerString (): String {
-      return this.currentPlayer.red ? "Red" : "bLue";
+    currentPlayerString (): String {
+      if (this.currentPlayer) {
+        return this.playerDisplay[this.currentPlayer].text;
+      }
     },
     segmentRenders (): Array<Segment> {
       this.turn;
@@ -115,7 +143,7 @@ export default defineComponent({
   methods: {
     clickable (segment: Segment): Boolean {
       if (this.puppetMode || this.pictureMode) return false;
-      return segment.color == "green" || this.currentPlayer[segment.color]
+      return segment.color == "green" || segment.color == this.currentPlayer
     },
     pieceClicked (segment: Segment) {
       if (this.clickable(segment) && this.graph) {
@@ -128,8 +156,7 @@ export default defineComponent({
       this.turn++;
     },
     togglePlayer() {
-      this.currentPlayer.red = !this.currentPlayer.red;
-      this.currentPlayer.blue = !this.currentPlayer.blue;
+      this.currentPlayer = this.otherPlayer(this.currentPlayer);
     }
   },
 })
@@ -152,10 +179,10 @@ export default defineComponent({
     opacity: 40%
   }
   .red {
-    color: red
+    @apply text-red-500
   }
   .blue {
-    color: blue
+    @apply text-blue-600
   }
   .piece {
     stroke-width: 3;
