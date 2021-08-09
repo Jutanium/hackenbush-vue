@@ -10,9 +10,14 @@ type EdgeMap = {
   [id: string]: Edge
 }
 
+type SubgraphData = {
+  ids: string[],
+  isStalk: boolean
+}
+
 type GraphData = {
   edgeMap: EdgeMap,
-  ground: Edge[]
+  ground: SubgraphData[]
 }
 
 export type Graph = {
@@ -36,9 +41,10 @@ export function buildGraph(segments: { [id: string]: Segment }, groundY: number)
     const reached = new Set();
 
     const segmentAtGround = (segment: Segment) => segment.start.y == groundY || segment.end.y == groundY;
-    const buildUp = (segment: Segment) => {
+
+    const buildUp = (segment: Segment, subgraph: SubgraphData = {ids: [], isStalk: true}) => {
       if (segment.id == "ground" || reached.has(segment.id)) {
-        return;
+        return subgraph;
       }
 
       const notMe = segmentsArray.filter(s => s.id != segment.id);
@@ -48,6 +54,10 @@ export function buildGraph(segments: { [id: string]: Segment }, groundY: number)
         pointsEqual(segment.end, s.start) ||
         pointsEqual(segment.end, s.end)
       );
+
+      if (connections.length > 1) {
+        subgraph.isStalk = false;
+      }
 
       const edge = {
         segmentId: segment.id,
@@ -60,14 +70,16 @@ export function buildGraph(segments: { [id: string]: Segment }, groundY: number)
 
       edgeMap[segment.id] = edge;
       reached.add(segment.id);
+      subgraph.ids.push(segment.id);
 
-      connections.forEach(buildUp);
+      connections.forEach(segment => buildUp(segment, subgraph));
+      return subgraph;
     }
 
     for (const segment of segmentsArray) {
       if (segmentAtGround(segment) && !reached.has(segment.id)) {
-        buildUp(segment);
-        ground.push(edgeMap[segment.id]);
+        const subgraph = buildUp(segment);
+        ground.push(subgraph);
       }
     }
 
