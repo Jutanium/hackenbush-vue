@@ -97,6 +97,12 @@ export function buildGraph(segments: { [id: string]: Segment }, groundY: number)
     populate();
   }
 
+  function evaluate() {
+    function evaluateSubgame() {
+
+    }
+  }
+
   const graphData: GraphData = {
     ground, edgeMap
   }
