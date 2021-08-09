@@ -56,9 +56,9 @@ export function simplestBetween(left: number | undefined, right: number | undefi
   if (left === undefined && right === undefined)
     return 0;
   if (right === undefined)
-    return left! + 1;
+    return Math.trunc(left!) + 1;
   if (left === undefined)
-    return right! - 1;
+    return Math.trunc(right!) - 1;
   if (left >= right) {
     throw new Error("Right number must be greater than the left");
   }
