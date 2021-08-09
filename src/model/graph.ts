@@ -1,5 +1,7 @@
 import {Connection, Segment} from "@/model/segment";
 import {pointsEqual} from "@/model/segment";
+import {Color} from "@/model/segment-color";
+import {simplestBetween, stalkValue} from "@/model/stalkMath";
 
 type Edge = {
   segmentId: string,
@@ -20,18 +22,26 @@ type GraphData = {
   ground: SubgraphData[]
 }
 
+type SegmentsMap = { [id: string]: Segment };
 export type Graph = {
   removeEdge: (segmentId: string) => void,
   graphData: GraphData,
-  liveSegments: { [id: string]: Segment }
+  liveSegments: SegmentsMap,
+  evaluate: () => number,
 }
 
-export function buildGraph(segments: { [id: string]: Segment }, groundY: number) {
+export function buildGraph(segments: SegmentsMap, groundY: number) {
 
   let liveSegments = Object.assign({}, segments);
-  let ground: Edge[] = [];
+  let ground: SubgraphData[] = [];
   let edgeMap: { [id: string]: Edge } = {}
 
+  const graphData: GraphData = {
+    ground, edgeMap
+  }
+  const self: Graph = {
+    removeEdge, graphData, liveSegments, evaluate
+  }
   populate();
 
   function populate() {
@@ -97,21 +107,47 @@ export function buildGraph(segments: { [id: string]: Segment }, groundY: number)
     populate();
   }
 
-  function evaluate() {
-    function evaluateSubgame() {
+  const subgameCache: { [idString: string]: number } = {}
+  const idString = (segments: Segment[]) => segments
+    .map(s => s.id)
+    .sort((a, b) => a.localeCompare(b))
+    .join("");
 
+  function evaluate(graph: GraphData = graphData): number {
+
+    const evaluateWithout = (id: string, segments: SegmentsMap) => {
+      const clone = Object.assign({}, segments);
+      delete clone[id];
+      const key = idString(Object.values(clone));
+      if (key in subgameCache) return subgameCache[key];
+      const game = buildGraph(clone, groundY);
+      const value = evaluate(game.graphData);
+      subgameCache[key] = value;
+      return value;
     }
+
+    const evaluateSubgame = (subgame: SubgraphData): number => {
+      const segments = Object.fromEntries(subgame.ids.map(id => [id, liveSegments[id]]));
+      const segmentsArray = Object.values(segments);
+      if (subgame.isStalk) {
+        return stalkValue(segmentsArray);
+      }
+
+      const [leftMoveValues, rightMoveValues] = [Color.Blue, Color.Red].map(color => {
+        const possibleMoves = segmentsArray.filter(s => s.color == color).map(s => s.id);
+        return possibleMoves
+          .map(id => evaluateWithout(id, segments))
+          .sort((a,b) => (a - b));
+      })
+
+      return simplestBetween(leftMoveValues[leftMoveValues.length - 1], rightMoveValues[0]);
+    }
+
+    return graph.ground.reduce( (acc, curr) => acc + evaluateSubgame(curr), 0);
   }
 
-  const graphData: GraphData = {
-    ground, edgeMap
-  }
 
-  return {
-    removeEdge,
-    graphData,
-    liveSegments
-  }
+  return self;
 
 }
 

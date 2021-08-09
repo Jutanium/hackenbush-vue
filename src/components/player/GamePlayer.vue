@@ -25,6 +25,9 @@
       <div v-else :class="currentPlayerClass">
           Turn {{turn}}.
         </div>
+      <div v-if="gameValue != undefined">
+        {{gameValue}}
+      </div>
     </div>
     <svg ref="svg" viewBox="0 0 100 100">
 
@@ -103,6 +106,12 @@ export default defineComponent({
     return {
       turn: 1,
       currentPlayer: false as Player | false,
+      gameValue: undefined,
+    }
+  },
+  mounted() {
+    if (this.graph) {
+      this.gameValue = this.graph.evaluate();
     }
   },
   computed: {
@@ -145,6 +154,7 @@ export default defineComponent({
     pieceClicked (segment: Segment) {
       if (this.clickable(segment) && this.graph) {
         this.graph.removeEdge(segment.id);
+        this.gameValue = this.graph.evaluate();
         this.nextTurn();
       }
     },

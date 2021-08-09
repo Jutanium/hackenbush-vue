@@ -1,8 +1,15 @@
-export function stalkValue(stalk: string) {
+import {Segment} from "@/model/segment";
+import {colorToLetter} from "@/model/segment-color";
+
+
+export function stalkValue(stalk: string | Segment[]) {
+
+  const charArray = typeof stalk == "string" ? [...stalk] : stalk.map(s => colorToLetter(s.color));
+
   let change = false;
   let size = 1;
 
-  return [...stalk].reduce( (acc, curr, i, arr) => {
+  return charArray.reduce( (acc, curr, i, arr) => {
     if (!change && i > 0 && curr != arr[i - 1])
       change = true;
 
