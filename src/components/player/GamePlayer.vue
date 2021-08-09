@@ -125,7 +125,8 @@ export default defineComponent({
     segmentRenders (): Array<Segment> {
       this.turn;
       if (this.graph) {
-        return Object.values(this.segments).filter(s => this.graph?.reachesGround(s.id));
+        return Object.values(this.graph.liveSegments);
+        // return Object.values(this.segments).filter(s => this.graph?.reachesGround(s.id));
       }
       return []
     },

@@ -16,88 +16,73 @@ type GraphData = {
 }
 
 export type Graph = {
-  reachesGround: (segmentId: string) => boolean,
   removeEdge: (segmentId: string) => void,
-  graphData: GraphData
+  graphData: GraphData,
+  liveSegments: { [id: string]: Segment }
 }
 
 export function buildGraph(segments: { [id: string]: Segment }, groundY: number) {
 
-  const segmentArray: Segment[] = Object.values(segments);
+  let liveSegments = Object.assign({}, segments);
+  let ground: Edge[] = [];
+  let edgeMap: { [id: string]: Edge } = {}
 
-  const ground: Edge[] = [];
+  populate();
 
-  const edgeMap: { [id: string]: Edge } = {}
+  function populate() {
+    const segmentsArray = Object.values(liveSegments);
 
-  const segmentAtGround = (segment: Segment) => segment.start.y == groundY || segment.end.y == groundY;
-  const buildUp = (segment: Segment) => {
-    // if (seen.has(segment.id)) {
-    //   return;
-    // }
-    // seen.add(segment.id);
-    if (segment.id == "ground" || segment.id in edgeMap) {
-      return;
-    }
+    ground.splice(0, ground.length);
+    const reached = new Set();
 
-    const notMe = segmentArray.filter(s => s.id != segment.id);
-    const connections = notMe.filter(s =>
-      pointsEqual(segment.start, s.start) ||
-      pointsEqual(segment.start, s.end) ||
-      pointsEqual(segment.end, s.start) ||
-      pointsEqual(segment.end, s.end)
-    );
-    const edge = {
-      segmentId: segment.id,
-      connections: connections.map(s => s.id),
-      out: connections.map(s => s.id)
-    }
-    if (segmentAtGround(segment)) {
-      edge.connections.push("ground");
-    }
-    edgeMap[segment.id] = edge;
-    connections.forEach(buildUp);
-  }
-
-  for (const segment of Object.values(segments)) {
-    if (segmentAtGround(segment)) {
-      buildUp(segment);
-      ground.push(edgeMap[segment.id]);
-    }
-  }
-
-  function reachesGround(segmentId: string) {
-    const visited = new Set();
-    const traverse = (edge: Edge) => {
-      if (visited.has(edge.segmentId)) {
+    const segmentAtGround = (segment: Segment) => segment.start.y == groundY || segment.end.y == groundY;
+    const buildUp = (segment: Segment) => {
+      if (segment.id == "ground" || reached.has(segment.id)) {
         return;
       }
-      if (edge.segmentId == segmentId) {
-        return true;
+
+      const notMe = segmentsArray.filter(s => s.id != segment.id);
+      const connections = notMe.filter(s =>
+        pointsEqual(segment.start, s.start) ||
+        pointsEqual(segment.start, s.end) ||
+        pointsEqual(segment.end, s.start) ||
+        pointsEqual(segment.end, s.end)
+      );
+
+      const edge = {
+        segmentId: segment.id,
+        connections: connections.map(s => s.id),
       }
-      visited.add(edge.segmentId);
-      const traverseNext = edge.connections
-        .map((id: string) => id == "ground" ? false : edgeMap[id])
-        .filter(Boolean);
-      for (const edge of traverseNext) {
-        if (traverse(edge)) {
-          return true;
-        }
+
+      if (segmentAtGround(segment)) {
+        edge.connections.push("ground");
       }
-      return false;
+
+      edgeMap[segment.id] = edge;
+      reached.add(segment.id);
+
+      connections.forEach(buildUp);
     }
 
-    for (const edge of ground) {
-      if (edge.segmentId in edgeMap) {
-        if (traverse(edge)) {
-          return true;
-        }
+    for (const segment of segmentsArray) {
+      if (segmentAtGround(segment) && !reached.has(segment.id)) {
+        buildUp(segment);
+        ground.push(edgeMap[segment.id]);
       }
     }
-    return false;
+
+    Object.keys(liveSegments).forEach(id => {
+      if (!reached.has(id)) {
+        delete liveSegments[id];
+        delete edgeMap[id];
+      }
+    })
   }
 
+
   function removeEdge(segmentId: string) {
-    delete edgeMap[segmentId];
+    delete liveSegments[segmentId];
+    populate();
   }
 
   const graphData: GraphData = {
@@ -105,9 +90,9 @@ export function buildGraph(segments: { [id: string]: Segment }, groundY: number)
   }
 
   return {
-    reachesGround,
     removeEdge,
-    graphData
+    graphData,
+    liveSegments
   }
 
 }
