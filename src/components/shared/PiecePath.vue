@@ -2,7 +2,9 @@
   <path fill="none"
         :d="path"
         pointer-events="visible"
-        :stroke="segment.color" stroke-width="1"
+        :class="segment.color"
+        class="stroke-current"
+        stroke-width="1"
   ></path>
 </template>
 
@@ -41,5 +43,10 @@ import {Segment} from "@/model/segment";
 </script>
 
 <style scoped>
-
+.red {
+  @apply text-red-500
+}
+.blue {
+  @apply text-blue-600
+}
 </style>

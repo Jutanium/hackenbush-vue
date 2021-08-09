@@ -108,13 +108,9 @@ export default defineComponent({
   computed: {
     playerWon (): false | Player {
       const colorsLeft = this.segmentRenders.map(segment => segment.color);
-      if (!colorsLeft.includes(Color.Red)) {
-        return "blue"
+      if (!colorsLeft.includes(this.currentPlayer)) {
+        return this.otherPlayer(this.currentPlayer);
       }
-      if (!colorsLeft.includes(Color.Blue)) {
-        return "red";
-      }
-      return false;
     },
     currentPlayerClass (): String {
       if (this.currentPlayer) {
