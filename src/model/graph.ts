@@ -30,7 +30,7 @@ export type Graph = {
   evaluate: () => number,
 }
 
-export function buildGraph(segments: SegmentsMap, groundY: number) {
+export function buildGraph(segments: SegmentsMap, groundY: number): Graph {
 
   let liveSegments = Object.assign({}, segments);
   let ground: SubgraphData[] = [];
@@ -38,9 +38,6 @@ export function buildGraph(segments: SegmentsMap, groundY: number) {
 
   const graphData: GraphData = {
     ground, edgeMap
-  }
-  const self: Graph = {
-    removeEdge, graphData, liveSegments, evaluate
   }
   populate();
 
@@ -146,8 +143,8 @@ export function buildGraph(segments: SegmentsMap, groundY: number) {
     return graph.ground.reduce( (acc, curr) => acc + evaluateSubgame(curr), 0);
   }
 
-
-  return self;
-
+  return {
+    removeEdge, graphData, liveSegments, evaluate
+  }
 }
 

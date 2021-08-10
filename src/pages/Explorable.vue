@@ -26,9 +26,10 @@
   import GamePlayer from "@/components/player/GamePlayer.vue";
   import square from "@/game-files/square.json"
   import dog from "@/game-files/dog.json"
+  import Scissors from "@/components/player/Scissors.vue";
 
   export default defineComponent({
-    components: {ScrollytellSection, GamePlayer},
+    components: {Scissors, ScrollytellSection, GamePlayer},
     props: {
     },
     setup: () => {

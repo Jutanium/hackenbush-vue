@@ -1,5 +1,4 @@
 <template>
-
   <div>
     <div v-if="!pictureMode && showTurn" class="turnBox">
       <div v-if="!currentPlayer && !puppetMode">
@@ -29,6 +28,7 @@
         {{gameValue}}
       </div>
     </div>
+    <Scissors ref="scissors"></Scissors>
     <svg ref="svg" viewBox="0 0 100 100">
 
       <rect class="drawnGround"
@@ -55,10 +55,11 @@ import {Segment} from "@/model/segment";
 import PiecePath from "@/components/shared/PiecePath.vue";
 import {buildGraph, Graph} from "@/model/graph";
 import {Color} from "@/model/segment-color";
+import Scissors from "@/components/player/Scissors.vue";
 
 type Player = "red" | "blue";
 export default defineComponent({
-  components: {PiecePath},
+  components: {Scissors, PiecePath},
   props: {
     pictureMode: {
       type: Boolean,
