@@ -26,7 +26,7 @@
           Turn {{turn}}.
         </div>
       <div v-if="gameValue != undefined">
-        {{gameValue}}
+        Game value: {{gameValue}}
       </div>
     </div>
     <svg ref="svg" viewBox="0 0 100 100">
@@ -56,7 +56,7 @@ import PiecePath from "@/components/shared/PiecePath.vue";
 import {buildGraph, Graph} from "@/model/graph";
 import {Color} from "@/model/segment-color";
 
-type Player = "red" | "blue";
+type Player = Color.Red | Color.Blue
 export default defineComponent({
   components: {PiecePath},
   props: {
@@ -71,6 +71,10 @@ export default defineComponent({
     puppetMode: {
       type: Boolean,
       default: false,
+    },
+    ai: {
+      type: Boolean,
+      default: true
     },
     showTurn: {
       type: Boolean,
@@ -96,7 +100,7 @@ export default defineComponent({
         text: "bLue"
       },
     }
-    const otherPlayer = (player: Player) => player == "red" ? "blue" : "red";
+    const otherPlayer = (player: Player) => player == Color.Red ? Color.Blue : Color.Red;
     return {
       playerDisplay,
       otherPlayer
@@ -106,7 +110,7 @@ export default defineComponent({
     return {
       turn: 1,
       currentPlayer: false as Player | false,
-      gameValue: undefined,
+      gameValue: undefined as undefined | number
     }
   },
   mounted() {
@@ -116,17 +120,21 @@ export default defineComponent({
   },
   computed: {
     playerWon (): false | Player {
+      if (!this.currentPlayer) {
+        return false;
+      }
       const colorsLeft = this.segmentRenders.map(segment => segment.color);
       if (!colorsLeft.includes(this.currentPlayer)) {
         return this.otherPlayer(this.currentPlayer);
       }
+      return false;
     },
-    currentPlayerClass (): String {
+    currentPlayerClass (): String | undefined {
       if (this.currentPlayer) {
         return this.playerDisplay[this.currentPlayer].class;
       }
     },
-    currentPlayerString (): String {
+    currentPlayerString (): String | undefined {
       if (this.currentPlayer) {
         return this.playerDisplay[this.currentPlayer].text;
       }
@@ -161,9 +169,18 @@ export default defineComponent({
     nextTurn() {
       this.togglePlayer();
       this.turn++;
+      if (this.ai && !this.playerWon) {
+        const aiMove = this.graph.bestMoveForColor(this.currentPlayer as Color);
+        this.graph.removeEdge(aiMove.id);
+        this.gameValue = this.graph.evaluate();
+        this.togglePlayer();
+        this.turn++;
+      }
     },
     togglePlayer() {
-      this.currentPlayer = this.otherPlayer(this.currentPlayer);
+      if (this.currentPlayer) {
+        this.currentPlayer = this.otherPlayer(this.currentPlayer);
+      }
     }
   },
 })
