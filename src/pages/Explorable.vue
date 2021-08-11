@@ -13,7 +13,7 @@
       <template v-slot:sticky="{current, progress}">
         {{current}} {{progress}}
         <div class="w-3/4">
-          <GamePlayer :segments="square.segments"></GamePlayer>
+          <GamePlayer :segments="dog.segments"></GamePlayer>
         </div>
       </template>
     </ScrollytellSection>
