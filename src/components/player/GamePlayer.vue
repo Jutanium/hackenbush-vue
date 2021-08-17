@@ -1,12 +1,12 @@
 <template>
   <div>
-    <div v-if="!pictureMode && showTurn" class="turnBox">
+    <div v-if="!pictureMode && showTurn" class="absolute left-8 top-8 text-xl">
       <div v-if="!currentPlayer && !puppetMode">
         Who goes first?
-        <button :class="playerDisplay.blue.class" @click="currentPlayer = 'blue'">
+        <button :class="playerDisplay.blue.class" @click="nextTurn(Color.Blue)">
           {{playerDisplay.blue.text}}
         </button> or
-        <button :class="playerDisplay.red.class" @click="currentPlayer = 'red'">
+        <button :class="playerDisplay.red.class" @click="nextTurn(Color.Red)">
           {{playerDisplay.red.text}}
         </button>
       </div>
@@ -28,7 +28,10 @@
         Game value: {{gameValue}}
       </div>
     </div>
-    <Scissors ref="scissors"></Scissors>
+
+
+    <Scissors v-show="turn" v-for="color in ai" :is-red="color === Color.Red" :ref="el => scissors[color].ref = el" :animation-progress="scissors[color].cutProgress"></Scissors>
+
     <svg ref="svg" viewBox="0 0 100 100">
 
       <rect class="drawnGround"
@@ -37,12 +40,14 @@
 
       <g v-for="segment in segmentRenders">
         <title v-if="debugMode">{{segment.id}}</title>
-        <PiecePath class="piece" :segment="segment" :class="{clickable: clickable(segment)}"
+        <PiecePath :segment="segment" :class="{clickable: clickable(segment)}"
                    @click="pieceClicked(segment)"
         >
         </PiecePath>
-        <circle :cx="segment.start.x" :cy="segment.start.y" :r="1.5"></circle>
-        <circle :cx="segment.end.x" :cy="segment.end.y" :r="1.5"></circle>
+        <circle class="lg:hidden" :cx="segment.start.x" :cy="segment.start.y" :r="1.5"></circle>
+        <circle class="lg:hidden" :cx="segment.end.x" :cy="segment.end.y" :r="1.5"></circle>
+        <circle class="hidden lg:block" :cx="segment.start.x" :cy="segment.start.y" :r="1"></circle>
+        <circle class="hidden lg:block" :cx="segment.end.x" :cy="segment.end.y" :r="1"></circle>
       </g>
 
     </svg>
@@ -50,12 +55,14 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType} from "vue"
+import {defineComponent, onMounted, PropType, reactive, ref, unref} from "vue"
 import {Segment} from "@/model/segment";
 import PiecePath from "@/components/shared/PiecePath.vue";
 import {buildGraph, Graph} from "@/model/graph";
 import {Color} from "@/model/segment-color";
 import Scissors from "@/components/player/Scissors.vue";
+
+import {gsap} from "gsap";
 
 type Player = Color.Red | Color.Blue
 export default defineComponent({
@@ -74,8 +81,8 @@ export default defineComponent({
       default: false,
     },
     ai: {
-      type: Boolean,
-      default: true
+      type: Array as PropType<Array<Player>>,
+      default: () => ([])
     },
     showTurn: {
       type: Boolean,
@@ -101,23 +108,93 @@ export default defineComponent({
         text: "bLue"
       },
     }
+
     const otherPlayer = (player: Player) => player == Color.Red ? Color.Blue : Color.Red;
+
+    const svg = ref<SVGElement>();
+
+    const scissors = {
+      red: reactive({
+        ref: null,
+        lastPos: {x: 80, y: 50},
+        cutProgress: 0.6,
+      }),
+      blue: reactive( {
+        ref: null,
+        lastPos: {x: 10, y: 50},
+        cutProgress: 0.6
+      }),
+    }
+
+
+    function animateScissors(color: Player, segment: Segment, onComplete: () => void) {
+      const scissorsEl = unref(scissors[color].ref)?.$el;
+      if (!scissorsEl) return;
+
+      const cutpoint = (dim: "x" | "y") => (segment.start[dim] + segment.end[dim]) / 2;
+
+      const { clientWidth, clientHeight } = unref(svg)!;
+      const x = (cutpoint("x") / 100) * clientWidth - 42;
+      const y = (cutpoint("y") / 100) * clientHeight - 10;
+      const speed = 350; //px/seconds
+      const lastPos = scissors[color].lastPos;
+      const duration = Math.sqrt((lastPos.x - x)**2 + (lastPos.y - y)**2) / speed;
+      lastPos.x = x;
+      lastPos.y = y;
+
+      const timeline = gsap.timeline({
+        onComplete
+      })
+
+      // scissors[color].cutProgress = 0.6;
+
+      const move = timeline.to(scissorsEl, {
+        x,
+        y,
+        ease: "none",
+        duration
+      });
+
+      const open = timeline.to(scissors[color], {
+        cutProgress: 1,
+        duration: 0.4,
+      }, "-=0.4")
+      const shut = timeline.to(scissors[color], {
+        cutProgress: 0,
+        duration: 0.3
+      })
+    }
+
     return {
+      scissors,
       playerDisplay,
-      otherPlayer
+      otherPlayer,
+      svg,
+      Color,
+      animateScissors
     }
   },
   data() {
     return {
-      turn: 1,
+      turn: 0,
       currentPlayer: false as Player | false,
-      gameValue: undefined as undefined | number
+      gameValue: undefined as undefined | number,
     }
   },
   mounted() {
     if (this.graph) {
       this.gameValue = this.graph.evaluate();
     }
+    Object.values(this.scissors).forEach(scissors => {
+      if (scissors.ref?.el) {
+        const {x, y} = scissors.lastPos;
+        const { clientWidth, clientHeight } = this.svg!;
+        gsap.set(scissors.ref!.$el, {
+          x: (x / 100) * clientWidth,
+          y: (y / 100) * clientHeight
+        })
+      }
+    })
   },
   computed: {
     playerWon (): false | Player {
@@ -153,7 +230,6 @@ export default defineComponent({
         return buildGraph(this.segments, this.groundY);
       }
     }
-
   },
   methods: {
     clickable (segment: Segment): Boolean {
@@ -161,21 +237,30 @@ export default defineComponent({
       return segment.color == "green" || segment.color == this.currentPlayer
     },
     pieceClicked (segment: Segment) {
-      if (this.clickable(segment) && this.graph) {
+      if (this.clickable(segment)) {
+        this.removeEdge(segment);
+      }
+    },
+    removeEdge(segment: Segment) {
+      if (this.graph) {
         this.graph.removeEdge(segment.id);
         this.gameValue = this.graph.evaluate();
         this.nextTurn();
       }
     },
-    nextTurn() {
-      this.togglePlayer();
-      this.turn++;
-      if (this.ai && !this.playerWon) {
-        const aiMove = this.graph.bestMoveForColor(this.currentPlayer as Color);
-        this.graph.removeEdge(aiMove.id);
-        this.gameValue = this.graph.evaluate();
+    nextTurn(firstTurnPlayer?: Player) {
+      if (firstTurnPlayer) {
+        this.currentPlayer = firstTurnPlayer;
+      } else {
         this.togglePlayer();
-        this.turn++;
+      }
+      this.turn++;
+
+      if (this.ai.includes(this.currentPlayer) && !this.playerWon) {
+        const aiMove = this.graph.bestMoveForColor(this.currentPlayer as Color);
+        this.animateScissors(this.currentPlayer, aiMove, () => {
+          this.removeEdge(aiMove)
+        })
       }
     },
     togglePlayer() {
@@ -188,15 +273,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-  .turnBox {
-    position: absolute;
-    margin-left: 20px;
-    margin-top:20px;
-    font-size: 18pt;
-  }
-  .turnBox button {
-    font-size: 18pt;
-  }
   svg {
     width: 100%
   }
@@ -208,14 +284,6 @@ export default defineComponent({
   }
   .blue {
     @apply text-blue-600
-  }
-  .piece {
-    stroke-width: 3;
-  }
-  @media (min-width:1025px) {
-    .piece {
-      stroke-width: 1
-    }
   }
 
 </style>

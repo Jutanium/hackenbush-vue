@@ -5,6 +5,10 @@ module.exports = {
     extend: {
       fontFamily: {
         "sans": ["Lato", "sans-serif"]
+      },
+      strokeWidth: {
+        '3': '3',
+        '4': '4',
       }
     },
   },

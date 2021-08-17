@@ -1,19 +1,17 @@
 <template>
-  <!--Adopted from Ben Young's Codepen: https://codepen.io/bendalis/pen/dvKBZd?editors=1100-->
-  <div class="container">
-    <div class="scissors">
-      <div class="half">
-        <div class="blade"></div>
-        <div class="handle"></div>
-      </div>
-
-      <div class="half">
-        <div class="blade"></div>
-        <div class="handle"></div>
-      </div>
-
-      <div class="joint"></div>
+  <div class="scissors">
+    <!--Adapted from Ben Young's Codepen: https://codepen.io/bendalis/pen/dvKBZd?editors=1100-->
+    <div class="half">
+      <div class="blade"></div>
+      <div class="handle"></div>
     </div>
+
+    <div class="half">
+      <div class="blade"></div>
+      <div class="handle"></div>
+    </div>
+
+    <div class="joint rounded-full"></div>
   </div>
 </template>
 
@@ -39,7 +37,7 @@ export default defineComponent({
       default: false
     }
   },
-  setup () {
+  setup() {
     return {
       reds: {
         handle: "#710500",
@@ -54,16 +52,16 @@ export default defineComponent({
     }
   },
   computed: {
-    halfRotation () {
+    halfRotation() {
       return 0.5 * (this.startAmplitude + this.animationProgress * (this.endAmplitude - this.startAmplitude));
     },
-    topHalfDegrees () {
+    topHalfDegrees() {
       return this.halfRotation + 'deg';
     },
-    bottomHalfDegrees () {
+    bottomHalfDegrees() {
       return `-${this.halfRotation}deg`;
     },
-    colors () {
+    colors() {
       return this.isRed ? this.reds : this.blues;
     }
   }
@@ -72,17 +70,10 @@ export default defineComponent({
 
 <style scoped>
 
-.container {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-}
 .scissors {
   position: relative;
-  width: 4rem;
-  height: 1.25rem;
-  margin: 1.25rem auto;
 }
+
 .half {
   width: 4rem;
   height: 0.75rem;
@@ -100,10 +91,12 @@ export default defineComponent({
   transform-origin: 54.375% 0% 0;
   transform: rotate(v-bind(bottomHalfDegrees));
 }
+
 .half:nth-child(even) .blade {
   top: 0;
   border-radius: 0 0.25rem 0 0;
 }
+
 .half:nth-child(even) .blade:after {
   top: 0.25rem;
   border-style: solid;
@@ -118,8 +111,9 @@ export default defineComponent({
   background: v-bind(colors.joint);
   position: absolute;
   top: 0.5375rem;
-  left: 52.1875%;
+  left: 2.1rem;
 }
+
 .handle {
   width: 1.5rem;
   height: 0.75rem;
@@ -131,6 +125,7 @@ export default defineComponent({
   left: 0;
   box-sizing: border-box;
 }
+
 .blade {
   width: 2.5rem;
   height: 0.25rem;
@@ -140,6 +135,7 @@ export default defineComponent({
   background: v-bind(colors.blade);
   border-radius: 0 0 0.25rem 0;
 }
+
 .blade:before {
   content: '';
   width: 0.75rem;
@@ -149,6 +145,7 @@ export default defineComponent({
   top: 0;
   left: -0.75rem;
 }
+
 .blade:after {
   content: '';
   width: 0;

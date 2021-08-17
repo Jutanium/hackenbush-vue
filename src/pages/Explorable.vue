@@ -27,6 +27,7 @@
   import square from "@/game-files/square.json"
   import dog from "@/game-files/dog.json"
   import Scissors from "@/components/player/Scissors.vue";
+  import {Color} from "@/model/segment-color";
 
   export default defineComponent({
     components: {Scissors, ScrollytellSection, GamePlayer},
@@ -37,7 +38,8 @@
     data () {
       return {
         square,
-        dog
+        dog,
+        Color
       }
     },
   })

@@ -3,8 +3,7 @@
         :d="path"
         pointer-events="visible"
         :class="segment.color"
-        class="stroke-current"
-        stroke-width="1"
+        class="stroke-current stroke-3 lg:stroke-1"
   ></path>
 </template>
 
