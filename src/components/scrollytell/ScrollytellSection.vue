@@ -6,7 +6,7 @@
         <div v-for="(i, zeroIndexed) in numGroups" class="w-1/2 flex items-center"
              :ref="el => { if (el) groups[zeroIndexed] = el }"
              :style="collectStyle(zeroIndexed)">
-          <div>
+          <div class="text-lg">
             <slot :name="'group' + i"></slot>
           </div>
         </div>

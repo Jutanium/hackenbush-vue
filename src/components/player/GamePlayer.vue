@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="!pictureMode && showTurn" class="absolute left-8 top-8 text-xl">
-      <div v-if="!currentPlayer && !puppetMode">
+      <div v-if="!currentPlayer">
         Who goes first?
         <button :class="playerDisplay.blue.class" @click="nextTurn(Color.Blue)">
           {{playerDisplay.blue.text}}
@@ -24,13 +24,17 @@
       <div v-else :class="currentPlayerClass">
           Turn {{turn}}.
         </div>
-      <div v-if="gameValue != undefined">
-        Game value: {{gameValue}}
-      </div>
+<!--      <div v-if="gameValue != undefined">-->
+<!--        Game value: {{gameValue}}-->
+<!--      </div>-->
     </div>
 
 
-    <Scissors v-show="turn" v-for="color in ai" :is-red="color === Color.Red" :ref="el => scissors[color].ref = el" :animation-progress="scissors[color].cutProgress"></Scissors>
+    <Scissors v-show="turn" v-for="color in ai"
+              :is-red="color === Color.Red"
+              :ref="el => scissors[color].ref = el"
+              :animation-progress="scissors[color].cutProgress"
+    ></Scissors>
 
     <svg ref="svg" viewBox="0 0 100 100">
 
@@ -80,6 +84,9 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    startingPlayer: {
+      type: String as PropType<Player>,
+    },
     ai: {
       type: Array as PropType<Array<Player>>,
       default: () => ([])
@@ -97,7 +104,7 @@ export default defineComponent({
       default: 95
     }
   },
-  setup: () => {
+  setup: (props) => {
     const playerDisplay = {
       red: {
         class: "red",
@@ -118,14 +125,16 @@ export default defineComponent({
         ref: null,
         lastPos: {x: 80, y: 50},
         cutProgress: 0.6,
+        rotation: 180,
+        moveOffset: {x: -10, y: -5}
       }),
       blue: reactive( {
         ref: null,
         lastPos: {x: 10, y: 50},
-        cutProgress: 0.6
+        cutProgress: 0.6,
+        moveOffset: {x: -42, y: -10}
       }),
     }
-
 
     function animateScissors(color: Player, segment: Segment, onComplete: () => void) {
       const scissorsEl = unref(scissors[color].ref)?.$el;
@@ -134,8 +143,9 @@ export default defineComponent({
       const cutpoint = (dim: "x" | "y") => (segment.start[dim] + segment.end[dim]) / 2;
 
       const { clientWidth, clientHeight } = unref(svg)!;
-      const x = (cutpoint("x") / 100) * clientWidth - 42;
-      const y = (cutpoint("y") / 100) * clientHeight - 10;
+      const moveOffset = scissors[color].moveOffset;
+      const x = (cutpoint("x") / 100) * clientWidth + moveOffset.x;
+      const y = (cutpoint("y") / 100) * clientHeight + moveOffset.y;
       const speed = 350; //px/seconds
       const lastPos = scissors[color].lastPos;
       const duration = Math.sqrt((lastPos.x - x)**2 + (lastPos.y - y)**2) / speed;
@@ -181,20 +191,26 @@ export default defineComponent({
       gameValue: undefined as undefined | number,
     }
   },
+  created() {
+  },
   mounted() {
     if (this.graph) {
       this.gameValue = this.graph.evaluate();
     }
     Object.values(this.scissors).forEach(scissors => {
-      if (scissors.ref?.el) {
+      if (scissors.ref?.$el) {
         const {x, y} = scissors.lastPos;
         const { clientWidth, clientHeight } = this.svg!;
         gsap.set(scissors.ref!.$el, {
           x: (x / 100) * clientWidth,
-          y: (y / 100) * clientHeight
+          y: (y / 100) * clientHeight,
+          ...(scissors?.rotation && {rotation: scissors.rotation})
         })
       }
     })
+    if (this.startingPlayer) {
+      this.nextTurn(this.startingPlayer);
+    }
   },
   computed: {
     playerWon (): false | Player {
@@ -251,6 +267,10 @@ export default defineComponent({
     nextTurn(firstTurnPlayer?: Player) {
       if (firstTurnPlayer) {
         this.currentPlayer = firstTurnPlayer;
+        if (this.puppetMode) {
+          this.turn++;
+          return;
+        }
       } else {
         this.togglePlayer();
       }

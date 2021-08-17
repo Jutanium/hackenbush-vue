@@ -11,9 +11,10 @@
         Test group 3
       </template>
       <template v-slot:sticky="{current, progress}">
-        {{current}} {{progress}}
         <div class="w-3/4">
-          <GamePlayer :segments="dog.segments"></GamePlayer>
+          <GamePlayer :segments="dog.segments" :puppet-mode="false"
+                      :ai="[Color.Blue, Color.Red]"
+                      :show-turn="true" :starting-player="Color.Blue"></GamePlayer>
         </div>
       </template>
     </ScrollytellSection>

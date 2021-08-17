@@ -72,6 +72,7 @@ export default defineComponent({
 
 .scissors {
   position: relative;
+  transform-origin: 2rem 0.5rem;
 }
 
 .half {
