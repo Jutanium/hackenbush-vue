@@ -24,7 +24,7 @@ type GraphData = {
 
 type SegmentsMap = { [id: string]: Segment };
 export type Graph = {
-  removeEdge: (segmentId: string) => void,
+  removeEdge: (segmentId: string) => string[],
   graphData: GraphData,
   liveSegments: SegmentsMap,
   evaluate: () => number,
@@ -91,18 +91,20 @@ export function buildGraph(segments: SegmentsMap, groundY: number): Graph {
       }
     }
 
+    const deletedSegments: string[] = [];
     Object.keys(liveSegments).forEach(id => {
       if (!reached.has(id)) {
+        deletedSegments.push(id);
         delete liveSegments[id];
         delete edgeMap[id];
       }
     })
+    return deletedSegments;
   }
 
-
-  function removeEdge(segmentId: string) {
+  function removeEdge(segmentId: string): string[] {
     delete liveSegments[segmentId];
-    populate();
+    return populate();
   }
 
   const subgameCache: { [idString: string]: number } = {}

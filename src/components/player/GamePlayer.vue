@@ -4,29 +4,30 @@
       <div v-if="!currentPlayer">
         Who goes first?
         <button :class="playerDisplay.blue.class" @click="nextTurn(Color.Blue)">
-          {{playerDisplay.blue.text}}
-        </button> or
+          {{ playerDisplay.blue.text }}
+        </button>
+        or
         <button :class="playerDisplay.red.class" @click="nextTurn(Color.Red)">
-          {{playerDisplay.red.text}}
+          {{ playerDisplay.red.text }}
         </button>
       </div>
       <div v-else-if="playerWon">
         <!--Red can't move, so bLue wins!-->
         <span :class="playerDisplay[otherPlayer(playerWon)].class">
-          {{playerDisplay[otherPlayer(playerWon)].text}}
+          {{ playerDisplay[otherPlayer(playerWon)].text }}
         </span>
-          can't move, so
+        can't move, so
         <span :class="playerDisplay[playerWon].class">
-         {{playerDisplay[playerWon].text}}
+         {{ playerDisplay[playerWon].text }}
         </span>
-         wins
+        wins
       </div>
       <div v-else :class="currentPlayerClass">
-          Turn {{turn}}.
-        </div>
-<!--      <div v-if="gameValue != undefined">-->
-<!--        Game value: {{gameValue}}-->
-<!--      </div>-->
+        Turn {{ turn }}.
+      </div>
+      <!--      <div v-if="gameValue != undefined">-->
+      <!--        Game value: {{gameValue}}-->
+      <!--      </div>-->
     </div>
 
 
@@ -42,7 +43,8 @@
             :width="100" :height="5" :y="95" fill="green">
       </rect>
 
-      <g v-for="segment in segmentRenders">
+      <g v-for=" ([id, {segment, offsetY, opacity}]) in Object.entries(segmentRenders)"
+         :style="{transform: `translateY(${offsetY}px)`, opacity}">
         <title v-if="debugMode">{{segment.id}}</title>
         <PiecePath :segment="segment" :class="{clickable: clickable(segment)}"
                    @click="pieceClicked(segment)"
@@ -67,6 +69,8 @@ import {Color} from "@/model/segment-color";
 import Scissors from "@/components/player/Scissors.vue";
 
 import {gsap} from "gsap";
+import Tween = gsap.core.Tween;
+import Timeline = gsap.core.Timeline;
 
 type Player = Color.Red | Color.Blue
 export default defineComponent({
@@ -119,6 +123,18 @@ export default defineComponent({
     const otherPlayer = (player: Player) => player == Color.Red ? Color.Blue : Color.Red;
 
     const svg = ref<SVGElement>();
+    // const segmentRefs: { [id: string]: SVGPathElement} = {}
+    const segmentRenders = reactive(
+        Object.fromEntries(
+            Object.values(props.segments).map(segment => [segment.id,
+              {
+                segment,
+                offsetY: 0,
+                opacity: 1
+              }
+            ])
+        )
+    );
 
     const scissors = {
       red: reactive({
@@ -128,7 +144,7 @@ export default defineComponent({
         rotation: 180,
         moveOffset: {x: -10, y: -5}
       }),
-      blue: reactive( {
+      blue: reactive({
         ref: null,
         lastPos: {x: 10, y: 50},
         cutProgress: 0.6,
@@ -142,13 +158,13 @@ export default defineComponent({
 
       const cutpoint = (dim: "x" | "y") => (segment.start[dim] + segment.end[dim]) / 2;
 
-      const { clientWidth, clientHeight } = unref(svg)!;
+      const {clientWidth, clientHeight} = unref(svg)!;
       const moveOffset = scissors[color].moveOffset;
       const x = (cutpoint("x") / 100) * clientWidth + moveOffset.x;
       const y = (cutpoint("y") / 100) * clientHeight + moveOffset.y;
       const speed = 350; //px/seconds
       const lastPos = scissors[color].lastPos;
-      const duration = Math.sqrt((lastPos.x - x)**2 + (lastPos.y - y)**2) / speed;
+      const duration = Math.sqrt((lastPos.x - x) ** 2 + (lastPos.y - y) ** 2) / speed;
       lastPos.x = x;
       lastPos.y = y;
 
@@ -177,6 +193,7 @@ export default defineComponent({
 
     return {
       scissors,
+      segmentRenders,
       playerDisplay,
       otherPlayer,
       svg,
@@ -189,6 +206,7 @@ export default defineComponent({
       turn: 0,
       currentPlayer: false as Player | false,
       gameValue: undefined as undefined | number,
+      leavingAnimation: undefined as undefined | Timeline,
     }
   },
   created() {
@@ -200,7 +218,7 @@ export default defineComponent({
     Object.values(this.scissors).forEach(scissors => {
       if (scissors.ref?.$el) {
         const {x, y} = scissors.lastPos;
-        const { clientWidth, clientHeight } = this.svg!;
+        const {clientWidth, clientHeight} = this.svg!;
         gsap.set(scissors.ref!.$el, {
           x: (x / 100) * clientWidth,
           y: (y / 100) * clientHeight,
@@ -213,27 +231,27 @@ export default defineComponent({
     }
   },
   computed: {
-    playerWon (): false | Player {
+    playerWon(): false | Player {
       if (!this.currentPlayer) {
         return false;
       }
-      const colorsLeft = this.segmentRenders.map(segment => segment.color);
+      const colorsLeft = this.liveSegments.map(segment => segment.color);
       if (!colorsLeft.includes(this.currentPlayer)) {
         return this.otherPlayer(this.currentPlayer);
       }
       return false;
     },
-    currentPlayerClass (): String | undefined {
+    currentPlayerClass(): String | undefined {
       if (this.currentPlayer) {
         return this.playerDisplay[this.currentPlayer].class;
       }
     },
-    currentPlayerString (): String | undefined {
+    currentPlayerString(): String | undefined {
       if (this.currentPlayer) {
         return this.playerDisplay[this.currentPlayer].text;
       }
     },
-    segmentRenders (): Array<Segment> {
+    liveSegments(): Array<Segment> {
       this.turn;
       if (this.graph) {
         return Object.values(this.graph.liveSegments);
@@ -241,25 +259,39 @@ export default defineComponent({
       }
       return []
     },
-    graph (): Graph | undefined {
+    graph(): Graph | undefined {
       if (this.segments) {
         return buildGraph(this.segments, this.groundY);
       }
     }
   },
   methods: {
-    clickable (segment: Segment): Boolean {
+    clickable(segment: Segment): Boolean {
       if (this.puppetMode || this.pictureMode) return false;
       return segment.color == "green" || segment.color == this.currentPlayer
     },
-    pieceClicked (segment: Segment) {
+    pieceClicked(segment: Segment) {
       if (this.clickable(segment)) {
         this.removeEdge(segment);
       }
     },
     removeEdge(segment: Segment) {
       if (this.graph) {
-        this.graph.removeEdge(segment.id);
+        const floating = this.graph.removeEdge(segment.id);
+        console.log(floating);
+        const timeline = gsap.timeline();
+        timeline.fromTo(this.segmentRenders[segment.id], {opacity: 0.5}, {
+          duration: 0.5,
+          opacity: 0
+        });
+        if (floating.length) {
+          timeline.to(floating.map(id => this.segmentRenders[id]), {
+            ease: "power1.in",
+            duration: 1,
+            offsetY: "-=100"
+          }, "<");
+        }
+        this.leavingAnimation = timeline;
         this.gameValue = this.graph.evaluate();
         this.nextTurn();
       }
@@ -293,17 +325,20 @@ export default defineComponent({
 </script>
 
 <style scoped>
-  svg {
-    width: 100%
-  }
-  .clickable:hover {
-    opacity: 40%
-  }
-  .red {
-    @apply text-red-500
-  }
-  .blue {
-    @apply text-blue-600
-  }
+svg {
+  width: 100%
+}
+
+.clickable:hover {
+  opacity: 40%
+}
+
+.red {
+  @apply text-red-500
+}
+
+.blue {
+  @apply text-blue-600
+}
 
 </style>

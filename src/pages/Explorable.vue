@@ -1,14 +1,26 @@
 <template>
   <div>
-    <ScrollytellSection :num-groups="3">
+    <ScrollytellSection :num-groups="7">
       <template v-slot:group1>
-        Test group 1
+        <b>Let's play a game.</b>
       </template>
       <template v-slot:group2>
-        Test group 2
+        It’s a simple game, with two players — bLue and Red.
       </template>
       <template v-slot:group3>
-        Test group 3
+        The game consists of a bunch of bLue and Red strings connected to the ground.
+      </template>
+      <template v-slot:group4>
+        Each player, on their turn, can cut a string of their own color.
+      </template>
+      <template v-slot:group5>
+        Any pieces that are no longer connected to the ground will float away.
+      </template>
+      <template v-slot:group6>
+        If you can’t make a move, you lose.
+      </template>
+      <template v-slot:group7>
+        That’s it — those are the only rules. Try it out!
       </template>
       <template v-slot:sticky="{current, progress}">
         <div class="w-3/4">
