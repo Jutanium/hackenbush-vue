@@ -54,17 +54,22 @@ import {ref, defineComponent, onBeforeUpdate, onMounted, reactive, watch} from "
       })
 
       const leaveOffset = ref(0);
+
       onMounted( () => {
         let cumulative = top;
-        const _cumulativeHeights = [];
-        _cumulativeHeights.push(cumulative);
+        const _cumulativeHeights = [cumulative];
+        groups.value.forEach(el => _cumulativeHeights.push(cumulative += el.scrollHeight));
+        cumulativeHeights.value = _cumulativeHeights;
 
-        groups.value.forEach((el, i) => {
-          cumulative += el.scrollHeight;
-          _cumulativeHeights.push(cumulative);
+        groups.value.slice(1).forEach((el, i) => {
+          const prev = groups.value[i];
+          const prevCumulative = _cumulativeHeights[i - 1];
+          const cumulative = _cumulativeHeights[i];
+
           ScrollTrigger.create({
-            trigger: el,
-            start: "bottom bottom",
+            trigger: prev,
+            endTrigger: el,
+            start: `top ${prevCumulative}px`,
             end: `top ${cumulative}px`,
             onUpdate: ({progress}) => scrollData.progress = progress,
             onEnter: (instance) => {
@@ -78,7 +83,7 @@ import {ref, defineComponent, onBeforeUpdate, onMounted, reactive, watch} from "
               if (i == 0) {
                 emit("leaveBack");
               }
-            }
+            },
           })
         })
 
@@ -100,7 +105,6 @@ import {ref, defineComponent, onBeforeUpdate, onMounted, reactive, watch} from "
           }
         });
 ;
-        cumulativeHeights.value = _cumulativeHeights;
       })
       return {
         groups,
