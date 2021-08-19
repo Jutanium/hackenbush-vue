@@ -31,11 +31,14 @@
     </div>
 
 
-    <Scissors v-show="turn" v-for="color in ai"
-              :is-red="color === Color.Red"
-              :ref="el => scissors[color].ref = el"
-              :animation-progress="scissors[color].cutProgress"
-    ></Scissors>
+    <g>
+      <Scissors v-show="turn" v-for="color in ai"
+                :is-red="color === Color.Red"
+                :ref="el => scissorsRenders[color].ref = el"
+                :animation-progress="scissorsRenders[color].cutProgress"
+                :style="{transform: scissorsRenders[color].transform, opacity: scissorsOpacity}"
+      ></Scissors>
+    </g>
 
     <svg ref="svg" viewBox="0 0 100 100">
 
@@ -43,8 +46,8 @@
             :width="100" :height="5" :y="95" fill="green">
       </rect>
 
-      <g v-for=" ([id, {segment, offsetY, opacity}]) in Object.entries(segmentRenders)"
-         :style="{transform: `translateY(${offsetY}px)`, opacity}">
+      <g v-for=" ([id, {segment, style}]) in Object.entries(segmentRenders)"
+         :style="style">
         <title v-if="debugMode">{{segment.id}}</title>
         <PiecePath :segment="segment" :class="{clickable: clickable(segment)}"
                    @click="pieceClicked(segment)"
@@ -61,7 +64,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, onMounted, PropType, reactive, ref, unref} from "vue"
+import {computed, ComputedRef, defineComponent, onMounted, PropType, reactive, ref, unref} from "vue"
 import {Segment} from "@/model/segment";
 import PiecePath from "@/components/shared/PiecePath.vue";
 import {buildGraph, Graph} from "@/model/graph";
@@ -84,12 +87,12 @@ export default defineComponent({
       type: Boolean,
       default: true
     },
-    puppetMode: {
-      type: Boolean,
-      default: false,
-    },
     startingPlayer: {
       type: String as PropType<Player>,
+    },
+    autoplay: {
+      type: Boolean,
+      default: false,
     },
     ai: {
       type: Array as PropType<Array<Player>>,
@@ -106,7 +109,21 @@ export default defineComponent({
     groundY: {
       type: Number,
       default: 95
-    }
+    },
+    //For tutorial
+    scissorsOffsetY: {
+      type: Number,
+      default: 0
+    },
+    scissorsOpacity: {
+      type: Number,
+      default: 1
+    },
+    segmentsOpacity: {
+      type: Number
+    },
+    //For outside control
+
   },
   setup: (props) => {
     const playerDisplay = {
@@ -126,44 +143,77 @@ export default defineComponent({
     // const segmentRefs: { [id: string]: SVGPathElement} = {}
     const segmentRenders = reactive(
         Object.fromEntries(
-            Object.values(props.segments).map(segment => [segment.id,
-              {
+            Object.values(props.segments).map(segment => {
+              const obj = reactive({
                 segment,
                 offsetY: 0,
-                opacity: 1
-              }
-            ])
+                opacity: 1,
+                style: computed( () => (
+                    {
+                      transform: `translateY(${obj.offsetY}px)`,
+                      opacity: typeof props.segmentsOpacity == "number" ? props.segmentsOpacity : obj.opacity
+                    }
+                  )),
+              });
+              return [segment.id, obj];
+            })
         )
     );
 
-    const scissors = {
+    const scissorsRenders = {
       red: reactive({
         ref: null,
         lastPos: {x: 80, y: 50},
         cutProgress: 0.6,
         rotation: 180,
-        moveOffset: {x: -10, y: -5}
+        translateX: 0,
+        translateY: 0,
+        moveOffset: {x: -10, y: -5},
+        transform: undefined as undefined | ComputedRef,
       }),
       blue: reactive({
         ref: null,
         lastPos: {x: 10, y: 50},
         cutProgress: 0.6,
-        moveOffset: {x: -42, y: -10}
+        moveOffset: {x: -42, y: -10},
+        rotation: 0,
+        translateX: 0,
+        translateY: 0,
+        transform: undefined as undefined | ComputedRef,
       }),
     }
 
+    Object.values(scissorsRenders).forEach(scissors =>
+      scissors.transform = computed(
+          () => {
+            const {translateX, translateY, rotation} = scissors;
+            return `translateX(${translateX}px) translateY(${translateY + props.scissorsOffsetY}px) rotate(${rotation}deg)`
+          }
+      )
+    )
+
+    onMounted(() => {
+      Object.values(scissorsRenders).forEach(scissors => {
+        const {x, y} = scissors.lastPos;
+        const {clientWidth, clientHeight} = svg.value!;
+        scissors.translateX = x / 100 * clientWidth;
+        scissors.translateY = y / 100 * clientHeight;
+      });
+    })
+
     function animateScissors(color: Player, segment: Segment, onComplete: () => void) {
-      const scissorsEl = unref(scissors[color].ref)?.$el;
+      const render = scissorsRenders[color];
+      const scissorsEl = unref(render.ref)?.$el;
       if (!scissorsEl) return;
 
       const cutpoint = (dim: "x" | "y") => (segment.start[dim] + segment.end[dim]) / 2;
 
       const {clientWidth, clientHeight} = unref(svg)!;
-      const moveOffset = scissors[color].moveOffset;
+      const moveOffset = render.moveOffset;
       const x = (cutpoint("x") / 100) * clientWidth + moveOffset.x;
       const y = (cutpoint("y") / 100) * clientHeight + moveOffset.y;
       const speed = 350; //px/seconds
-      const lastPos = scissors[color].lastPos;
+      const lastPos = render.lastPos;
       const duration = Math.sqrt((lastPos.x - x) ** 2 + (lastPos.y - y) ** 2) / speed;
       lastPos.x = x;
       lastPos.y = y;
@@ -173,26 +223,25 @@ export default defineComponent({
       })
 
       // scissors[color].cutProgress = 0.6;
-
-      const move = timeline.to(scissorsEl, {
-        x,
-        y,
+      const move = timeline.to(render, {
+        translateX: x,
+        translateY: y,
         ease: "none",
         duration
       });
 
-      const open = timeline.to(scissors[color], {
+      const open = timeline.to(render, {
         cutProgress: 1,
         duration: 0.4,
       }, "-=0.4")
-      const shut = timeline.to(scissors[color], {
+      const shut = timeline.to(render, {
         cutProgress: 0,
         duration: 0.3
       })
     }
 
     return {
-      scissors,
+      scissorsRenders,
       segmentRenders,
       playerDisplay,
       otherPlayer,
@@ -215,17 +264,17 @@ export default defineComponent({
     if (this.graph) {
       this.gameValue = this.graph.evaluate();
     }
-    Object.values(this.scissors).forEach(scissors => {
-      if (scissors.ref?.$el) {
-        const {x, y} = scissors.lastPos;
-        const {clientWidth, clientHeight} = this.svg!;
-        gsap.set(scissors.ref!.$el, {
-          x: (x / 100) * clientWidth,
-          y: (y / 100) * clientHeight,
-          ...(scissors?.rotation && {rotation: scissors.rotation})
-        })
-      }
-    })
+    // Object.values(this.scissorsRenders).forEach(scissors => {
+    //   if (scissors.ref?.$el) {
+    //     const {x, y} = scissors.lastPos;
+    //     const {clientWidth, clientHeight} = this.svg!;
+    //     gsap.set(scissors.ref!.$el, {
+    //       x: (x / 100) * clientWidth,
+    //       y: (y / 100) * clientHeight,
+    //       ...(scissors?.rotation && {rotation: scissors.rotation})
+    //     })
+    //   }
+    // })
     if (this.startingPlayer) {
       this.nextTurn(this.startingPlayer);
     }
@@ -267,7 +316,7 @@ export default defineComponent({
   },
   methods: {
     clickable(segment: Segment): Boolean {
-      if (this.puppetMode || this.pictureMode) return false;
+      if (this.pictureMode) return false;
       return segment.color == "green" || segment.color == this.currentPlayer
     },
     pieceClicked(segment: Segment) {
@@ -299,16 +348,12 @@ export default defineComponent({
     nextTurn(firstTurnPlayer?: Player) {
       if (firstTurnPlayer) {
         this.currentPlayer = firstTurnPlayer;
-        if (this.puppetMode) {
-          this.turn++;
-          return;
-        }
       } else {
         this.togglePlayer();
       }
       this.turn++;
 
-      if (this.ai.includes(this.currentPlayer) && !this.playerWon) {
+      if (this.ai.includes(this.currentPlayer) && this.autoplay && !this.playerWon) {
         const aiMove = this.graph.bestMoveForColor(this.currentPlayer as Color);
         this.animateScissors(this.currentPlayer, aiMove, () => {
           this.removeEdge(aiMove)
