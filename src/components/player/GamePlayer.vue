@@ -95,10 +95,7 @@ export default defineComponent({
     startingPlayer: {
       type: String as PropType<Player>,
     },
-    autoplay: {
-      type: [Boolean, Number],
-      default: false,
-    },
+
     ai: {
       type: Array as PropType<Array<Player>>,
       default: () => ([])
@@ -127,13 +124,17 @@ export default defineComponent({
     segmentsOpacity: {
       type: Number
     },
-    //For outside control
+    //For outside control. Set these together
     subgraph: {
       type: String
-    }
+    },
+    autoplay: {
+      type: [Boolean, Number],
+      default: false,
+    },
 
   },
-  setup: (props) => {
+  setup: (props, {emit}) => {
     const playerDisplay = {
       red: {
         class: "red",
@@ -268,101 +269,31 @@ export default defineComponent({
       })
     }
 
+    const currentPlayer = ref<Player | false>(false);
+    const turn = ref(0);
+
     const autoplayCounter = ref();
+    const aiIsMoving = ref(false);
 
-    watchEffect(() => {
-      if (typeof props.autoplay == "number") {
-        autoplayCounter.value = props.autoplay;
+    onMounted(() => {
+      if (props.startingPlayer) {
+        nextTurn(props.startingPlayer);
       }
     })
 
-    const autoplaying = computed(() => {
-      if (typeof props.autoplay == "number") {
-        return autoplayCounter.value > 0;
+    function togglePlayer() {
+      if (currentPlayer.value) {
+        currentPlayer.value = otherPlayer(currentPlayer.value);
       }
-      return props.autoplay;
-    })
+    }
 
-    return {
-      graph,
-      scissorsRenders,
-      segmentRenders,
-      playerDisplay,
-      otherPlayer,
-      svg,
-      Color,
-      animateScissors,
-      gameValue,
-      liveIds,
-      autoplayCounter,
-      autoplaying
-    }
-  },
-  data() {
-    return {
-      turn: 0,
-      currentPlayer: false as Player | false,
-      leavingAnimation: undefined as undefined | Timeline,
-    }
-  },
-  created() {
-  },
-  mounted() {
-    // Object.values(this.scissorsRenders).forEach(scissors => {
-    //   if (scissors.ref?.$el) {
-    //     const {x, y} = scissors.lastPos;
-    //     const {clientWidth, clientHeight} = this.svg!;
-    //     gsap.set(scissors.ref!.$el, {
-    //       x: (x / 100) * clientWidth,
-    //       y: (y / 100) * clientHeight,
-    //       ...(scissors?.rotation && {rotation: scissors.rotation})
-    //     })
-    //   }
-    // })
-    if (this.startingPlayer) {
-      this.nextTurn(this.startingPlayer);
-    }
-  },
-  watch: {
-  },
-  computed: {
-    playerWon(): false | Player {
-      if (!this.currentPlayer) {
-        return false;
-      }
-      const colorsLeft = this.liveIds.map(id => this.segments[id].color);
-      if (!colorsLeft.includes(this.currentPlayer)) {
-        return this.otherPlayer(this.currentPlayer);
-      }
-      return false;
-    },
-    currentPlayerClass(): String | undefined {
-      if (this.currentPlayer) {
-        return this.playerDisplay[this.currentPlayer].class;
-      }
-    },
-    currentPlayerString(): String | undefined {
-      if (this.currentPlayer) {
-        return this.playerDisplay[this.currentPlayer].text;
-      }
-    },
-  },
-  methods: {
-    clickable(segment: Segment): Boolean {
-      if (this.pictureMode) return false;
-      return segment.color == "green" || segment.color == this.currentPlayer
-    },
-    pieceClicked(segment: Segment) {
-      if (this.clickable(segment)) {
-        this.removeEdge(segment);
-      }
-    },
-    removeEdge(segment: Segment) {
-      if (this.graph) {
-        const floatingIds = this.graph.removeEdge(segment.id);
-        const floatingSegments = floatingIds.map(id => this.segmentRenders[id]);
+    function removeEdge(segment: Segment) {
+      const Graph = unref(graph);
+      if (Graph) {
+        const floatingIds = Graph.removeEdge(segment.id);
+        const floatingSegments = floatingIds.map(id => segmentRenders[id]);
         const timeline = gsap.timeline();
-        const cutSegment = this.segmentRenders[segment.id];
+        const cutSegment = segmentRenders[segment.id];
         timeline.fromTo(cutSegment, {opacity: 0.5}, {
           duration: 0.5,
           opacity: 0,
@@ -373,6 +304,7 @@ export default defineComponent({
             cutSegment.animating = false;
           }
         });
+
         if (floatingSegments.length) {
           timeline.to(floatingSegments, {
             ease: "power1.in",
@@ -386,32 +318,102 @@ export default defineComponent({
             }
           }, "<");
         }
-        this.leavingAnimation = timeline;
-        this.gameValue = this.graph.evaluate();
-        this.$emit("update:subgraph", this.graph.getCurrentSubgraph());
-        this.nextTurn();
+        gameValue.value = Graph.evaluate();
+        emit("update:subgraph", Graph.getCurrentSubgraph());
+        nextTurn();
       }
-    },
-    nextTurn(firstTurnPlayer?: Player) {
-      if (firstTurnPlayer) {
-        this.currentPlayer = firstTurnPlayer;
-      } else {
-        this.togglePlayer();
-      }
-      this.turn++;
+    }
 
-      if (this.ai.includes(this.currentPlayer) && this.autoplaying && !this.playerWon) {
-        const aiMove = this.graph.bestMoveForColor(this.currentPlayer as Color);
-        this.animateScissors(this.currentPlayer, aiMove, () => {
-          this.removeEdge(aiMove)
-          this.autoplayCounter--;
+    function nextTurn(firstTurnPlayer?: Player) {
+
+      if (firstTurnPlayer) {
+        currentPlayer.value = firstTurnPlayer;
+      } else {
+        togglePlayer();
+      }
+      turn.value++;
+
+      const CurrentPlayer = unref(currentPlayer);
+      if (props.ai.includes(CurrentPlayer) && autoplaying.value && !playerWon.value) {
+        const aiMove = graph.value.bestMoveForColor(CurrentPlayer as Color);
+        aiIsMoving.value = true;
+        animateScissors(CurrentPlayer, aiMove, () => {
+          removeEdge(aiMove)
+          autoplayCounter.value--;
+          aiIsMoving.value = false;
         })
       }
-    },
-    togglePlayer() {
-      if (this.currentPlayer) {
-        this.currentPlayer = this.otherPlayer(this.currentPlayer);
+    }
+
+    watch(toRef(props, 'autoplay'), () => {
+      if (typeof props.autoplay == "number") {
+        autoplayCounter.value = props.autoplay;
+        if (!aiIsMoving.value) {
+          nextTurn();
+        }
       }
+    }, {immediate: true})
+
+
+    const autoplaying = computed(() => {
+      if (typeof props.autoplay == "number") {
+        return autoplayCounter.value > 0;
+      }
+      return props.autoplay;
+    })
+
+    function clickable(segment: Segment): Boolean {
+      if (props.pictureMode) return false;
+      return segment.color == "green" || segment.color == currentPlayer.value
+    }
+
+    function pieceClicked(segment: Segment) {
+      if (clickable(segment)) {
+        removeEdge(segment);
+      }
+    }
+
+    const playerWon = computed<false | Player>( () => {
+      const CurrentPlayer = unref(currentPlayer);
+      if (!CurrentPlayer) {
+        return false;
+      }
+      const colorsLeft = liveIds.value.map(id => props.segments[id].color);
+      if (!colorsLeft.includes(CurrentPlayer)) {
+        return otherPlayer(CurrentPlayer);
+      }
+      return false;
+    });
+
+    const currentPlayerClass = computed<String | undefined>( () => {
+      if (currentPlayer.value) {
+        return playerDisplay[currentPlayer.value].class;
+      }
+    });
+
+    const currentPlayerString = computed<String | undefined>( () => {
+      if (currentPlayer.value) {
+        return playerDisplay[currentPlayer.value].text;
+      }
+    });
+
+    return {
+      graph,
+      scissorsRenders,
+      segmentRenders,
+      playerDisplay,
+      otherPlayer,
+      svg,
+      Color,
+      gameValue,
+      liveIds,
+      autoplayCounter,
+      autoplaying,
+      playerWon,
+      currentPlayerClass,
+      currentPlayerString,
+      pieceClicked,
+      clickable
     }
   },
 })

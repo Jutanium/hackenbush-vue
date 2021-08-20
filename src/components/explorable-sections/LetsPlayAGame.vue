@@ -1,5 +1,5 @@
 <template>
-  <ScrollytellSection :num-groups="7">
+  <ScrollytellSection :num-groups="7" @slideChange="slideChange">
     <template v-slot:group1>
       <b>Let's play a game.</b>
     </template>
@@ -26,7 +26,7 @@
       <div class="w-3/4">
         <GamePlayer :segments="person.segments"
                     v-model:subgraph="subgraph"
-                    :autoplay="3"
+                    :autoplay="autoplay"
                     :ai="[Color.Red, Color.Blue]"
                     :starting-player="Color.Blue"
                     :show-turn="false"
@@ -41,11 +41,12 @@
   </ScrollytellSection>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import ScrollytellSection from "../scrollytell/ScrollytellSection.vue";
 import GamePlayer from "../player/GamePlayer.vue";
 import person from "@/game-files/person.json"
 import {Color} from "@/model/segment-color";
+
 import {computed, ref} from "vue"
 
 const segmentOpacity = (current, progress) => {
@@ -67,6 +68,16 @@ const scissorsOpacity = (current, progress) => {
 }
 
 const subgraph = ref("all");
+
+const autoplay = ref<boolean | number>(false);
+
+const slideChange = (scrollData: {current: number, direction: number}) => {
+  const { current, direction } = scrollData;
+  if (current == 3) {
+    subgraph.value = "all";
+    autoplay.value = 3;
+  }
+}
 
 </script>
 

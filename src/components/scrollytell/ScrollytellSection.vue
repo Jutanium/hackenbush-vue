@@ -23,14 +23,14 @@
 </template>
 
 <script lang="ts">
-import {ref, defineComponent, onBeforeUpdate, onMounted, reactive, watch, onBeforeUnmount} from "vue"
+  import {ref, defineComponent, onBeforeUpdate, onMounted, reactive, watch, onBeforeUnmount} from "vue"
   import { gsap } from "gsap";
   import { ScrollTrigger } from "gsap/ScrollTrigger";
 
   gsap.registerPlugin(ScrollTrigger);
 
   export default defineComponent({
-    emits: ["enter", "leave", "enterBack", "leaveBack", "onSlideChange"],
+    emits: ["enter", "leave", "enterBack", "leaveBack", "slideChange"],
     props: {
       numGroups: {
         type: Number,
@@ -80,14 +80,14 @@ import {ref, defineComponent, onBeforeUpdate, onMounted, reactive, watch, onBefo
             },
             onEnter: ({direction}) => {
               scrollData.direction = direction;
-              emit("onSlideChange", i);
+              emit("slideChange", scrollData);
               if (i == 0) {
                 emit("enter");
               }
             },
             onLeaveBack: ({direction}) => {
               scrollData.direction = direction;
-              emit("onSlideChange", i);
+              emit("slideChange", scrollData);
               if (i == 0) {
                 emit("leaveBack");
               }
