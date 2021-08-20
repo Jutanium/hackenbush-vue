@@ -30,7 +30,7 @@ import {ref, defineComponent, onBeforeUpdate, onMounted, reactive, watch, onBefo
   gsap.registerPlugin(ScrollTrigger);
 
   export default defineComponent({
-    emits: ["enter", "leave", "enterBack", "leaveBack"],
+    emits: ["enter", "leave", "enterBack", "leaveBack", "onSlideChange"],
     props: {
       numGroups: {
         type: Number,
@@ -50,6 +50,7 @@ import {ref, defineComponent, onBeforeUpdate, onMounted, reactive, watch, onBefo
       const scrollData = reactive({
         progress: 0,
         current: -1,
+        direction: 0,
         leaveProgress: 0,
       })
 
@@ -66,7 +67,7 @@ import {ref, defineComponent, onBeforeUpdate, onMounted, reactive, watch, onBefo
           const prevCumulative = _cumulativeHeights[i];
           const cumulative = _cumulativeHeights[i + 1];
 
-          const st = ScrollTrigger.create({
+          ScrollTrigger.create({
             trigger: prev,
             endTrigger: el,
             start: `top ${prevCumulative}px`,
@@ -77,6 +78,20 @@ import {ref, defineComponent, onBeforeUpdate, onMounted, reactive, watch, onBefo
               scrollData.current = i;
               scrollData.progress = progress;
             },
+            onEnter: ({direction}) => {
+              scrollData.direction = direction;
+              emit("onSlideChange", i);
+              if (i == 0) {
+                emit("enter");
+              }
+            },
+            onLeaveBack: ({direction}) => {
+              scrollData.direction = direction;
+              emit("onSlideChange", i);
+              if (i == 0) {
+                emit("leaveBack");
+              }
+            }
           })
         })
 

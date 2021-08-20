@@ -21,14 +21,15 @@
     <template v-slot:group7>
       That’s it — those are the only rules. Try it out!
     </template>
-    <template v-slot:sticky="{current, progress}">
-      {{current}} {{progress}}
+    <template v-slot:sticky="{current, progress, direction}">
+      {{current}} {{progress}} {{direction}}
       <div class="w-3/4">
         <GamePlayer :segments="person.segments"
                     v-model:subgraph="subgraph"
-                    :autoplay="true"
-                    :ai="[Color.Red]"
-                    :show-turn="true"
+                    :autoplay="3"
+                    :ai="[Color.Red, Color.Blue]"
+                    :starting-player="Color.Blue"
+                    :show-turn="false"
                     :segments-opacity="segmentOpacity(current, progress)"
                     :scissors-opacity="scissorsOpacity(current, progress)"
                     :scissors-offset-y="current == 0 ? (300 + (progress * -300)) : undefined"
@@ -65,7 +66,7 @@ const scissorsOpacity = (current, progress) => {
   return 1;
 }
 
-const subgraph = ref();
+const subgraph = ref("all");
 
 </script>
 

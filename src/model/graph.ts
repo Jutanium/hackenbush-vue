@@ -129,7 +129,12 @@ export function buildGraph(segments: SegmentsMap, groundY: number): Graph {
     return idString(Object.values(liveSegments));
   }
 
-  function setSubgraph(idString: string) {
+  function setSubgraph(idString: string | "all") {
+
+    if (idString == "all") {
+      liveSegments = Object.assign({}, segments);
+    }
+
     if (idString in subgameCache) {
       liveSegments = subgameCache[idString].segmentIds.reduce((acc: SegmentsMap, id) => {
         acc[id] = segments[id];

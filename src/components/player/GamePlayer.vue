@@ -35,7 +35,7 @@
     </div>
 
     <g>
-      <Scissors v-show="turn" v-for="color in ai"
+      <Scissors  v-for="color in ai"
                 :is-red="color === Color.Red"
                 :ref="el => scissorsRenders[color].ref = el"
                 :animation-progress="scissorsRenders[color].cutProgress"
@@ -96,7 +96,7 @@ export default defineComponent({
       type: String as PropType<Player>,
     },
     autoplay: {
-      type: Boolean,
+      type: [Boolean, Number],
       default: false,
     },
     ai: {
@@ -268,6 +268,21 @@ export default defineComponent({
       })
     }
 
+    const autoplayCounter = ref();
+
+    watchEffect(() => {
+      if (typeof props.autoplay == "number") {
+        autoplayCounter.value = props.autoplay;
+      }
+    })
+
+    const autoplaying = computed(() => {
+      if (typeof props.autoplay == "number") {
+        return autoplayCounter.value > 0;
+      }
+      return props.autoplay;
+    })
+
     return {
       graph,
       scissorsRenders,
@@ -278,7 +293,9 @@ export default defineComponent({
       Color,
       animateScissors,
       gameValue,
-      liveIds
+      liveIds,
+      autoplayCounter,
+      autoplaying
     }
   },
   data() {
@@ -383,10 +400,11 @@ export default defineComponent({
       }
       this.turn++;
 
-      if (this.ai.includes(this.currentPlayer) && this.autoplay && !this.playerWon) {
+      if (this.ai.includes(this.currentPlayer) && this.autoplaying && !this.playerWon) {
         const aiMove = this.graph.bestMoveForColor(this.currentPlayer as Color);
         this.animateScissors(this.currentPlayer, aiMove, () => {
           this.removeEdge(aiMove)
+          this.autoplayCounter--;
         })
       }
     },
