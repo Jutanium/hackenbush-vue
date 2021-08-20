@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import {ref, defineComponent, onBeforeUpdate, onMounted, reactive, watch} from "vue"
+import {ref, defineComponent, onBeforeUpdate, onMounted, reactive, watch, onBeforeUnmount} from "vue"
   import { gsap } from "gsap";
   import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -63,26 +63,19 @@ import {ref, defineComponent, onBeforeUpdate, onMounted, reactive, watch} from "
 
         groups.value.slice(1).forEach((el, i) => {
           const prev = groups.value[i];
-          const prevCumulative = _cumulativeHeights[i - 1];
-          const cumulative = _cumulativeHeights[i];
+          const prevCumulative = _cumulativeHeights[i];
+          const cumulative = _cumulativeHeights[i + 1];
 
-          ScrollTrigger.create({
+          const st = ScrollTrigger.create({
             trigger: prev,
             endTrigger: el,
             start: `top ${prevCumulative}px`,
             end: `top ${cumulative}px`,
-            onUpdate: ({progress}) => scrollData.progress = progress,
-            onEnter: (instance) => {
+            onUpdate: (instance) => {
+              const {progress} = instance;
+              // console.log(instance);
               scrollData.current = i;
-              if (i == 0) {
-                emit("enter");
-              }
-            },
-            onLeaveBack: (instance) => {
-              scrollData.current = i - 1;
-              if (i == 0) {
-                emit("leaveBack");
-              }
+              scrollData.progress = progress;
             },
           })
         })
@@ -92,7 +85,7 @@ import {ref, defineComponent, onBeforeUpdate, onMounted, reactive, watch} from "
           start: `bottom ${cumulative}px`,
           end: "bottom top",
           onEnter: () => {
-            scrollData.current = numGroups;
+            scrollData.current = numGroups - 1;
             emit("leave");
           },
           onLeaveBack: () => {
@@ -104,7 +97,7 @@ import {ref, defineComponent, onBeforeUpdate, onMounted, reactive, watch} from "
             leaveOffset.value = (start - end) * progress;
           }
         });
-;
+
       })
       return {
         groups,

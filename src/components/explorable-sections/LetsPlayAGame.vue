@@ -65,7 +65,7 @@ const scissorsOpacity = (current, progress) => {
   return 1;
 }
 
-const subgraph = ref("301342411415433667750781084986");
+const subgraph = ref();
 
 </script>
 
