@@ -26,8 +26,10 @@ type SegmentsMap = { [id: string]: Segment };
 export type Graph = {
   removeEdge: (segmentId: string) => string[],
   graphData: GraphData,
-  liveSegments: SegmentsMap,
+  getLiveSegments: () => SegmentsMap,
   evaluate: () => number,
+  getCurrentSubgraph: () => string,
+  setSubgraph: (idString: string) => Boolean,
   bestMoveForColor: (color: Color) => Segment,
 }
 
@@ -40,6 +42,9 @@ export function buildGraph(segments: SegmentsMap, groundY: number): Graph {
   const graphData: GraphData = {
     ground, edgeMap
   }
+
+  function getLiveSegments() { return liveSegments }
+
   populate();
 
   function populate() {
@@ -107,30 +112,56 @@ export function buildGraph(segments: SegmentsMap, groundY: number): Graph {
     return populate();
   }
 
-  const subgameCache: { [idString: string]: number } = {}
+  const subgameCache: {
+    [idString: string]: {
+      value: number,
+      segmentIds: string[],
+    }
+  } = {}
+
   const idString = (segments: Segment[]) => segments
     .map(s => s.id)
     .sort((a, b) => a.localeCompare(b))
-    .join("");
+    .join("")
+    .replace(/\D/g, '');
 
-  function evaluateWithout (id: string, segments: SegmentsMap) {
+  function getCurrentSubgraph() {
+    return idString(Object.values(liveSegments));
+  }
+
+  function setSubgraph(idString: string) {
+    if (idString in subgameCache) {
+      liveSegments = subgameCache[idString].segmentIds.reduce((acc: SegmentsMap, id) => {
+        acc[id] = segments[id];
+        return acc;
+      }, {})
+      populate();
+      return true;
+    }
+    return false;
+  }
+
+  function evaluateWithout(id: string, segments: SegmentsMap) {
     const clone = Object.assign({}, segments);
     delete clone[id];
-    const key = idString(Object.values(clone));
-    if (key in subgameCache) return subgameCache[key];
+    const segmentList = Object.values(clone);
+    const key = idString(segmentList);
+    if (key in subgameCache) {
+      return subgameCache[key].value;
+    }
     const game = buildGraph(clone, groundY);
     const value = evaluate(game.graphData);
-    subgameCache[key] = value;
+    subgameCache[key] = { value, segmentIds: segmentList.map(s => s.id) };
     return value;
   }
 
-  function possibleMoves(color: Color, segments: SegmentsMap): Array<{remove: Segment, value: number}> {
+  function possibleMoves(color: Color, segments: SegmentsMap): Array<{ remove: Segment, value: number }> {
     return Object.values(segments).filter(s => s.color == color)
       .map(segment => ({remove: segment, value: evaluateWithout(segment.id, segments)}))
-      .sort((a,b) => (a.value - b.value));
+      .sort((a, b) => (a.value - b.value));
   }
 
-  function evaluateSubgame (subgame: SubgraphData): number {
+  function evaluateSubgame(subgame: SubgraphData): number {
     const segments = Object.fromEntries(subgame.ids.map(id => [id, liveSegments[id]]));
     const segmentsArray = Object.values(segments);
     if (subgame.isStalk) {
@@ -138,13 +169,13 @@ export function buildGraph(segments: SegmentsMap, groundY: number): Graph {
     }
 
     const [leftMoveValues, rightMoveValues] = [Color.Blue, Color.Red]
-      .map(color => possibleMoves(color, segments).map( ({value}) => value));
+      .map(color => possibleMoves(color, segments).map(({value}) => value));
 
     return simplestBetween(leftMoveValues[leftMoveValues.length - 1], rightMoveValues[0]);
   }
 
   function evaluate(graph: GraphData = graphData): number {
-    return graph.ground.reduce( (acc, curr) => acc + evaluateSubgame(curr), 0);
+    return graph.ground.reduce((acc, curr) => acc + evaluateSubgame(curr), 0);
   }
 
   function bestMoveForColor(color: Color): Segment {
@@ -156,6 +187,6 @@ export function buildGraph(segments: SegmentsMap, groundY: number): Graph {
   }
 
   return {
-    removeEdge, graphData, liveSegments, evaluate, bestMoveForColor
+    removeEdge, graphData, getLiveSegments, evaluate, bestMoveForColor, getCurrentSubgraph, setSubgraph
   }
 }

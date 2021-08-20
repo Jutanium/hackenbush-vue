@@ -25,9 +25,10 @@
       {{current}} {{progress}}
       <div class="w-3/4">
         <GamePlayer :segments="person.segments"
-                    :autoplay="false"
-                    :ai="[Color.Blue, Color.Red]"
-                    :show-turn="true" :starting-player="Color.Blue"
+                    v-model:subgraph="subgraph"
+                    :autoplay="true"
+                    :ai="[Color.Red]"
+                    :show-turn="true"
                     :segments-opacity="segmentOpacity(current, progress)"
                     :scissors-opacity="scissorsOpacity(current, progress)"
                     :scissors-offset-y="current == 0 ? (300 + (progress * -300)) : undefined"
@@ -44,7 +45,7 @@ import ScrollytellSection from "../scrollytell/ScrollytellSection.vue";
 import GamePlayer from "../player/GamePlayer.vue";
 import person from "@/game-files/person.json"
 import {Color} from "@/model/segment-color";
-import {computed} from "vue"
+import {computed, ref} from "vue"
 
 const segmentOpacity = (current, progress) => {
   if (current < 1) {
@@ -63,6 +64,9 @@ const scissorsOpacity = (current, progress) => {
   }
   return 1;
 }
+
+const subgraph = ref("301342411415433667750781084986");
+
 </script>
 
 <style scoped>

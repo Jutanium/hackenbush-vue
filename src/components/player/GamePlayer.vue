@@ -25,11 +25,14 @@
       <div v-else :class="currentPlayerClass">
         Turn {{ turn }}.
       </div>
-      <!--      <div v-if="gameValue != undefined">-->
-      <!--        Game value: {{gameValue}}-->
-      <!--      </div>-->
     </div>
 
+    <div v-if="debugMode" class="mt-12">
+      <div v-if="gameValue != undefined">
+        Game value: {{gameValue}}
+      </div>
+      <div v-if="subgraph">{{subgraph}}</div>
+    </div>
 
     <g>
       <Scissors v-show="turn" v-for="color in ai"
@@ -46,25 +49,26 @@
             :width="100" :height="5" :y="95" fill="green">
       </rect>
 
-      <g v-for=" ([id, {segment, style}]) in Object.entries(segmentRenders)"
-         :style="style">
-        <title v-if="debugMode">{{segment.id}}</title>
-        <PiecePath :segment="segment" :class="{clickable: clickable(segment)}"
-                   @click="pieceClicked(segment)"
-        >
-        </PiecePath>
-        <circle class="lg:hidden" :cx="segment.start.x" :cy="segment.start.y" :r="1.5"></circle>
-        <circle class="lg:hidden" :cx="segment.end.x" :cy="segment.end.y" :r="1.5"></circle>
-        <circle class="hidden lg:block" :cx="segment.start.x" :cy="segment.start.y" :r="1"></circle>
-        <circle class="hidden lg:block" :cx="segment.end.x" :cy="segment.end.y" :r="1"></circle>
-      </g>
+      <template v-for=" ([id, {segment, style, live, animating}]) in Object.entries(segmentRenders)">
+        <g :style="style" v-if="live || animating">
+          <title v-if="debugMode">{{segment.id}}</title>
+          <PiecePath :segment="segment" :class="{clickable: clickable(segment)}"
+                     @click="pieceClicked(segment)"
+          >
+          </PiecePath>
+          <circle class="lg:hidden" :cx="segment.start.x" :cy="segment.start.y" :r="1.5"></circle>
+          <circle class="lg:hidden" :cx="segment.end.x" :cy="segment.end.y" :r="1.5"></circle>
+          <circle class="hidden lg:block" :cx="segment.start.x" :cy="segment.start.y" :r="1"></circle>
+          <circle class="hidden lg:block" :cx="segment.end.x" :cy="segment.end.y" :r="1"></circle>
+        </g>
+      </template>
 
     </svg>
   </div>
 </template>
 
 <script lang="ts">
-import {computed, ComputedRef, defineComponent, onMounted, PropType, reactive, ref, unref} from "vue"
+import {computed, ComputedRef, defineComponent, onMounted, PropType, reactive, ref, toRef, unref, watch, watchEffect} from "vue"
 import {Segment} from "@/model/segment";
 import PiecePath from "@/components/shared/PiecePath.vue";
 import {buildGraph, Graph} from "@/model/graph";
@@ -78,6 +82,7 @@ import Timeline = gsap.core.Timeline;
 type Player = Color.Red | Color.Blue
 export default defineComponent({
   components: {Scissors, PiecePath},
+  emits: ['update:subgraph'],
   props: {
     pictureMode: {
       type: Boolean,
@@ -123,6 +128,9 @@ export default defineComponent({
       type: Number
     },
     //For outside control
+    subgraph: {
+      type: String
+    }
 
   },
   setup: (props) => {
@@ -137,6 +145,22 @@ export default defineComponent({
       },
     }
 
+    const graph = computed( () => {
+      return buildGraph(props.segments, props.groundY);
+    });
+
+    const liveIds = ref(Object.keys(graph.value.getLiveSegments()));
+
+    const gameValue = ref<number>(graph.value.evaluate());
+
+    watchEffect(() => {
+      if (props.subgraph) {
+        graph.value.setSubgraph(props.subgraph);
+        gameValue.value = graph.value.evaluate();
+        liveIds.value = Object.keys(graph.value.getLiveSegments());
+      }
+    });
+
     const otherPlayer = (player: Player) => player == Color.Red ? Color.Blue : Color.Red;
 
     const svg = ref<SVGElement>();
@@ -148,6 +172,10 @@ export default defineComponent({
                 segment,
                 offsetY: 0,
                 opacity: 1,
+                live: computed( () => {
+                  return liveIds.value.includes(segment.id)
+                }),
+                animating: false,
                 style: computed( () => (
                     {
                       transform: `translateY(${obj.offsetY}px)`,
@@ -241,29 +269,28 @@ export default defineComponent({
     }
 
     return {
+      graph,
       scissorsRenders,
       segmentRenders,
       playerDisplay,
       otherPlayer,
       svg,
       Color,
-      animateScissors
+      animateScissors,
+      gameValue,
+      liveIds
     }
   },
   data() {
     return {
       turn: 0,
       currentPlayer: false as Player | false,
-      gameValue: undefined as undefined | number,
       leavingAnimation: undefined as undefined | Timeline,
     }
   },
   created() {
   },
   mounted() {
-    if (this.graph) {
-      this.gameValue = this.graph.evaluate();
-    }
     // Object.values(this.scissorsRenders).forEach(scissors => {
     //   if (scissors.ref?.$el) {
     //     const {x, y} = scissors.lastPos;
@@ -279,12 +306,14 @@ export default defineComponent({
       this.nextTurn(this.startingPlayer);
     }
   },
+  watch: {
+  },
   computed: {
     playerWon(): false | Player {
       if (!this.currentPlayer) {
         return false;
       }
-      const colorsLeft = this.liveSegments.map(segment => segment.color);
+      const colorsLeft = this.liveIds.map(id => this.segments[id].color);
       if (!colorsLeft.includes(this.currentPlayer)) {
         return this.otherPlayer(this.currentPlayer);
       }
@@ -300,19 +329,6 @@ export default defineComponent({
         return this.playerDisplay[this.currentPlayer].text;
       }
     },
-    liveSegments(): Array<Segment> {
-      this.turn;
-      if (this.graph) {
-        return Object.values(this.graph.liveSegments);
-        // return Object.values(this.segments).filter(s => this.graph?.reachesGround(s.id));
-      }
-      return []
-    },
-    graph(): Graph | undefined {
-      if (this.segments) {
-        return buildGraph(this.segments, this.groundY);
-      }
-    }
   },
   methods: {
     clickable(segment: Segment): Boolean {
@@ -326,22 +342,36 @@ export default defineComponent({
     },
     removeEdge(segment: Segment) {
       if (this.graph) {
-        const floating = this.graph.removeEdge(segment.id);
-        console.log(floating);
+        const floatingIds = this.graph.removeEdge(segment.id);
+        const floatingSegments = floatingIds.map(id => this.segmentRenders[id]);
         const timeline = gsap.timeline();
-        timeline.fromTo(this.segmentRenders[segment.id], {opacity: 0.5}, {
+        const cutSegment = this.segmentRenders[segment.id];
+        timeline.fromTo(cutSegment, {opacity: 0.5}, {
           duration: 0.5,
-          opacity: 0
+          opacity: 0,
+          onStart () {
+            cutSegment.animating = true;
+          },
+          onComplete () {
+            cutSegment.animating = false;
+          }
         });
-        if (floating.length) {
-          timeline.to(floating.map(id => this.segmentRenders[id]), {
+        if (floatingSegments.length) {
+          timeline.to(floatingSegments, {
             ease: "power1.in",
             duration: 1,
-            offsetY: "-=100"
+            offsetY: "-=100",
+            onStart () {
+              floatingSegments.forEach(s => s.animating = true);
+            },
+            onComplete () {
+              floatingSegments.forEach(s => s.animating = false);
+            }
           }, "<");
         }
         this.leavingAnimation = timeline;
         this.gameValue = this.graph.evaluate();
+        this.$emit("update:subgraph", this.graph.getCurrentSubgraph());
         this.nextTurn();
       }
     },
