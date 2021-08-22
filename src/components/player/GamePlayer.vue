@@ -1,18 +1,11 @@
 <template>
   <div>
-    <div v-if="!pictureMode && showTurn" class="absolute top-20 text-2xl">
-<!--      <div v-if="!currentPlayer" class="text-xl">-->
-<!--        Who goes first?-->
-<!--        <button :class="playerDisplay.blue.class" @click="nextTurn(Color.Blue)">-->
-<!--          {{ playerDisplay.blue.text }}-->
-<!--        </button>-->
-<!--        or-->
-<!--        <button :class="playerDisplay.red.class" @click="nextTurn(Color.Red)">-->
-<!--          {{ playerDisplay.red.text }}-->
-<!--        </button>-->
-<!--      </div>-->
-      <PlayerSelect v-if="!currentPlayer" :starting="startingPlayer" @submit="playerSelected" />
 
+    <PlayerSelect v-if="!currentPlayer" :starting="startingPlayer" @submit="playerSelected"
+                  class="absolute w-1/2 top-20 left-10"
+    />
+
+    <div v-if="!pictureMode && showTurn" class="absolute top-14 left-10 text-xl lg:text-2xl">
       <div v-if="playerWon">
         <span :class="playerDisplay[otherPlayer(playerWon)].class">
           {{ playerDisplay[otherPlayer(playerWon)].text }}
@@ -46,7 +39,7 @@
       ></Scissors>
     </g>
 
-    <svg ref="svg" viewBox="0 0 100 100">
+    <svg ref="svg" viewBox="0 0 100 100" class="border border-black">
 
       <rect class="drawnGround"
             :width="100" :height="5" :y="95" fill="green">
@@ -100,7 +93,7 @@ import PlayerSelect from "@/components/player/PlayerSelect.vue";
 type Player = Color.Red | Color.Blue
 export default defineComponent({
   components: {PlayerSelect, Scissors, PiecePath},
-  // emits: ['update:subgraph'],
+  emits: ['gameover'],
   props: {
     pictureMode: {
       type: Boolean,
@@ -200,6 +193,7 @@ export default defineComponent({
 
     const svg = ref<SVGElement>();
 
+    const playingAgain = ref(false);
 
     const animations: {scissors: Set<Timeline>, segments: Set<Timeline>} = {
       scissors: new Set(),
@@ -293,13 +287,14 @@ export default defineComponent({
       Object.values(segmentRenders).forEach(r => Object.assign(r, segmentRendersInitial));
     }
 
-    function resetGame(doResetScissors = true, startingPlayer = props.startingPlayer, subgraph = props.subgraph) {
+    function resetGame(playerInitiated = false, doResetScissors = true, startingPlayer = props.startingPlayer, subgraph = props.subgraph) {
       if (props.debugMode) {
         console.log("resetting");
       }
 
       turn.value = 0;
       graph.value.setSubgraph(subgraph!);
+      playingAgain.value = playerInitiated;
       autoplayCounter.value = 0;
       if (!ai.value) {
         ai.value = props.aiControls;
@@ -318,13 +313,18 @@ export default defineComponent({
       }
       if (doResetScissors) resetScissors();
       resetSegments();
+      if (!startingPlayer) {
+        currentPlayer.value = false;
+        return;
+      }
+
       if (svg.value) {
         nextTurn(startingPlayer);
       }
     }
 
     watch([toRef(props, "flush"), svg], ([flush]) => {
-      resetGame(flush == 0 || props.resetScissorsOnFlush);
+      resetGame(false, flush == 0 || props.resetScissorsOnFlush);
     }, {immediate: true})
 
     function resetButtonClick() {
@@ -332,13 +332,13 @@ export default defineComponent({
       if (choosePlayer) {
         currentPlayer.value = false;
       } else {
-        resetGame(true, props.startingPlayer, subgraph || props.subgraph)
+        resetGame(true, true, props.startingPlayer, subgraph || props.subgraph)
       }
     }
 
     function playerSelected(params: {playerControlled: Player, starting: Player}) {
       ai.value = [otherPlayer(params.playerControlled)];
-      resetGame(true, params.starting);
+      resetGame(true, true, params.starting);
     }
 
     function animateScissors(color: Player, segment: Segment, onComplete: () => void) {
@@ -440,7 +440,6 @@ export default defineComponent({
     }
 
     function nextTurn(firstTurnPlayer?: Player) {
-
       if (firstTurnPlayer) {
         currentPlayer.value = firstTurnPlayer;
       } else {
@@ -449,7 +448,12 @@ export default defineComponent({
       turn.value++;
 
       const CurrentPlayer = unref(currentPlayer);
-      if (ai.value.includes(CurrentPlayer) && autoplaying.value && !playerWon.value) {
+      if (playerWon.value) {
+        emit("gameover", {winner: playerWon.value})
+        return;
+      }
+
+      if (ai.value.includes(CurrentPlayer) && autoplaying.value) {
         const aiMove = graph.value.bestMoveForColor(CurrentPlayer as Color);
         aiIsMoving.value = true;
         animateScissors(CurrentPlayer, aiMove, () => {
@@ -461,6 +465,7 @@ export default defineComponent({
     }
 
     const autoplaying = computed(() => {
+      if (playingAgain.value) return true;
       if (typeof props.autoplay == "number") {
         return autoplayCounter.value < props.autoplay;
       }

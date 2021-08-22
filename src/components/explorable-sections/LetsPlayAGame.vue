@@ -37,23 +37,22 @@
     </template>
     <template v-slot:sticky="{current, progress, direction}">
       {{current}} {{progress}} {{direction}}
-      <div class="w-3/4">
         <GamePlayer :segments="person.segments"
                     :subgraph="subgraph"
                     :autoplay="autoplay"
                     :flush="flushRef"
                     :aiControls="current == 6 ? [Color.Blue] : [Color.Red, Color.Blue]"
-                    :starting-player="Color.Blue"
+                    :starting-player="startingPlayer"
                     :show-turn="current > 4"
                     :reset-scissors-on-flush="direction < 0"
                     :segments-opacity="segmentOpacity(current, progress)"
                     :scissors-opacity="scissorsOpacity(current, progress)"
-                    :prompt-reset="{text: 'Let Me Play', choosePlayer: true}"
+                    :prompt-reset="{text: hasCompleted > 1 ? 'Play Again' : 'Let Me Play', choosePlayer: true}"
                     :scissors-offset-y="current == 0 ? (300 + (progress * -300)) : undefined"
+                    @gameover="({winner}) => hasCompleted++"
                     ref="player"
         >
         </GamePlayer>
-      </div>
     </template>
   </ScrollytellSection>
 </template>
@@ -85,10 +84,9 @@ const scissorsOpacity = (current, progress) => {
 }
 
 const subgraph = ref("all");
-
 const autoplay = ref<boolean | number>(false);
-
 const flushRef = ref(0);
+
 function flush() {
   flushRef.value++;
 }
@@ -103,16 +101,20 @@ function reset() {
   flush();
 }
 
+const hasCompleted = ref(0);
+
+const startingPlayer = ref(Color.Blue);
+
 const slideChange = (scrollData: {current: number, direction: number}) => {
   const { current, direction } = scrollData;
-  console.log(current);
+  console.log("slideChange", current, direction);
   if (current <= 3 && direction < 0) {
     reset();
     return;
   }
   if (direction < 0) {
     autoplay.value = false;
-    flush();
+    // flush();
   }
   if (current == 3) {
     subgraph.value = "all";
@@ -140,11 +142,11 @@ const slideChange = (scrollData: {current: number, direction: number}) => {
     return;
   }
   if (current == 6) {
-    subgraph.value = "all";
-    if (direction > 0) {
-      autoplay.value = true;
+    if (direction < 0) {
+      subgraph.value = "all"
+      startingPlayer.value = "";
+      flush();
     }
-    flush();
   }
 }
 

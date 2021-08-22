@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-4 items-center gap-y-2">
+  <div class="grid grid-cols-4 items-center gap-y-2 bg-white border border-gray-200  p-2 rounded-md filter drop-shadow-md ">
     <template v-for="choice in choices">
       <div class="col-span-2 text-lg mr-2" v-text="choice.text"></div>
       <button class="border-2 rounded-lg text-blue-player text-center border-transparent"
