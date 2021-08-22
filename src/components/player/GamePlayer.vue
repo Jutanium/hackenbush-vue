@@ -29,7 +29,8 @@
     </div>
 
     <g>
-      <Scissors v-for="color in ai"
+      <Scissors v-for="color in [Color.Red, Color.Blue]"
+                v-show="ai.includes(color)"
                 :is-red="color === Color.Red"
                 :ref="el => scissorsRenders[color].ref = el"
                 :animation-progress="scissorsRenders[color].cutProgress"
@@ -291,7 +292,9 @@ export default defineComponent({
       }
 
       turn.value = 0;
-      graph.value.setSubgraph(subgraph!);
+
+      graph.value.setSubgraph(subgraph || "all");
+
       playingAgain.value = playerInitiated;
 
       autoplayCounter.value = 0;
