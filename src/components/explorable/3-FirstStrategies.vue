@@ -35,21 +35,6 @@
       >
 
       </GamePlayer>
-<!--      <GamePlayer-->
-<!--          :segments="firststrat.segments"-->
-<!--          :subgraph="subgraph"-->
-<!--          :autoplay="false"-->
-<!--          :flush="flushRef"-->
-<!--          :aiControls="[]"-->
-<!--          :starting-player="startingPlayer"-->
-<!--          :show-turn="current > 4"-->
-<!--          :reset-scissors-on-flush="direction < 0"-->
-<!--          :segments-opacity="enterProgress"-->
-<!--          :prompt-reset="false"-->
-<!--          @gameover="onGameOver"-->
-<!--          ref="player"-->
-<!--      >-->
-<!--      </GamePlayer>-->
     </template>
   </ScrollytellSection>
 </template>

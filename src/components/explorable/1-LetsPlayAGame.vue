@@ -44,7 +44,6 @@
                     :prompt-reset="{text: hasCompleted > 1 ? 'Play Again' : 'Let Me Play', choosePlayer: true, subgraph: 'all'}"
                     :scissors-offset-y="current == 0 ? (300 + (progress * -300)) : undefined"
                     @gameover="onGameOver"
-                    ref="player"
         >
         </GamePlayer>
     </template>
