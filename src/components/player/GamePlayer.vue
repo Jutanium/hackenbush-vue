@@ -297,6 +297,7 @@ export default defineComponent({
 
       turn.value = 0;
 
+      graph.value.evaluate();
       graph.value.setSubgraph(subgraph || "all");
 
       playingAgain.value = playerInitiated;

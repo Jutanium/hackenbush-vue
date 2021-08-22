@@ -22,6 +22,7 @@
     </template>
     <template v-slot:sticky="{current, enterProgress, progress, direction}">
       <GamePlayer :segments="firststrat.segments"
+                  :subgraph="subgraph"
                   :show-turn="enterProgress >= 1 && !preventClick"
                   :starting-player="startingPlayer"
                   :flush="flushRef"
@@ -131,9 +132,17 @@ const slideChange = (scrollData: { current: number, direction: number }) => {
   const {current, direction} = scrollData;
   currentSlide.value = current;
   console.log("slideChange", current, direction);
-  if (current <= 1 && direction < 0) {
+  // if (current < 1 && direction < 0) {
+  //   reset();
+  // }
+  if (current == 0) {
+    startingPlayer.value = Color.Blue;
     reset();
-    return;
+  }
+  if (current == 1) {
+    startingPlayer.value = Color.Red;
+    subgraph.value = "32";
+    flush();
   }
   if (current == 2) {
     startingPlayer.value = Color.Red;

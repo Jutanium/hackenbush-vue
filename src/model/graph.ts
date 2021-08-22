@@ -19,7 +19,8 @@ type SubgraphData = {
 
 type GraphData = {
   edgeMap: EdgeMap,
-  ground: SubgraphData[]
+  ground: SubgraphData[],
+  subgameCache: { [id: string]: {value: number, segmentIds: string[]}}
 }
 
 type SegmentsMap = { [id: string]: Segment };
@@ -39,8 +40,15 @@ export function buildGraph(segments: SegmentsMap, groundY: number): Graph {
   let ground: SubgraphData[] = [];
   let edgeMap: { [id: string]: Edge } = {}
 
+  const subgameCache: {
+    [idString: string]: {
+      value: number,
+      segmentIds: string[],
+    }
+  } = {}
+
   const graphData: GraphData = {
-    ground, edgeMap
+    ground, edgeMap, subgameCache
   }
 
   function getLiveSegments() { return liveSegments }
@@ -112,12 +120,6 @@ export function buildGraph(segments: SegmentsMap, groundY: number): Graph {
     return populate();
   }
 
-  const subgameCache: {
-    [idString: string]: {
-      value: number,
-      segmentIds: string[],
-    }
-  } = {}
 
   const idString = (segments: Segment[]) => segments
     .map(s => s.id)
@@ -169,8 +171,17 @@ export function buildGraph(segments: SegmentsMap, groundY: number): Graph {
   function evaluateSubgame(subgame: SubgraphData): number {
     const segments = Object.fromEntries(subgame.ids.map(id => [id, liveSegments[id]]));
     const segmentsArray = Object.values(segments);
+    const key = idString(segmentsArray);
+    if (key in subgameCache) {
+      return subgameCache[key].value;
+    }
     if (subgame.isStalk) {
-      return stalkValue(segmentsArray);
+      const value = stalkValue(segmentsArray);
+      subgameCache[key] = {
+        segmentIds: segmentsArray.map(s => s.id),
+        value
+      }
+      return value;
     }
 
     const [leftMoveValues, rightMoveValues] = [Color.Blue, Color.Red]

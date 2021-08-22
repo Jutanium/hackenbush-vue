@@ -1,6 +1,6 @@
 <template>
   <div>
-<!--    <LetsPlayAGame></LetsPlayAGame>-->
+    <LetsPlayAGame></LetsPlayAGame>
 <!--    <GamesAndMath></GamesAndMath>-->
     <FirstStrategies></FirstStrategies>
   </div>

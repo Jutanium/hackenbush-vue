@@ -1,18 +1,4 @@
 <template>
-
-<!--  <div class="w-1/2">-->
-<!--    <GamePlayer :segments="person.segments"-->
-<!--                :subgraph="subgraph"-->
-<!--                :autoplay="autoplay"-->
-<!--                :ai="[Color.Blue]"-->
-<!--                :starting-player="Color.Blue"-->
-<!--                :show-turn="true"-->
-<!--                :flush="flushRef"-->
-<!--                ref="player"-->
-<!--    />-->
-<!--    <button @click="play">Play</button>-->
-<!--    <button @click="reset">Reset</button>-->
-<!--  </div>-->
     <ScrollytellSection :topGap="true" :num-groups="7" @slideChange="slideChange">
       <template v-slot:group1>
       <b>Let's play a game.</b>
