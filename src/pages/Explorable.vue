@@ -1,7 +1,8 @@
 <template>
   <div>
-    <LetsPlayAGame></LetsPlayAGame>
-    <GamesAndMath></GamesAndMath>
+<!--    <LetsPlayAGame></LetsPlayAGame>-->
+<!--    <GamesAndMath></GamesAndMath>-->
+    <FirstStrategies></FirstStrategies>
   </div>
 </template>
 
@@ -13,7 +14,7 @@
   import {Color} from "@/model/segment-color";
   import LetsPlayAGame from "@/components/explorable/1-LetsPlayAGame.vue";
   import GamesAndMath from "@/components/explorable/2-GamesAndMath.vue"
-
+  import FirstStrategies from "@/components/explorable/3-FirstStrategies.vue"
 
 </script>
 

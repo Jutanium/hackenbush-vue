@@ -7,7 +7,7 @@
              :ref="el => { if (el) groups[zeroIndexed] = el }"
              :style="collectStyle(zeroIndexed)">
           <div class="text-lg">
-            <slot :name="'group' + i"></slot>
+            <slot :name="'group' + i" v-bind="scrollData"></slot>
           </div>
         </div>
         <div class="w-2 h-screen"></div>

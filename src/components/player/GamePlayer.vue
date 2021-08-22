@@ -92,7 +92,7 @@ import PlayerSelect from "@/components/player/PlayerSelect.vue";
 type Player = Color.Red | Color.Blue
 export default defineComponent({
   components: {PlayerSelect, Scissors, PiecePath},
-  emits: ['gameover'],
+  emits: ['gameover', 'segmentClicked'],
   props: {
     pictureMode: {
       type: Boolean,
@@ -149,6 +149,10 @@ export default defineComponent({
       type: [Boolean, Number],
       default: false,
     },
+    preventClick: {
+      type: Boolean,
+      default: false,
+    },
     flush: {
       type: Number
     },
@@ -179,7 +183,7 @@ export default defineComponent({
       return buildGraph(props.segments, props.groundY);
     });
 
-    const liveIds = ref(Object.keys(graph.value.getLiveSegments()));
+    const liveIds = ref(new Set(Object.keys(graph.value.getLiveSegments())));
 
     const gameValue = ref<number>(graph.value.evaluate());
 
@@ -268,7 +272,7 @@ export default defineComponent({
             ...segmentRendersInitial,
             segment,
             live: computed(() => {
-              return liveIds.value.includes(segment.id)
+              return liveIds.value.has(segment.id)
             }),
             style: computed(() => (
               {
@@ -298,12 +302,13 @@ export default defineComponent({
       playingAgain.value = playerInitiated;
 
       autoplayCounter.value = 0;
-      if (!ai.value) {
+
+      if (!playerInitiated || !ai.value) {
         ai.value = props.aiControls;
       }
 
       gameValue.value = graph.value.evaluate();
-      liveIds.value = Object.keys(graph.value.getLiveSegments());
+      liveIds.value = new Set(Object.keys(graph.value.getLiveSegments()));
 
       if (props.stopAnimationOnFlush) {
         if (animations.scissors.size)
@@ -413,6 +418,7 @@ export default defineComponent({
             cutSegment.animating = true;
           },
           onComplete() {
+            // liveIds.value.delete(segment.id);
             cutSegment.animating = false;
             console.log("complete")
           },
@@ -427,12 +433,15 @@ export default defineComponent({
               floatingSegments.forEach(s => s.animating = true);
             },
             onComplete() {
+              // floatingIds.forEach(id => liveIds.value.delete(id));
               floatingSegments.forEach(s => s.animating = false);
             },
           }, "<");
         }
 
         gameValue.value = Graph.evaluate();
+
+
         if (props.debugMode) {
           console.log("Subgraph", Graph.getCurrentSubgraph(), "Value", gameValue.value);
         }
@@ -476,17 +485,19 @@ export default defineComponent({
     })
 
     function clickable(segment: Segment): Boolean {
-      if (props.pictureMode) return false;
+      if (props.pictureMode || props.preventClick) return false;
       return segment.color == "green" || segment.color == currentPlayer.value
     }
 
     function pieceClicked(segment: Segment) {
       if (clickable(segment)) {
+        emit("segmentClicked", {segment, player: currentPlayer.value})
         removeEdge(segment);
       }
     }
 
     const playerWon = computed<false | Player>(() => {
+      turn.value;
       const CurrentPlayer = unref(currentPlayer);
       if (!CurrentPlayer) {
         return false;
