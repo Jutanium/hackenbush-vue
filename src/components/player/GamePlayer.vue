@@ -1,10 +1,8 @@
 <template>
   <div>
-
     <PlayerSelect v-if="!currentPlayer" :starting="startingPlayer" @submit="playerSelected"
                   class="absolute w-1/2 top-20 left-10"
     />
-
     <div v-if="!pictureMode && showTurn" class="absolute top-14 left-10 text-xl lg:text-2xl">
       <div v-if="playerWon">
         <span :class="playerDisplay[otherPlayer(playerWon)].class">
@@ -295,6 +293,7 @@ export default defineComponent({
       turn.value = 0;
       graph.value.setSubgraph(subgraph!);
       playingAgain.value = playerInitiated;
+
       autoplayCounter.value = 0;
       if (!ai.value) {
         ai.value = props.aiControls;
@@ -338,7 +337,7 @@ export default defineComponent({
 
     function playerSelected(params: {playerControlled: Player, starting: Player}) {
       ai.value = [otherPlayer(params.playerControlled)];
-      resetGame(true, true, params.starting);
+      resetGame(true, true, params.starting, props.promptReset.subgraph || props.subgraph);
     }
 
     function animateScissors(color: Player, segment: Segment, onComplete: () => void) {
@@ -448,8 +447,9 @@ export default defineComponent({
       turn.value++;
 
       const CurrentPlayer = unref(currentPlayer);
+
       if (playerWon.value) {
-        emit("gameover", {winner: playerWon.value})
+        emit("gameover", {winner: playerWon.value, playerDidWin: !ai.value.includes(playerWon.value), playingAgain: playingAgain.value})
         return;
       }
 

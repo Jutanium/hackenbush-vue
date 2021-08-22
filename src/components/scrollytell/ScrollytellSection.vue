@@ -1,8 +1,8 @@
 <template>
   <div class="w-full">
-    <div class="w-1/2 h-screen"></div>
+    <div v-if="topGap" class="w-1/2 h-96"></div>
     <div class="flex flex-row justify-center">
-      <div class="mx-12">
+      <div class="mx-12 max-w-2xl">
         <div v-for="(i, zeroIndexed) in numGroups" class="flex items-center"
              :ref="el => { if (el) groups[zeroIndexed] = el }"
              :style="collectStyle(zeroIndexed)">
@@ -39,6 +39,10 @@ export default defineComponent({
     top: {
       type: Number,
       default: 100
+    },
+    topGap: {
+      type: Boolean,
+      default: false
     }
   },
   setup: ({top, numGroups}, {emit}) => {
@@ -51,16 +55,23 @@ export default defineComponent({
       progress: 0,
       current: -1,
       direction: 0,
+      enterProgress: 0,
       leaveProgress: 0,
     })
 
     const leaveOffset = ref(0);
 
-    const scrollTriggersRef = ref<any[]>([]);
+    const scrollTriggersRef = ref([ScrollTrigger.create({})]);
 
-    onMounted(() => {
-      const scrollTriggers = unref(scrollTriggersRef);
-      console.log("mounted hook", scrollTriggers.length);
+    function registerScrollTriggers() {
+      let scrollTriggers = unref(scrollTriggersRef);
+      console.log("Registering ScrollTriggers.", scrollTriggers.length, "existing scrolltriggers");
+
+      if (scrollTriggers.length) {
+        scrollTriggers.forEach( st => st.kill());
+        scrollTriggers = [];
+      }
+
       let cumulative = top;
       const _cumulativeHeights = [cumulative];
       groups.value.forEach(el => _cumulativeHeights.push(cumulative += el.scrollHeight));
@@ -71,7 +82,16 @@ export default defineComponent({
         const prevCumulative = _cumulativeHeights[i];
         const cumulative = _cumulativeHeights[i + 1];
 
-       scrollTriggers.push(ScrollTrigger.create({
+        scrollTriggers.push(ScrollTrigger.create({
+          trigger: groups.value[0],
+          start: `bottom bottom`,
+          end: `top ${top}px`,
+          onUpdate: ({progress, direction, start, end}) => {
+            scrollData.enterProgress = progress;
+          }
+        }));
+
+        scrollTriggers.push(ScrollTrigger.create({
           trigger: prev,
           endTrigger: el,
           start: `top ${prevCumulative}px`,
@@ -79,24 +99,27 @@ export default defineComponent({
           onUpdate: (instance) => {
             const {progress} = instance;
             // console.log(instance);
+            console.log("onUpdate", i)
             scrollData.current = i;
             scrollData.progress = progress;
           },
           onEnter: ({direction}) => {
             scrollData.direction = direction;
+            console.log("onEnter", i)
             emit("slideChange", scrollData);
             if (i == 0) {
               emit("enter");
             }
           },
           onLeaveBack: ({direction}) => {
+            console.log("onLeaveBack", i)
             scrollData.direction = direction;
             emit("slideChange", scrollData);
             if (i == 0) {
               emit("leaveBack");
             }
           }
-        }) );
+        }));
       })
 
       scrollTriggers.push(ScrollTrigger.create({
@@ -122,6 +145,21 @@ export default defineComponent({
       }));
 
       scrollTriggersRef.value = scrollTriggers;
+    }
+
+    //This doesn't really fix the issue, as scrolling backwards still won't work. The real fix is forcing the browser to scroll
+    //back to top on refresh.
+    function fixGlitch() {
+      const upTo = scrollTriggersRef.value.map( st => st.end - st.start).findIndex(dist => dist > 1);
+      scrollData.current = upTo;
+      registerScrollTriggers();
+    }
+
+    onMounted(() => {
+      registerScrollTriggers();
+      setTimeout(() => {
+        fixGlitch();
+      }, 10);
     })
 
     function collectStyle(index: number) {

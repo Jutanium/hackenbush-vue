@@ -13,31 +13,39 @@
 <!--    <button @click="play">Play</button>-->
 <!--    <button @click="reset">Reset</button>-->
 <!--  </div>-->
-    <ScrollytellSection :num-groups="7" @slideChange="slideChange">
+    <ScrollytellSection :topGap="true" :num-groups="7" @slideChange="slideChange">
       <template v-slot:group1>
       <b>Let's play a game.</b>
     </template>
     <template v-slot:group2>
-      It’s a simple game, with two players — bLue and Red.
+      It’s a simple game, with two players — <Blue/> and <Red/>.
     </template>
     <template v-slot:group3>
-      The game consists of a bunch of bLue and Red strings connected to the ground.
+      The game consists of a bunch of <Blue/> and <Red/> <b>strings</b> connected to the <b>ground</b>.
     </template>
     <template v-slot:group4>
-      Each player, on their turn, can cut a string of their own color.
+      Each player, on their turn, can <b>cut</b> a string of their own color.
     </template>
     <template v-slot:group5>
-      Any pieces that are no longer connected to the ground will float away.
+      Any pieces that are no longer connected to the ground will <b>float away.</b>
     </template>
     <template v-slot:group6>
-      If you can’t make a move, you lose.
+      If you can’t make a move, you <b>lose</b>.
     </template>
     <template v-slot:group7>
       That’s it — those are the only rules. Try it out!
+      <div v-if="playerWon !== undefined">
+        <template v-if="playerWon">
+          Hey, look — you won your first game! Great job!
+        </template>
+        <template v-else>
+          You didn’t win this time, but don’t sweat it — you’ll have plenty more chances.
+        </template>
+      </div>
     </template>
     <template v-slot:sticky="{current, progress, direction}">
-      {{current}} {{progress}} {{direction}}
-        <GamePlayer :segments="person.segments"
+        <GamePlayer
+            :segments="person.segments"
                     :subgraph="subgraph"
                     :autoplay="autoplay"
                     :flush="flushRef"
@@ -47,9 +55,9 @@
                     :reset-scissors-on-flush="direction < 0"
                     :segments-opacity="segmentOpacity(current, progress)"
                     :scissors-opacity="scissorsOpacity(current, progress)"
-                    :prompt-reset="{text: hasCompleted > 1 ? 'Play Again' : 'Let Me Play', choosePlayer: true}"
+                    :prompt-reset="{text: hasCompleted > 1 ? 'Play Again' : 'Let Me Play', choosePlayer: true, subgraph: 'all'}"
                     :scissors-offset-y="current == 0 ? (300 + (progress * -300)) : undefined"
-                    @gameover="({winner}) => hasCompleted++"
+                    @gameover="onGameOver"
                     ref="player"
         >
         </GamePlayer>
@@ -62,8 +70,9 @@ import ScrollytellSection from "../scrollytell/ScrollytellSection.vue";
 import GamePlayer from "../player/GamePlayer.vue";
 import person from "@/game-files/person.json"
 import {Color} from "@/model/segment-color";
-
 import {computed, ref} from "vue"
+import Blue from "@/components/explorable/text-elements/Blue.vue";
+import Red from "@/components/explorable/text-elements/Red.vue"
 
 const segmentOpacity = (current, progress) => {
   if (current < 1) {
@@ -86,7 +95,16 @@ const scissorsOpacity = (current, progress) => {
 const subgraph = ref("all");
 const autoplay = ref<boolean | number>(false);
 const flushRef = ref(0);
+const hasCompleted = ref(0);
+const startingPlayer = ref(Color.Blue);
+const playerWon = ref<true | false | undefined>();
 
+function onGameOver({winner, playerDidWin, playingAgain}) {
+  hasCompleted.value++;
+  if (playingAgain) {
+    playerWon.value = playerDidWin;
+  }
+}
 function flush() {
   flushRef.value++;
 }
@@ -101,9 +119,6 @@ function reset() {
   flush();
 }
 
-const hasCompleted = ref(0);
-
-const startingPlayer = ref(Color.Blue);
 
 const slideChange = (scrollData: {current: number, direction: number}) => {
   const { current, direction } = scrollData;
@@ -115,6 +130,9 @@ const slideChange = (scrollData: {current: number, direction: number}) => {
   if (direction < 0) {
     autoplay.value = false;
     // flush();
+  }
+  if (current < 6) {
+    startingPlayer.value = Color.Blue;
   }
   if (current == 3) {
     subgraph.value = "all";
