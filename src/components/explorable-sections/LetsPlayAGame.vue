@@ -1,6 +1,20 @@
 <template>
-  <ScrollytellSection :num-groups="7" @slideChange="slideChange">
-    <template v-slot:group1>
+
+<!--  <div class="w-1/2">-->
+<!--    <GamePlayer :segments="person.segments"-->
+<!--                :subgraph="subgraph"-->
+<!--                :autoplay="autoplay"-->
+<!--                :ai="[Color.Blue]"-->
+<!--                :starting-player="Color.Blue"-->
+<!--                :show-turn="true"-->
+<!--                :flush="flushRef"-->
+<!--                ref="player"-->
+<!--    />-->
+<!--    <button @click="play">Play</button>-->
+<!--    <button @click="reset">Reset</button>-->
+<!--  </div>-->
+    <ScrollytellSection :num-groups="7" @slideChange="slideChange">
+      <template v-slot:group1>
       <b>Let's play a game.</b>
     </template>
     <template v-slot:group2>
@@ -25,13 +39,16 @@
       {{current}} {{progress}} {{direction}}
       <div class="w-3/4">
         <GamePlayer :segments="person.segments"
-                    v-model:subgraph="subgraph"
+                    :subgraph="subgraph"
                     :autoplay="autoplay"
-                    :ai="[Color.Red, Color.Blue]"
+                    :flush="flushRef"
+                    :aiControls="current == 6 ? [Color.Blue] : [Color.Red, Color.Blue]"
                     :starting-player="Color.Blue"
-                    :show-turn="false"
+                    :show-turn="current > 4"
+                    :reset-scissors-on-flush="direction < 0"
                     :segments-opacity="segmentOpacity(current, progress)"
                     :scissors-opacity="scissorsOpacity(current, progress)"
+                    :prompt-reset="{text: 'Let Me Play', choosePlayer: true}"
                     :scissors-offset-y="current == 0 ? (300 + (progress * -300)) : undefined"
                     ref="player"
         >
@@ -71,11 +88,63 @@ const subgraph = ref("all");
 
 const autoplay = ref<boolean | number>(false);
 
+const flushRef = ref(0);
+function flush() {
+  flushRef.value++;
+}
+function play () {
+  autoplay.value = true;
+  flush();
+}
+
+function reset() {
+  autoplay.value = false;
+  subgraph.value = "all";
+  flush();
+}
+
 const slideChange = (scrollData: {current: number, direction: number}) => {
   const { current, direction } = scrollData;
+  console.log(current);
+  if (current <= 3 && direction < 0) {
+    reset();
+    return;
+  }
+  if (direction < 0) {
+    autoplay.value = false;
+    flush();
+  }
   if (current == 3) {
     subgraph.value = "all";
-    autoplay.value = 3;
+    if (direction > 0)
+      autoplay.value = 4;
+    flush();
+    return;
+  }
+  if (current == 4) {
+    subgraph.value = "3013424114154337507810986";
+    if (direction > 0) {
+      autoplay.value = 1;
+    }
+    flush();
+    return;
+  }
+  if (current == 5) {
+    subgraph.value = "3014157507810986"
+    if (direction > 0) {
+      autoplay.value = true;
+    } else {
+      autoplay.value = false;
+    }
+    flush();
+    return;
+  }
+  if (current == 6) {
+    subgraph.value = "all";
+    if (direction > 0) {
+      autoplay.value = true;
+    }
+    flush();
   }
 }
 

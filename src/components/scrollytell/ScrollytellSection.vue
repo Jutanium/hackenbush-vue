@@ -101,10 +101,12 @@
           end: "bottom top",
           onEnter: () => {
             scrollData.current = numGroups - 1;
+            emit("slideChange", scrollData);
             emit("leave");
           },
           onLeaveBack: () => {
             scrollData.current = numGroups - 1
+            emit("slideChange", scrollData);
             emit("enterBack");
           },
           onUpdate: ({progress, direction, start, end}) => {

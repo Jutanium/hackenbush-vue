@@ -1,18 +1,19 @@
 <template>
   <div>
-    <div v-if="!pictureMode && showTurn" class="absolute left-8 top-8 text-xl">
-      <div v-if="!currentPlayer">
-        Who goes first?
-        <button :class="playerDisplay.blue.class" @click="nextTurn(Color.Blue)">
-          {{ playerDisplay.blue.text }}
-        </button>
-        or
-        <button :class="playerDisplay.red.class" @click="nextTurn(Color.Red)">
-          {{ playerDisplay.red.text }}
-        </button>
-      </div>
-      <div v-else-if="playerWon">
-        <!--Red can't move, so bLue wins!-->
+    <div v-if="!pictureMode && showTurn" class="absolute top-20 text-2xl">
+<!--      <div v-if="!currentPlayer" class="text-xl">-->
+<!--        Who goes first?-->
+<!--        <button :class="playerDisplay.blue.class" @click="nextTurn(Color.Blue)">-->
+<!--          {{ playerDisplay.blue.text }}-->
+<!--        </button>-->
+<!--        or-->
+<!--        <button :class="playerDisplay.red.class" @click="nextTurn(Color.Red)">-->
+<!--          {{ playerDisplay.red.text }}-->
+<!--        </button>-->
+<!--      </div>-->
+      <PlayerSelect v-if="!currentPlayer" :starting="startingPlayer" @submit="playerSelected" />
+
+      <div v-if="playerWon">
         <span :class="playerDisplay[otherPlayer(playerWon)].class">
           {{ playerDisplay[otherPlayer(playerWon)].text }}
         </span>
@@ -21,21 +22,23 @@
          {{ playerDisplay[playerWon].text }}
         </span>
         wins
+        <button v-if="promptReset"
+                @click="resetButtonClick"
+                class="h-12 px-6 m-2 text-lg text-white transition-colors duration-150 bg-blue-400 rounded-lg focus:shadow-outline hover:bg-blue-600">
+          {{promptReset.text}}</button>
       </div>
-      <div v-else :class="currentPlayerClass">
-        Turn {{ turn }}.
+      <div v-else-if="currentPlayerString">
+        <span :class="currentPlayerClass">
+          {{currentPlayerString}}'s Turn.
+        </span>
+        <span v-if="!ai.includes(currentPlayer)">
+          Click a <span :class="currentPlayerClass">segment</span>!
+        </span>
       </div>
-    </div>
-
-    <div v-if="debugMode" class="mt-12">
-      <div v-if="gameValue != undefined">
-        Game value: {{gameValue}}
-      </div>
-      <div v-if="subgraph">{{subgraph}}</div>
     </div>
 
     <g>
-      <Scissors  v-for="color in ai"
+      <Scissors v-for="color in ai"
                 :is-red="color === Color.Red"
                 :ref="el => scissorsRenders[color].ref = el"
                 :animation-progress="scissorsRenders[color].cutProgress"
@@ -49,7 +52,7 @@
             :width="100" :height="5" :y="95" fill="green">
       </rect>
 
-      <template v-for=" ([id, {segment, style, live, animating}]) in Object.entries(segmentRenders)">
+      <template v-for=" ([id, {segment, style, live, animating}]) in Object.entries(segmentRenders).filter( ([_, val]) => Boolean(val))">
         <g :style="style" v-if="live || animating">
           <title v-if="debugMode">{{segment.id}}</title>
           <PiecePath :segment="segment" :class="{clickable: clickable(segment)}"
@@ -68,7 +71,19 @@
 </template>
 
 <script lang="ts">
-import {computed, ComputedRef, defineComponent, onMounted, PropType, reactive, ref, toRef, unref, watch, watchEffect} from "vue"
+import {
+  computed,
+  ComputedRef,
+  defineComponent,
+  onMounted,
+  PropType,
+  reactive,
+  ref,
+  toRef,
+  unref,
+  watch,
+  watchEffect
+} from "vue"
 import {Segment} from "@/model/segment";
 import PiecePath from "@/components/shared/PiecePath.vue";
 import {buildGraph, Graph} from "@/model/graph";
@@ -79,10 +94,13 @@ import {gsap} from "gsap";
 import Tween = gsap.core.Tween;
 import Timeline = gsap.core.Timeline;
 
+import cloneDeep from "lodash.clonedeep";
+import PlayerSelect from "@/components/player/PlayerSelect.vue";
+
 type Player = Color.Red | Color.Blue
 export default defineComponent({
-  components: {Scissors, PiecePath},
-  emits: ['update:subgraph'],
+  components: {PlayerSelect, Scissors, PiecePath},
+  // emits: ['update:subgraph'],
   props: {
     pictureMode: {
       type: Boolean,
@@ -95,14 +113,21 @@ export default defineComponent({
     startingPlayer: {
       type: String as PropType<Player>,
     },
-
-    ai: {
+    aiControls: {
       type: Array as PropType<Array<Player>>,
       default: () => ([])
     },
     showTurn: {
       type: Boolean,
       default: true
+    },
+    promptReset: {
+      type: Object as PropType<{text: string, choosePlayer?: boolean, subgraph?: string}>,
+      default: () => ({
+        text: "Play Again",
+        choosePlayer: true,
+        chooseStarting: true,
+      })
     },
     segments: {
       type: Object as PropType<{ [id: string]: Segment }>,
@@ -124,7 +149,7 @@ export default defineComponent({
     segmentsOpacity: {
       type: Number
     },
-    //For outside control. Set these together
+    //For outside control. Set subgraph/autoplay, then increment flush
     subgraph: {
       type: String
     },
@@ -132,7 +157,17 @@ export default defineComponent({
       type: [Boolean, Number],
       default: false,
     },
-
+    flush: {
+      type: Number
+    },
+    resetScissorsOnFlush: {
+      type: Boolean,
+      default: true
+    },
+    stopAnimationOnFlush: {
+      type: Boolean,
+      default: true
+    }
   },
   setup: (props, {emit}) => {
     const playerDisplay = {
@@ -146,7 +181,9 @@ export default defineComponent({
       },
     }
 
-    const graph = computed( () => {
+    const otherPlayer = (player: Player) => player == Color.Red ? Color.Blue : Color.Red;
+
+    const graph = computed(() => {
       return buildGraph(props.segments, props.groundY);
     });
 
@@ -154,81 +191,155 @@ export default defineComponent({
 
     const gameValue = ref<number>(graph.value.evaluate());
 
-    watchEffect(() => {
-      if (props.subgraph) {
-        graph.value.setSubgraph(props.subgraph);
-        gameValue.value = graph.value.evaluate();
-        liveIds.value = Object.keys(graph.value.getLiveSegments());
-      }
-    });
+    const currentPlayer = ref<Player | false>(false);
+    const ai = ref(props.aiControls);
+    const turn = ref(0);
 
-    const otherPlayer = (player: Player) => player == Color.Red ? Color.Blue : Color.Red;
+    const autoplayCounter = ref(0);
+    const aiIsMoving = ref(false);
 
     const svg = ref<SVGElement>();
-    // const segmentRefs: { [id: string]: SVGPathElement} = {}
-    const segmentRenders = reactive(
-        Object.fromEntries(
-            Object.values(props.segments).map(segment => {
-              const obj = reactive({
-                segment,
-                offsetY: 0,
-                opacity: 1,
-                live: computed( () => {
-                  return liveIds.value.includes(segment.id)
-                }),
-                animating: false,
-                style: computed( () => (
-                    {
-                      transform: `translateY(${obj.offsetY}px)`,
-                      opacity: typeof props.segmentsOpacity == "number" ? props.segmentsOpacity : obj.opacity
-                    }
-                  )),
-              });
-              return [segment.id, obj];
-            })
-        )
-    );
 
-    const scissorsRenders = {
-      red: reactive({
-        ref: null,
+
+    const animations: {scissors: Set<Timeline>, segments: Set<Timeline>} = {
+      scissors: new Set(),
+      segments: new Set()
+    }
+
+    const scissorsRendersInitial = {
+      red: {
         lastPos: {x: 80, y: 50},
         cutProgress: 0.6,
         rotation: 180,
         translateX: 0,
         translateY: 0,
         moveOffset: {x: -10, y: -5},
-        transform: undefined as undefined | ComputedRef,
-      }),
-      blue: reactive({
-        ref: null,
+      },
+      blue: {
         lastPos: {x: 10, y: 50},
         cutProgress: 0.6,
         moveOffset: {x: -42, y: -10},
         rotation: 0,
         translateX: 0,
         translateY: 0,
+      }
+    }
+
+
+    const scissorsRenders = {
+      red: reactive({
+        ...cloneDeep(scissorsRendersInitial.red),
+        ref: null,
+        transform: undefined as undefined | ComputedRef,
+      }),
+      blue: reactive({
+        ...cloneDeep(scissorsRendersInitial.blue),
+        ref: null,
         transform: undefined as undefined | ComputedRef,
       }),
     }
 
     Object.values(scissorsRenders).forEach(scissors =>
       scissors.transform = computed(
-          () => {
-            const {translateX, translateY, rotation} = scissors;
-            return `translateX(${translateX}px) translateY(${translateY + props.scissorsOffsetY}px) rotate(${rotation}deg)`
-          }
+        () => {
+          const {translateX, translateY, rotation} = scissors;
+          return `translateX(${translateX}px) translateY(${translateY + props.scissorsOffsetY}px) rotate(${rotation}deg)`
+        }
       )
     )
 
-    onMounted(() => {
-      Object.values(scissorsRenders).forEach(scissors => {
-        const {x, y} = scissors.lastPos;
-        const {clientWidth, clientHeight} = svg.value!;
-        scissors.translateX = x / 100 * clientWidth;
-        scissors.translateY = y / 100 * clientHeight;
-      });
-    })
+    function resetScissors() {
+      Object.assign(scissorsRenders.red, cloneDeep(scissorsRendersInitial.red));
+      Object.assign(scissorsRenders.blue, cloneDeep(scissorsRendersInitial.blue));
+      if (svg.value) {
+        Object.values(scissorsRenders).forEach(scissors => {
+          const {x, y} = scissors.lastPos;
+          const {clientWidth, clientHeight} = svg.value!;
+          scissors.translateX = x / 100 * clientWidth;
+          scissors.translateY = y / 100 * clientHeight;
+        });
+      }
+    }
+
+
+    // const segmentRefs: { [id: string]: SVGPathElement} = {}
+    const segmentRendersInitial = {
+      offsetY: 0,
+      opacity: 1,
+      animating: false
+    }
+    const segmentRenders = reactive(
+      Object.fromEntries(
+        Object.values(props.segments).map(segment => {
+          const obj = reactive({
+            ...segmentRendersInitial,
+            segment,
+            live: computed(() => {
+              return liveIds.value.includes(segment.id)
+            }),
+            style: computed(() => (
+              {
+                transform: `translateY(${obj.offsetY}px)`,
+                opacity: typeof props.segmentsOpacity == "number" ? props.segmentsOpacity : obj.opacity
+              }
+            )),
+          });
+          return [segment.id, obj];
+        })
+      )
+    );
+
+    function resetSegments() {
+      Object.values(segmentRenders).forEach(r => Object.assign(r, segmentRendersInitial));
+    }
+
+    function resetGame(doResetScissors = true, startingPlayer = props.startingPlayer, subgraph = props.subgraph) {
+      if (props.debugMode) {
+        console.log("resetting");
+      }
+
+      turn.value = 0;
+      graph.value.setSubgraph(subgraph!);
+      autoplayCounter.value = 0;
+      if (!ai.value) {
+        ai.value = props.aiControls;
+      }
+
+      gameValue.value = graph.value.evaluate();
+      liveIds.value = Object.keys(graph.value.getLiveSegments());
+
+      if (props.stopAnimationOnFlush) {
+        if (animations.scissors.size)
+          [...animations.scissors, ...animations.segments].forEach(tl => {
+            tl.kill();
+          })
+        animations.scissors.clear();
+        animations.segments.clear();
+      }
+      if (doResetScissors) resetScissors();
+      resetSegments();
+      if (svg.value) {
+        nextTurn(startingPlayer);
+      }
+    }
+
+    watch([toRef(props, "flush"), svg], ([flush]) => {
+      resetGame(flush == 0 || props.resetScissorsOnFlush);
+    }, {immediate: true})
+
+    function resetButtonClick() {
+      const { choosePlayer, subgraph } = props.promptReset;
+      if (choosePlayer) {
+        currentPlayer.value = false;
+      } else {
+        resetGame(true, props.startingPlayer, subgraph || props.subgraph)
+      }
+    }
+
+    function playerSelected(params: {playerControlled: Player, starting: Player}) {
+      ai.value = [otherPlayer(params.playerControlled)];
+      resetGame(true, params.starting);
+    }
 
     function animateScissors(color: Player, segment: Segment, onComplete: () => void) {
       const render = scissorsRenders[color];
@@ -248,8 +359,13 @@ export default defineComponent({
       lastPos.y = y;
 
       const timeline = gsap.timeline({
-        onComplete
+        onComplete () {
+          animations.scissors.delete(timeline);
+          onComplete();
+        }
       })
+
+      animations.scissors.add(timeline);
 
       // scissors[color].cutProgress = 0.6;
       const move = timeline.to(render, {
@@ -267,19 +383,8 @@ export default defineComponent({
         cutProgress: 0,
         duration: 0.3
       })
+
     }
-
-    const currentPlayer = ref<Player | false>(false);
-    const turn = ref(0);
-
-    const autoplayCounter = ref();
-    const aiIsMoving = ref(false);
-
-    onMounted(() => {
-      if (props.startingPlayer) {
-        nextTurn(props.startingPlayer);
-      }
-    })
 
     function togglePlayer() {
       if (currentPlayer.value) {
@@ -292,17 +397,23 @@ export default defineComponent({
       if (Graph) {
         const floatingIds = Graph.removeEdge(segment.id);
         const floatingSegments = floatingIds.map(id => segmentRenders[id]);
-        const timeline = gsap.timeline();
+        const timeline = gsap.timeline({
+          onComplete () {
+            animations.segments.delete(timeline);
+          }
+        });
+        animations.segments.add(timeline);
         const cutSegment = segmentRenders[segment.id];
         timeline.fromTo(cutSegment, {opacity: 0.5}, {
           duration: 0.5,
           opacity: 0,
-          onStart () {
+          onStart() {
             cutSegment.animating = true;
           },
-          onComplete () {
+          onComplete() {
             cutSegment.animating = false;
-          }
+            console.log("complete")
+          },
         });
 
         if (floatingSegments.length) {
@@ -310,16 +421,20 @@ export default defineComponent({
             ease: "power1.in",
             duration: 1,
             offsetY: "-=100",
-            onStart () {
+            onStart() {
               floatingSegments.forEach(s => s.animating = true);
             },
-            onComplete () {
+            onComplete() {
               floatingSegments.forEach(s => s.animating = false);
-            }
+            },
           }, "<");
         }
+
         gameValue.value = Graph.evaluate();
-        emit("update:subgraph", Graph.getCurrentSubgraph());
+        if (props.debugMode) {
+          console.log("Subgraph", Graph.getCurrentSubgraph(), "Value", gameValue.value);
+        }
+        // emit("update:subgraph", Graph.getCurrentSubgraph());
         nextTurn();
       }
     }
@@ -334,30 +449,20 @@ export default defineComponent({
       turn.value++;
 
       const CurrentPlayer = unref(currentPlayer);
-      if (props.ai.includes(CurrentPlayer) && autoplaying.value && !playerWon.value) {
+      if (ai.value.includes(CurrentPlayer) && autoplaying.value && !playerWon.value) {
         const aiMove = graph.value.bestMoveForColor(CurrentPlayer as Color);
         aiIsMoving.value = true;
         animateScissors(CurrentPlayer, aiMove, () => {
-          removeEdge(aiMove)
-          autoplayCounter.value--;
+          autoplayCounter.value++;
           aiIsMoving.value = false;
+          removeEdge(aiMove)
         })
       }
     }
 
-    watch(toRef(props, 'autoplay'), () => {
-      if (typeof props.autoplay == "number") {
-        autoplayCounter.value = props.autoplay;
-        if (!aiIsMoving.value) {
-          nextTurn();
-        }
-      }
-    }, {immediate: true})
-
-
     const autoplaying = computed(() => {
       if (typeof props.autoplay == "number") {
-        return autoplayCounter.value > 0;
+        return autoplayCounter.value < props.autoplay;
       }
       return props.autoplay;
     })
@@ -373,25 +478,25 @@ export default defineComponent({
       }
     }
 
-    const playerWon = computed<false | Player>( () => {
+    const playerWon = computed<false | Player>(() => {
       const CurrentPlayer = unref(currentPlayer);
       if (!CurrentPlayer) {
         return false;
       }
-      const colorsLeft = liveIds.value.map(id => props.segments[id].color);
+      const colorsLeft = Object.values(graph.value.getLiveSegments()).map(s => s.color);
       if (!colorsLeft.includes(CurrentPlayer)) {
         return otherPlayer(CurrentPlayer);
       }
       return false;
     });
 
-    const currentPlayerClass = computed<String | undefined>( () => {
+    const currentPlayerClass = computed<String | undefined>(() => {
       if (currentPlayer.value) {
         return playerDisplay[currentPlayer.value].class;
       }
     });
 
-    const currentPlayerString = computed<String | undefined>( () => {
+    const currentPlayerString = computed<String | undefined>(() => {
       if (currentPlayer.value) {
         return playerDisplay[currentPlayer.value].text;
       }
@@ -402,7 +507,9 @@ export default defineComponent({
       scissorsRenders,
       segmentRenders,
       playerDisplay,
+      currentPlayer,
       otherPlayer,
+      turn,
       svg,
       Color,
       gameValue,
@@ -413,7 +520,11 @@ export default defineComponent({
       currentPlayerClass,
       currentPlayerString,
       pieceClicked,
-      clickable
+      clickable,
+      animations,
+      ai,
+      resetButtonClick,
+      playerSelected,
     }
   },
 })

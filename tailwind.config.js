@@ -9,6 +9,14 @@ module.exports = {
       strokeWidth: {
         '3': '3',
         '4': '4',
+      },
+      colors: {
+        red: {
+          player: "#EF4444",
+        },
+        blue: {
+          player: "#2563EB"
+        }
       }
     },
   },
