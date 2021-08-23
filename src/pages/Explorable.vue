@@ -2,7 +2,8 @@
   <div>
     <LetsPlayAGame></LetsPlayAGame>
 <!--    <GamesAndMath></GamesAndMath>-->
-    <FirstStrategies></FirstStrategies>
+<!--    <FirstStrategies></FirstStrategies>-->
+    <QuantifyingAdvantage></QuantifyingAdvantage>
   </div>
 </template>
 
@@ -15,6 +16,8 @@
   import LetsPlayAGame from "@/components/explorable/1-LetsPlayAGame.vue";
   import GamesAndMath from "@/components/explorable/2-GamesAndMath.vue"
   import FirstStrategies from "@/components/explorable/3-FirstStrategies.vue"
+  import QuantifyingAdvantage from "@/components/explorable/4-QuantifyingAdvantage.vue"
+
 
 </script>
 

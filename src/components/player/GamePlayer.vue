@@ -114,7 +114,7 @@ export default defineComponent({
       default: true
     },
     promptReset: {
-      type: Object as PropType<{text: string, choosePlayer?: boolean, subgraph?: string}>,
+      type: [Object, Boolean] as PropType<{text: string, choosePlayer?: boolean, subgraph?: string} | false>,
       default: () => ({
         text: "Play Again",
         choosePlayer: true,
@@ -265,29 +265,49 @@ export default defineComponent({
       opacity: 1,
       animating: false
     }
-    const segmentRenders = reactive(
-      Object.fromEntries(
-        Object.values(props.segments).map(segment => {
-          const obj = reactive({
-            ...segmentRendersInitial,
-            segment,
-            live: computed(() => {
-              return liveIds.value.has(segment.id)
-            }),
-            style: computed(() => (
-              {
-                transform: `translateY(${obj.offsetY}px)`,
-                opacity: typeof props.segmentsOpacity == "number" ? props.segmentsOpacity : obj.opacity
-              }
-            )),
-          });
-          return [segment.id, obj];
-        })
-      )
-    );
+
+    // const segmentRenders = computed(() =>
+    //     Object.fromEntries(Object.values(graph.value.getLiveSegments()).map(segment => {
+    //     const obj = reactive({
+    //       ...segmentRendersInitial,
+    //       segment,
+    //       live: computed(() => {
+    //         return liveIds.value.has(segment.id)
+    //       }),
+    //       style: computed(() => (
+    //           {
+    //             transform: `translateY(${obj.offsetY}px)`,
+    //             opacity: typeof props.segmentsOpacity == "number" ? props.segmentsOpacity : obj.opacity
+    //           }
+    //       )),
+    //     });
+    //     return [segment.id, obj];
+    //   })
+    // ));
+
+    const segmentRenders = ref();
+
 
     function resetSegments() {
-      Object.values(segmentRenders).forEach(r => Object.assign(r, segmentRendersInitial));
+     segmentRenders.value = Object.fromEntries(
+          Object.values(props.segments).map(segment => {
+            const obj = reactive({
+              ...segmentRendersInitial,
+              segment,
+              live: computed(() => {
+                return liveIds.value.has(segment.id)
+              }),
+              style: computed(() => (
+                  {
+                    transform: `translateY(${obj.offsetY}px)`,
+                    opacity: typeof props.segmentsOpacity == "number" ? props.segmentsOpacity : obj.opacity
+                  }
+              )),
+            });
+            return [segment.id, obj];
+          })
+      )
+      // Object.values(segmentRenders.value).forEach(r => Object.assign(r, segmentRendersInitial));
     }
 
     function resetGame(playerInitiated = false, doResetScissors = true, startingPlayer = props.startingPlayer, subgraph = props.subgraph) {
@@ -331,7 +351,7 @@ export default defineComponent({
       }
     }
 
-    watch([toRef(props, "flush"), svg], ([flush]) => {
+    watch([toRef(props, "flush"), graph, svg], ([flush]) => {
       resetGame(false, flush == 0 || props.resetScissorsOnFlush);
     }, {immediate: true})
 
@@ -404,14 +424,14 @@ export default defineComponent({
       const Graph = unref(graph);
       if (Graph) {
         const floatingIds = Graph.removeEdge(segment.id);
-        const floatingSegments = floatingIds.map(id => segmentRenders[id]);
+        const floatingSegments = floatingIds.map(id => segmentRenders.value[id]);
         const timeline = gsap.timeline({
           onComplete () {
             animations.segments.delete(timeline);
           }
         });
         animations.segments.add(timeline);
-        const cutSegment = segmentRenders[segment.id];
+        const cutSegment = segmentRenders.value[segment.id];
         timeline.fromTo(cutSegment, {opacity: 0.5}, {
           duration: 0.5,
           opacity: 0,

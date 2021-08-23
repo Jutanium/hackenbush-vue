@@ -1,38 +1,35 @@
 <template>
-  <ScrollytellSection :topGap="false" :num-groups="5" @slideChange="slideChange">
-    <template v-slot:group1="{enterProgress}">
-      Suppose you’re
-      <Blue/>, and it’s your move. What should you do?
-      <div class="h-6"><i v-show="enterProgress == 1">Make your move!</i></div>
+  <ScrollytellSection :topGap="true" :num-groups="5" @slideChange="slideChange">
+    <template v-slot:group1>
+      Now we’re starting to get a general strategy for Hackenbush: choose your move based on which one gives you a bigger advantage.
+      That’s great … but we still need a way to <b>quantify</b> that advantage.
     </template>
     <template v-slot:group2="{current}">
-      Well&hellip;I guess you really only have one choice, since there’s only one move you can make.
-      Sometimes things are like that in life — there’s only one thing you can do.
-      Likewise, if you’re <Red/>, you’ve got only one move to make at this point.
+      Take a look at this game. Who would you like to be, and who should go first?
     </template>
     <template v-slot:group3>
-      But what if it had been <Red/>'s turn to start off with? Now you have two options. What should you do?
+      You may have noticed that the <Blue/> dog has 7 strings, while the <Red/> cat only has 6. That means that <Blue/>
+      can force a win (as long as they’re careful not to let any pieces float away) because <Red/> will run out of pieces. It seems that <Blue/> has a 1-string advantage over
+      <Red/>.
     </template>
     <template v-slot:group4>
-      Hopefully it seems reasonable to assume that each player wants to try to win the game. So, from now on, we’ll assume that
-      <b>a player will always make the “best” move available to them.</b>
+      But what if <Blue/> and <Red/> have the same number of pieces?
     </template>
     <template v-slot:group5>
-      It may not always be obvious which move that is, though. We still have to figure out how to &hellip; well &hellip; figure that out.
+      Well, then neither player would have an advantage! The players would take their turns whittling away their pieces (again careful not to let anything float away), and
+      <Purple>whoever goes first would lose.</Purple>
     </template>
     <template v-slot:sticky="{current, enterProgress, progress, direction}">
-      <GamePlayer :segments="firststrat.segments"
-                  :style="translateUp(400 - Math.max(enterProgress, 0.5)*400)"
+      <GamePlayer :segments="segments"
                   :subgraph="subgraph"
-                  :show-turn="enterProgress >= 1 && !preventClick"
+                  :show-turn="current >= 1"
                   :starting-player="startingPlayer"
                   :flush="flushRef"
                   :segments-opacity="enterProgress < 1 ? enterProgress : undefined"
                   :preventClick="preventClick"
                   @segmentClicked="onSegmentClicked"
                   :aiControls="aiControls"
-                  :autoplay="true"
-                  :promptReset="current >= 2 && {text: 'Reset'}"
+                  :autoplay="autoplay"
       >
 
       </GamePlayer>
@@ -43,11 +40,14 @@
 <script setup lang="ts">
 import ScrollytellSection from "../scrollytell/ScrollytellSection.vue";
 import GamePlayer from "../player/GamePlayer.vue";
-import firststrat from "@/game-files/firststrat.json"
+import dogcat from "@/game-files/dogcat.json"
+import twocats from "@/game-files/twocats.json"
+import racket from "@/game-files/racket.json"
 import {Color} from "@/model/segment-color";
 import {computed, ref} from "vue"
 import Blue from "@/components/explorable/text-elements/Blue.vue";
 import Red from "@/components/explorable/text-elements/Red.vue"
+import Purple from "@/components/explorable/text-elements/Purple.vue"
 
 const segmentOpacity = (current, progress) => {
   if (current < 1) {
@@ -67,19 +67,33 @@ const scissorsOpacity = (current, progress) => {
   return 1;
 }
 
-const translateUp = (amount: number) => ({
-  transform: `translateY(${-amount}px)`
-})
-
 const subgraph = ref("all");
 const autoplay = ref<boolean | number>(false);
 const flushRef = ref(0);
 const hasCompleted = ref(0);
-const startingPlayer = ref(Color.Blue);
+
+
 const playerWon = ref<true | false | undefined>();
 
 const segmentClicks = ref(0);
 const currentSlide = ref(-1);
+
+// const startingPlayer = computed( () => {
+//   if (curren < 0) {
+//     return Color.Blue;
+//   }
+//   return undefined;
+// })
+
+const startingPlayer = ref(Color.Blue);
+
+const segments = computed( () => {
+  console.log("recomputing segments")
+  if (currentSlide.value > 2) {
+    return twocats.segments;
+  }
+  return dogcat.segments;
+})
 
 const preventClick = computed( () => {
   if (currentSlide.value < 1) {
@@ -87,8 +101,7 @@ const preventClick = computed( () => {
   }
 });
 
-const aiControls = computed ( () => currentSlide.value == 2 ? [Color.Blue] : [])
-
+const aiControls = ref( []);
 
 function onGameOver({winner, playerDidWin, playingAgain}) {
   hasCompleted.value++;
@@ -122,22 +135,35 @@ const slideChange = (scrollData: { current: number, direction: number }) => {
   const {current, direction} = scrollData;
   currentSlide.value = current;
   console.log("slideChange", current, direction);
+  if (current == 1) {
+    startingPlayer.value = undefined;
+    flush();
+  }
+  if (current == 4) {
+    if (direction < 0) {
+      reset();
+    } else {
+      autoplay.value = true;
+      startingPlayer.value = Color.Red;
+      aiControls.value = [Color.Red, Color.Blue];
+      flush();
+    }
+  }
   // if (current < 1 && direction < 0) {
   //   reset();
   // }
-  if (current == 0) {
-    startingPlayer.value = Color.Blue;
-    reset();
-  }
-  if (current == 1) {
-    startingPlayer.value = Color.Red;
-    subgraph.value = "32";
-    flush();
-  }
-  if (current == 2) {
-    startingPlayer.value = Color.Red;
-    reset();
-  }
+  // if (current == 0) {
+  //   startingPlayer.value = Color.Blue;
+  //   reset();
+  // }
+  // if (current == 1) {
+  //   startingPlayer.value = Color.Red;
+  //   flush();
+  // }
+  // if (current == 2) {
+  //   startingPlayer.value = Color.Red;
+  //   reset();
+  // }
   // if (direction < 0) {
   //   autoplay.value = false;
   //   // flush();
