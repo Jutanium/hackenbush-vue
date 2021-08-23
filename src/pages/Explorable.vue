@@ -1,9 +1,12 @@
 <template>
-  <div>
+  <div v-if="width > 1000">
     <LetsPlayAGame></LetsPlayAGame>
 <!--    <GamesAndMath></GamesAndMath>-->
 <!--    <FirstStrategies></FirstStrategies>-->
     <QuantifyingAdvantage></QuantifyingAdvantage>
+  </div>
+  <div v-else class="p-4 text-xl">
+    A mobile version of this math exploration is coming soon; for now, open this site on a bigger screen!
   </div>
 </template>
 
@@ -17,6 +20,9 @@
   import GamesAndMath from "@/components/explorable/2-GamesAndMath.vue"
   import FirstStrategies from "@/components/explorable/3-FirstStrategies.vue"
   import QuantifyingAdvantage from "@/components/explorable/4-QuantifyingAdvantage.vue"
+  import useBreakpoints from "@/components/shared/useBreakpoints";
+
+  const { width, type } = useBreakpoints();
 
 
 </script>
