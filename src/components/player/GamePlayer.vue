@@ -44,8 +44,8 @@
             :width="100" :height="5" :y="95" fill="green">
       </rect>
 
-      <template v-for=" ([id, {segment, style, live, animating}]) in Object.entries(segmentRenders).filter( ([_, val]) => Boolean(val))">
-        <g :style="style" v-if="live || animating">
+      <template v-for=" ([id, {segment, style, animating, cut}]) in Object.entries(segmentRenders).filter( ([_, val]) => Boolean(val))">
+        <g :style="style" v-if="animating || !cut">
           <title v-if="debugMode">{{segment.id}}</title>
           <PiecePath :segment="segment" :class="{clickable: clickable(segment)}"
                      @click="pieceClicked(segment)"
@@ -183,8 +183,6 @@ export default defineComponent({
       return buildGraph(props.segments, props.groundY);
     });
 
-    const liveIds = ref(new Set(Object.keys(graph.value.getLiveSegments())));
-
     const gameValue = ref<number>(graph.value.evaluate());
 
     const currentPlayer = ref<Player | false>(false);
@@ -263,7 +261,8 @@ export default defineComponent({
     const segmentRendersInitial = {
       offsetY: 0,
       opacity: 1,
-      animating: false
+      animating: false,
+      cut: false
     }
 
     // const segmentRenders = computed(() =>
@@ -290,13 +289,10 @@ export default defineComponent({
 
     function resetSegments() {
      segmentRenders.value = Object.fromEntries(
-          Object.values(props.segments).map(segment => {
+          Object.values(graph.value.getLiveSegments()).map(segment => {
             const obj = reactive({
               ...segmentRendersInitial,
               segment,
-              live: computed(() => {
-                return liveIds.value.has(segment.id)
-              }),
               style: computed(() => (
                   {
                     transform: `translateY(${obj.offsetY}px)`,
@@ -329,7 +325,6 @@ export default defineComponent({
       }
 
       gameValue.value = graph.value.evaluate();
-      liveIds.value = new Set(Object.keys(graph.value.getLiveSegments()));
 
       if (props.stopAnimationOnFlush) {
         if (animations.scissors.size)
@@ -395,7 +390,6 @@ export default defineComponent({
 
       animations.scissors.add(timeline);
 
-      // scissors[color].cutProgress = 0.6;
       const move = timeline.to(render, {
         translateX: x,
         translateY: y,
@@ -437,9 +431,9 @@ export default defineComponent({
           opacity: 0,
           onStart() {
             cutSegment.animating = true;
+            cutSegment.cut = true;
           },
           onComplete() {
-            // liveIds.value.delete(segment.id);
             cutSegment.animating = false;
             console.log("complete")
           },
@@ -451,10 +445,12 @@ export default defineComponent({
             duration: 1,
             offsetY: "-=100",
             onStart() {
-              floatingSegments.forEach(s => s.animating = true);
+              floatingSegments.forEach(s => {
+                s.animating = true;
+                s.cut = true;
+              });
             },
             onComplete() {
-              // floatingIds.forEach(id => liveIds.value.delete(id));
               floatingSegments.forEach(s => s.animating = false);
             },
           }, "<");
@@ -553,7 +549,6 @@ export default defineComponent({
       svg,
       Color,
       gameValue,
-      liveIds,
       autoplayCounter,
       autoplaying,
       playerWon,
