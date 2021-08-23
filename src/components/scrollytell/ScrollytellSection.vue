@@ -1,7 +1,10 @@
 <template>
-  <div class="w-full">
+  <div class="w-full relative">
+    <div class="absolute z-0 w-1/2 h-1/2 top-0 left-1/2">
+      <slot name="absolute" v-bind="scrollData"/>
+    </div>
     <div v-if="topGap" class="w-1/2 h-96"></div>
-    <div class="flex flex-row justify-center">
+    <div class="flex flex-row justify-center relative z-10">
       <div class="mx-12 max-w-2xl">
         <div v-for="(i, zeroIndexed) in numGroups" class="flex items-center"
              :ref="el => { if (el) groups[zeroIndexed] = el }"
@@ -18,7 +21,6 @@
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -43,9 +45,14 @@ export default defineComponent({
     topGap: {
       type: Boolean,
       default: false
+    },
+    spacing: {
+      type: String,
+      default: "100vh"
     }
+
   },
-  setup: ({top, numGroups}, {emit}) => {
+  setup: ({top, numGroups, spacing}, {emit}) => {
     const groups = ref<Array<HTMLDivElement>>([]);
     onBeforeUpdate(() => {
       groups.value = [];
@@ -166,7 +173,7 @@ export default defineComponent({
       return {
         position: "sticky",
         top: `${cumulativeHeights.value[index] + leaveOffset.value}px`,
-        marginBottom: `calc(100vh - ${cumulativeHeights.value[index]}px)`,
+        marginBottom: `calc(${spacing} - ${cumulativeHeights.value[index]}px)`,
       }
     }
     return {

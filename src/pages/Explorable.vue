@@ -1,8 +1,8 @@
 <template>
   <div v-if="width > 1000">
     <LetsPlayAGame></LetsPlayAGame>
-<!--    <GamesAndMath></GamesAndMath>-->
-<!--    <FirstStrategies></FirstStrategies>-->
+    <GamesAndMath></GamesAndMath>
+    <FirstStrategies></FirstStrategies>
     <QuantifyingAdvantage></QuantifyingAdvantage>
   </div>
   <div v-else class="p-4 text-xl">
@@ -23,8 +23,6 @@
   import useBreakpoints from "@/components/shared/useBreakpoints";
 
   const { width, type } = useBreakpoints();
-
-
 </script>
 
 <style scoped>

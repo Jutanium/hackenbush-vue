@@ -1,5 +1,5 @@
 <template>
-  <ScrollytellSection :topGap="true" :num-groups="5" @slideChange="slideChange">
+  <ScrollytellSection :topGap="true" :num-groups="7" @slideChange="slideChange">
     <template v-slot:group1>
       Now we’re starting to get a general strategy for Hackenbush: choose your move based on which one gives you a bigger advantage.
       That’s great … but we still need a way to <b>quantify</b> that advantage.
@@ -19,10 +19,20 @@
       Well, then neither player would have an advantage! The players would take their turns whittling away their pieces (again careful not to let anything float away), and
       <Purple>whoever goes first would lose.</Purple>
     </template>
+    <template v-slot:group6>
+      This works great when games are neatly separated into <Blue/> and <Red/> components, but what happens when pieces of different colors are connected?
+      Things can get a lot more complicated, even for really simple games like this.
+    </template>
+    <template v-slot:group7>
+      This one has the same number of <Blue/>
+      and <Red/> strings, so nobody should have an advantage, right? But look closely — if
+      <Blue/> plays first, they cut the string and instantly win, while if <Red/> goes first, they cut their string,
+      and then <bLue/> cuts theirs and still wins! Does that mean that <Red/> string is “not worth as much,” somehow, since it’s tethered to the ground by a <Blue/>?
+    </template>
     <template v-slot:sticky="{current, enterProgress, progress, direction}">
       <GamePlayer :segments="segments"
                   :subgraph="subgraph"
-                  :show-turn="current >= 1"
+                  :show-turn="current >= 1 && current != 5"
                   :starting-player="startingPlayer"
                   :flush="flushRef"
                   :segments-opacity="enterProgress < 1 ? enterProgress : undefined"
@@ -31,9 +41,9 @@
                   :aiControls="aiControls"
                   :autoplay="autoplay"
       >
-
       </GamePlayer>
     </template>
+
   </ScrollytellSection>
 </template>
 
@@ -42,7 +52,7 @@ import ScrollytellSection from "../scrollytell/ScrollytellSection.vue";
 import GamePlayer from "../player/GamePlayer.vue";
 import dogcat from "@/game-files/dogcat.json"
 import twocats from "@/game-files/twocats.json"
-import racket from "@/game-files/racket.json"
+import onehalf from "@/game-files/onehalf.json"
 import {Color} from "@/model/segment-color";
 import {computed, ref} from "vue"
 import Blue from "@/components/explorable/text-elements/Blue.vue";
@@ -89,6 +99,9 @@ const startingPlayer = ref(Color.Blue);
 
 const segments = computed( () => {
   console.log("recomputing segments")
+  if (currentSlide.value > 4) {
+    return onehalf.segments;
+  }
   if (currentSlide.value > 2) {
     return twocats.segments;
   }
@@ -149,6 +162,11 @@ const slideChange = (scrollData: { current: number, direction: number }) => {
       flush();
     }
   }
+  if (current == 5) {
+    startingPlayer.value = undefined;
+    reset();
+  }
+
   // if (current < 1 && direction < 0) {
   //   reset();
   // }
