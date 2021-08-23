@@ -15,7 +15,7 @@
         </div>
         <div class="w-2 h-screen"></div>
       </div>
-      <div class="w-5/12 max-w-2xl">
+      <div v-if="$slots.sticky" class="w-5/12 max-w-2xl">
         <div :style="collectStyle(0)">
           <slot name="sticky" v-bind="scrollData"/>
         </div>

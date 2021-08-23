@@ -1,5 +1,6 @@
 <template>
   <div v-if="width > 1000">
+    <TheTitle/>
     <LetsPlayAGame></LetsPlayAGame>
     <GamesAndMath></GamesAndMath>
     <FirstStrategies></FirstStrategies>
@@ -20,6 +21,7 @@
   import GamesAndMath from "@/components/explorable/2-GamesAndMath.vue"
   import FirstStrategies from "@/components/explorable/3-FirstStrategies.vue"
   import QuantifyingAdvantage from "@/components/explorable/4-QuantifyingAdvantage.vue"
+  import TheTitle from "@/components/explorable/0-Title.vue"
   import useBreakpoints from "@/components/shared/useBreakpoints";
 
   const { width, type } = useBreakpoints();

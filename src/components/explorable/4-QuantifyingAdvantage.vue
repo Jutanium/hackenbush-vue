@@ -27,7 +27,7 @@
       This one has the same number of <Blue/>
       and <Red/> strings, so nobody should have an advantage, right? But look closely — if
       <Blue/> plays first, they cut the string and instantly win, while if <Red/> goes first, they cut their string,
-      and then <bLue/> cuts theirs and still wins! Does that mean that <Red/> string is “not worth as much,” somehow, since it’s tethered to the ground by a <Blue/>?
+      and then <Blue/> cuts theirs and still wins! Does that mean that <Red/> string is “not worth as much,” somehow, since it’s tethered to the ground by a <Blue/>?
     </template>
     <template v-slot:sticky="{current, enterProgress, progress, direction}">
       <GamePlayer :segments="segments"

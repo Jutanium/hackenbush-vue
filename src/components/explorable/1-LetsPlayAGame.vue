@@ -1,5 +1,5 @@
 <template>
-    <ScrollytellSection :topGap="true" :num-groups="7" @slideChange="slideChange">
+    <ScrollytellSection :topGap="false" :num-groups="7" @slideChange="slideChange">
       <template v-slot:group1>
       <b>Let's play a game.</b>
     </template>

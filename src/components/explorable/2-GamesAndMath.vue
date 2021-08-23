@@ -23,13 +23,14 @@
     <template v-slot:group7>
       So let’s see if we can get to the bottom of how to win at Hackenbush.
     </template>
-    <template v-slot:sticky="{current, progress, enterProgress, direction}">
+    <template v-slot:sticky="{current, progress, enterProgress, direction, leaveProgress}">
       <img :src="golPaper" :style="translateUp(-100 + (current + progress + enterProgress) * 30)" class="absolute z-0 w-full">
       <img :src="sprouts" :style="translateUp( -1900 + (current + progress + enterProgress) * 400)" class="absolute left-1/3 w-2/3">
       <img :src="amazons" :style="translateUp(-2200 + (current + progress + enterProgress) * 500)" class="absolute w-1/3">
       <img :src="hex" :style="translateUp( -1400 + (current + progress + enterProgress) * 600)" class="absolute left-2/12 w-2/3">
       <img :src="domineering" :style="translateUp( -1600 + (current + progress + enterProgress) * 450)" class="absolute left-1/3 ml-16 w-1/2">
-      <GamePlayer :segments="racket.segments" :startingPlayer="'blue'" :showTurn="false" :style="translateUp(Math.min((-429 + (current + progress) * 20), -2400 + (current + progress + enterProgress) * 350, 3000))" class="absolute ml-16 w-2/3"/>
+      <GamePlayer :segments="racket.segments" :startingPlayer="'blue'" :showTurn="false"
+                  :style="Object.assign({opacity: 1-leaveProgress}, translateUp(Math.min((-429 + (current + progress) * 20), -2400 + (current + progress + enterProgress) * 350, 3000)))" class="absolute ml-16 w-2/3"/>
     </template>
     <template v-slot:absolute="{current, progress, enterProgress}">
       <img :src="nim" :style="translateUp(-200 + (current + progress + enterProgress) * 400)" class="absolute w-1/3 left-1/2">
