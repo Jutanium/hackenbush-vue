@@ -36,8 +36,9 @@
                     :autoplay="autoplay"
                     :flush="flushRef"
                     :aiControls="current == 6 ? [Color.Blue] : [Color.Red, Color.Blue]"
+                    :preventClick="current == 6 ? false : !hasCompleted"
                     :starting-player="startingPlayer"
-                    :show-turn="current > 4"
+                    :show-turn="current > 2"
                     :reset-scissors-on-flush="direction < 0"
                     :segments-opacity="segmentOpacity(current, progress)"
                     :scissors-opacity="scissorsOpacity(current, progress)"
@@ -81,7 +82,7 @@ const subgraph = ref("all");
 const autoplay = ref<boolean | number>(false);
 const flushRef = ref(0);
 const hasCompleted = ref(0);
-const startingPlayer = ref(Color.Blue);
+const startingPlayer = ref();
 const playerWon = ref<true | false | undefined>();
 
 function onGameOver({winner, playerDidWin, playingAgain}) {

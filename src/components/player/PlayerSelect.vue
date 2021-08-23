@@ -2,15 +2,15 @@
   <div class="grid grid-cols-4 items-center gap-y-2 bg-white border border-gray-200  p-2 rounded-md filter drop-shadow-md ">
     <template v-for="choice in choices">
       <div class="col-span-2 text-lg mr-2" v-text="choice.text"></div>
-      <button class="border-2 rounded-lg text-blue-player text-center border-transparent"
+      <button class="border-2 rounded-lg text-center border-transparent"
               :class="{'border-blue-400': choice.chosen == Color.Blue}"
               @click="choice.chosen = Color.Blue">
-        bLue
+        <Blue/>
       </button>
-      <button class="border-2 rounded-lg text-red-player text-center border-transparent"
+      <button class="border-2 rounded-lg text-center border-transparent"
               :class="{'border-red-400': choice.chosen == Color.Red}"
               @click="choice.chosen = Color.Red">
-        Red
+        <Red/>
       </button>
     </template>
     <div class="col-span-full flex items-center justify-center">
@@ -26,6 +26,8 @@
 <script lang="ts">
 import {ref, defineComponent, PropType, reactive} from "vue"
 import {Color} from "@/model/segment-color";
+import Blue from "@/components/explorable/text-elements/Blue.vue";
+import Red from "@/components/explorable/text-elements/Red.vue";
 
 type Player = Color.Red | Color.Blue
 
@@ -40,6 +42,7 @@ export default defineComponent({
       default: Color.Red
     },
   },
+  components: {Blue, Red},
   // emits: ["update:starting", "update:playerControlled"],
   emits: ["submit"],
   setup: (props, {emit}) => {

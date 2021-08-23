@@ -1,5 +1,5 @@
 <template>
-  <span class="text-blue-player font-bold">bLue</span>
+  <span class="text-blue-player font-bold">Blue</span>
 </template>
 
 <script>

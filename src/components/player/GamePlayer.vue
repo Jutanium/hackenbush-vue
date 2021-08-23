@@ -1,27 +1,24 @@
 <template>
   <div>
-    <PlayerSelect v-if="!currentPlayer" :starting="startingPlayer" @submit="playerSelected"
+    <PlayerSelect v-if="!currentPlayer && showTurn" :starting="startingPlayer" @submit="playerSelected"
                   class="absolute w-1/2 top-20 left-10"
     />
     <div v-if="!pictureMode && showTurn" class="absolute top-14 left-10 text-xl lg:text-2xl">
       <div v-if="playerWon">
-        <span :class="playerDisplay[otherPlayer(playerWon)].class">
-          {{ playerDisplay[otherPlayer(playerWon)].text }}
-        </span>
+        <Blue v-if="playerWon == Color.Red"/>
+        <Red v-else/>
         can't move, so
-        <span :class="playerDisplay[playerWon].class">
-         {{ playerDisplay[playerWon].text }}
-        </span>
+        <Blue v-if="playerWon == Color.Blue"/>
+        <Red v-else/>
         wins
         <button v-if="promptReset"
                 @click="resetButtonClick"
                 class="h-12 px-6 m-2 text-lg text-white transition-colors duration-150 bg-blue-400 rounded-lg focus:shadow-outline hover:bg-blue-600">
           {{promptReset.text}}</button>
       </div>
-      <div v-else-if="currentPlayerString">
-        <span :class="currentPlayerClass">
-          {{currentPlayerString}}'s Turn.
-        </span>
+      <div v-else-if="currentPlayer">
+        <Blue v-if="currentPlayer == Color.Blue"/>
+        <Red v-else/>'s Turn.
         <span v-if="!ai.includes(currentPlayer)">
           Click a <span :class="currentPlayerClass">segment</span>!
         </span>
@@ -48,6 +45,7 @@
         <g :style="style" v-if="animating || !cut">
           <title v-if="debugMode">{{segment.id}}</title>
           <PiecePath :segment="segment" :class="{clickable: clickable(segment)}"
+                     :ref="el => segmentRefs[segment.id] = el"
                      @click="pieceClicked(segment)"
           >
           </PiecePath>
@@ -67,14 +65,13 @@ import {
   computed,
   ComputedRef,
   defineComponent,
-  onMounted,
   PropType,
   reactive,
   ref,
   toRef,
   unref,
   watch,
-  watchEffect
+  nextTick
 } from "vue"
 import {Segment} from "@/model/segment";
 import PiecePath from "@/components/shared/PiecePath.vue";
@@ -88,10 +85,12 @@ import Timeline = gsap.core.Timeline;
 
 import cloneDeep from "lodash.clonedeep";
 import PlayerSelect from "@/components/player/PlayerSelect.vue";
+import Blue from "@/components/explorable/text-elements/Blue.vue";
+import Red from "@/components/explorable/text-elements/Red.vue";
 
 type Player = Color.Red | Color.Blue
 export default defineComponent({
-  components: {PlayerSelect, Scissors, PiecePath},
+  components: {Blue, Red, PlayerSelect, Scissors, PiecePath},
   emits: ['gameover', 'segmentClicked'],
   props: {
     pictureMode: {
@@ -265,27 +264,7 @@ export default defineComponent({
       cut: false
     }
 
-    // const segmentRenders = computed(() =>
-    //     Object.fromEntries(Object.values(graph.value.getLiveSegments()).map(segment => {
-    //     const obj = reactive({
-    //       ...segmentRendersInitial,
-    //       segment,
-    //       live: computed(() => {
-    //         return liveIds.value.has(segment.id)
-    //       }),
-    //       style: computed(() => (
-    //           {
-    //             transform: `translateY(${obj.offsetY}px)`,
-    //             opacity: typeof props.segmentsOpacity == "number" ? props.segmentsOpacity : obj.opacity
-    //           }
-    //       )),
-    //     });
-    //     return [segment.id, obj];
-    //   })
-    // ));
-
     const segmentRenders = ref();
-
 
     function resetSegments() {
      segmentRenders.value = Object.fromEntries(
@@ -342,7 +321,7 @@ export default defineComponent({
       }
 
       if (svg.value) {
-        nextTurn(startingPlayer);
+        nextTick(() => nextTurn(startingPlayer));
       }
     }
 
@@ -369,12 +348,18 @@ export default defineComponent({
       const scissorsEl = unref(render.ref)?.$el;
       if (!scissorsEl) return;
 
-      const cutpoint = (dim: "x" | "y") => (segment.start[dim] + segment.end[dim]) / 2;
+      const el = segmentRefs[segment.id]?.$el;
+
+      //TODO: fix the ref issue
+      const svgCutpoint = el?.getPointAtLength( (0.3 + Math.random()/2) * el.getTotalLength());
+      const cutpoint = (dim: "x" | "y") => svgCutpoint?.[dim] || ((segment.start[dim] + segment.end[dim]) / 2);
 
       const {clientWidth, clientHeight} = unref(svg)!;
       const moveOffset = render.moveOffset;
-      const x = (cutpoint("x") / 100) * clientWidth + moveOffset.x;
+      const x = (cutpoint("x")/ 100) * clientWidth + moveOffset.x;
       const y = (cutpoint("y") / 100) * clientHeight + moveOffset.y;
+      // const x = cutpoint.x;
+      // const y = cutpoint.y;
       const speed = 350; //px/seconds
       const lastPos = render.lastPos;
       const duration = Math.sqrt((lastPos.x - x) ** 2 + (lastPos.y - y) ** 2) / speed;
@@ -463,7 +448,7 @@ export default defineComponent({
           console.log("Subgraph", Graph.getCurrentSubgraph(), "Value", gameValue.value);
         }
         // emit("update:subgraph", Graph.getCurrentSubgraph());
-        nextTurn();
+        nextTick( () => nextTurn());
       }
     }
 
@@ -503,6 +488,7 @@ export default defineComponent({
 
     function clickable(segment: Segment): Boolean {
       if (props.pictureMode || props.preventClick) return false;
+      if (ai.value.includes(currentPlayer)) return false;
       return segment.color == "green" || segment.color == currentPlayer.value
     }
 
@@ -538,6 +524,8 @@ export default defineComponent({
       }
     });
 
+    const segmentRefs = {};
+
     return {
       graph,
       scissorsRenders,
@@ -560,6 +548,7 @@ export default defineComponent({
       ai,
       resetButtonClick,
       playerSelected,
+      segmentRefs
     }
   },
 })
