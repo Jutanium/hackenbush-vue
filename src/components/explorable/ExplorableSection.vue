@@ -15,7 +15,16 @@
           </div>
         </div>
       </div>
-      <BaseButton class="w-32 h-10 self-center" @click="nextButtonClick">Next</BaseButton>
+      <div class="self-center space-x-4">
+        <div class="w-24 inline-block">
+          <BaseButton class="h-10 rounded" v-show="scrollData.current > 0" @click="prev">Prev</BaseButton>
+        </div>
+        <div class="w-24 inline-block">
+          <BaseButton class="h-10" v-show="scrollData.current + 1 < numGroups" @click="nextButtonClick">
+            Next
+          </BaseButton>
+        </div>
+      </div>
     </div>
 
     <div v-if="$slots.sticky" ref="sticky" class="md:w-1/2 md:ml-4 max-w-3xl flex-shrink">
