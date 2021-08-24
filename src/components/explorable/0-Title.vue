@@ -1,16 +1,13 @@
 <template>
-  <ScrollytellSection :num-groups="1" @slideChange="slideChange">
-    <template v-slot:group1>
-      <div class="text-5xl mt-20" ref="title">
-        The Most Mathematical Game
-      </div>
-      <div ref="scroll" class="text-center mt-20">
-        Scroll to Continue
-      </div>
-    </template>
-    <template v-slot:absolute="{current, progress, enterProgress}">
-    </template>
-  </ScrollytellSection>
+  <div class="h-screen w-full flex flex-col items-center">
+    <div class="h-1/3"></div>
+    <div class="text-5xl font-bold mt-20" ref="title">
+      The Most Mathematical Game
+    </div>
+    <div ref="scroll" class="text-center mt-20">
+      Scroll to Continue
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -20,11 +17,8 @@ import {computed, onMounted, ref} from "vue"
 import Blue from "@/components/explorable/text-elements/Blue.vue";
 import Red from "@/components/explorable/text-elements/Red.vue"
 import GamePlayer from "@/components/player/GamePlayer.vue";
-import { gsap } from "gsap"
+import {gsap} from "gsap"
 
-const translateUp = (amount: number) => ({
-  transform: `translateY(${-amount}px)`
-})
 const slideChange = (scrollData: { current: number, direction: number }) => {
   const {current, direction} = scrollData;
   console.log("slideChange", current, direction);

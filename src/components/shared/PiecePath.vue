@@ -2,7 +2,7 @@
   <path fill="none"
         :d="path"
         pointer-events="visible"
-        :class="segment.color"
+        :class="colorClass"
         class="stroke-current stroke-3 lg:stroke-1"
   ></path>
 </template>
@@ -10,6 +10,7 @@
 <script lang="ts">
 import {ref, defineComponent, PropType} from "vue"
 import {Segment} from "@/model/segment";
+import {Color} from "@/model/segment-color";
   export default defineComponent({
     name: "",
     props: {
@@ -32,6 +33,14 @@ import {Segment} from "@/model/segment";
         path += `L ${this.segment.end.x},${this.segment.end.y}`
         return path;
       },
+      colorClass () {
+        if (this.segment.color == Color.Red) {
+          return "text-red-player";
+        }
+        if (this.segment.color == Color.Blue) {
+          return "text-blue-player";
+        }
+      }
     },
     data () {
       return {
@@ -41,11 +50,3 @@ import {Segment} from "@/model/segment";
   })
 </script>
 
-<style scoped>
-.red {
-  @apply text-red-500
-}
-.blue {
-  @apply text-blue-600
-}
-</style>
