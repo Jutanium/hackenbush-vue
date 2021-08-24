@@ -130,8 +130,10 @@ const slideChange = (scrollData: { current: number, direction: number }) => {
   if (current == 2) {
     if (blinking) {
       blinking.restart();
+      blinking.play();
+    } else {
+      blinking = gsap.fromTo(blinkSegments, { value: 1 }, { value: 0.2, yoyo: true, repeat: -2, duration: 1})
     }
-    blinking = gsap.fromTo(blinkSegments, { value: 1 }, { value: 0.2, yoyo: true, repeat: -2, duration: 1})
   } else {
     if (blinking) {
       blinking.progress(1);
