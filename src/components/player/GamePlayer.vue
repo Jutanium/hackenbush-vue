@@ -1,27 +1,31 @@
 <template>
   <div>
-    <PlayerSelect v-if="!currentPlayer && showTurn" :starting="startingPlayer" @submit="playerSelected"
-                  class="absolute w-1/2 top-20 left-10"
-    />
-    <div v-if="!pictureMode && showTurn" class="absolute top-14 left-10 text-xl lg:text-2xl">
-      <div v-if="playerWon">
-        <Blue v-if="playerWon == Color.Red"/>
-        <Red v-else/>
-        can't move, so
-        <Blue v-if="playerWon == Color.Blue"/>
-        <Red v-else/>
-        wins
-        <button v-if="promptReset"
-                @click="resetButtonClick"
-                class="h-12 px-6 m-2 text-lg text-white transition-colors duration-150 bg-blue-400 rounded-lg focus:shadow-outline hover:bg-blue-600">
-          {{promptReset.text}}</button>
-      </div>
-      <div v-else-if="currentPlayer">
-        <Blue v-if="currentPlayer == Color.Blue"/>
-        <Red v-else/>'s Turn.
-        <span v-if="!ai.includes(currentPlayer)">
+    <div v-if="!pictureMode" class="absolute text-xl lg:text-2xl">
+      <div class="relative top-10 left-10">
+        <PlayerSelect v-if="!currentPlayer" :starting="startingPlayer" @submit="playerSelected"
+                      class=""
+        />
+        <div v-if="playerWon">
+          <Blue v-if="playerWon == Color.Red"/>
+          <Red v-else/>
+          can't move, so
+          <Blue v-if="playerWon == Color.Blue"/>
+          <Red v-else/>
+          wins
+          <button v-if="promptReset"
+                  @click="resetButtonClick"
+                  class="h-12 px-6 m-2 text-lg text-white transition-colors duration-150 bg-blue-400 rounded-lg focus:shadow-outline hover:bg-blue-600">
+            {{ promptReset.text }}
+          </button>
+        </div>
+        <div v-else-if="currentPlayer">
+          <Blue v-if="currentPlayer == Color.Blue"/>
+          <Red v-else/>
+          's Turn.
+          <span v-if="!ai.includes(currentPlayer)">
           Click a <span :class="currentPlayerClass">segment</span>!
         </span>
+        </div>
       </div>
     </div>
 
@@ -41,7 +45,8 @@
             :width="100" :height="5" :y="95" fill="green">
       </rect>
 
-      <template v-for=" ([id, {segment, style, animating, cut}]) in Object.entries(segmentRenders).filter( ([_, val]) => Boolean(val))">
+      <template
+          v-for=" ([id, {segment, style, animating, cut}]) in Object.entries(segmentRenders).filter( ([_, val]) => Boolean(val))">
         <g :style="style" v-if="animating || !cut">
           <title v-if="debugMode">{{segment.id}}</title>
           <PiecePath :segment="segment" :class="{clickable: clickable(segment)}"
@@ -113,7 +118,7 @@ export default defineComponent({
       default: true
     },
     promptReset: {
-      type: [Object, Boolean] as PropType<{text: string, choosePlayer?: boolean, subgraph?: string} | false>,
+      type: [Object, Boolean] as PropType<{ text: string, choosePlayer?: boolean, subgraph?: string } | false>,
       default: () => ({
         text: "Play Again",
         choosePlayer: true,
@@ -195,7 +200,7 @@ export default defineComponent({
 
     const playingAgain = ref(false);
 
-    const animations: {scissors: Set<Timeline>, segments: Set<Timeline>} = {
+    const animations: { scissors: Set<Timeline>, segments: Set<Timeline> } = {
       scissors: new Set(),
       segments: new Set()
     }
@@ -234,12 +239,12 @@ export default defineComponent({
     }
 
     Object.values(scissorsRenders).forEach(scissors =>
-      scissors.transform = computed(
-        () => {
-          const {translateX, translateY, rotation} = scissors;
-          return `translateX(${translateX}px) translateY(${translateY + props.scissorsOffsetY}px) rotate(${rotation}deg)`
-        }
-      )
+        scissors.transform = computed(
+            () => {
+              const {translateX, translateY, rotation} = scissors;
+              return `translateX(${translateX}px) translateY(${translateY + props.scissorsOffsetY}px) rotate(${rotation}deg)`
+            }
+        )
     )
 
     function resetScissors() {
@@ -267,7 +272,7 @@ export default defineComponent({
     const segmentRenders = ref();
 
     function resetSegments() {
-     segmentRenders.value = Object.fromEntries(
+      segmentRenders.value = Object.fromEntries(
           Object.values(graph.value.getLiveSegments()).map(segment => {
             const obj = reactive({
               ...segmentRendersInitial,
@@ -330,7 +335,7 @@ export default defineComponent({
     }, {immediate: true})
 
     function resetButtonClick() {
-      const { choosePlayer, subgraph } = props.promptReset;
+      const {choosePlayer, subgraph} = props.promptReset;
       if (choosePlayer) {
         currentPlayer.value = false;
       } else {
@@ -338,7 +343,7 @@ export default defineComponent({
       }
     }
 
-    function playerSelected(params: {playerControlled: Player, starting: Player}) {
+    function playerSelected(params: { playerControlled: Player, starting: Player }) {
       ai.value = [otherPlayer(params.playerControlled)];
       resetGame(true, true, params.starting, props.promptReset.subgraph || props.subgraph);
     }
@@ -351,12 +356,12 @@ export default defineComponent({
       const el = segmentRefs[segment.id]?.$el;
 
       //TODO: fix the ref issue
-      const svgCutpoint = el?.getPointAtLength( (0.3 + Math.random()/2) * el.getTotalLength());
+      const svgCutpoint = el?.getPointAtLength((0.3 + Math.random() / 2) * el.getTotalLength());
       const cutpoint = (dim: "x" | "y") => svgCutpoint?.[dim] || ((segment.start[dim] + segment.end[dim]) / 2);
 
       const {clientWidth, clientHeight} = unref(svg)!;
       const moveOffset = render.moveOffset;
-      const x = (cutpoint("x")/ 100) * clientWidth + moveOffset.x;
+      const x = (cutpoint("x") / 100) * clientWidth + moveOffset.x;
       const y = (cutpoint("y") / 100) * clientHeight + moveOffset.y;
       // const x = cutpoint.x;
       // const y = cutpoint.y;
@@ -367,7 +372,7 @@ export default defineComponent({
       lastPos.y = y;
 
       const timeline = gsap.timeline({
-        onComplete () {
+        onComplete() {
           animations.scissors.delete(timeline);
           onComplete();
         }
@@ -405,7 +410,7 @@ export default defineComponent({
         const floatingIds = Graph.removeEdge(segment.id);
         const floatingSegments = floatingIds.map(id => segmentRenders.value[id]);
         const timeline = gsap.timeline({
-          onComplete () {
+          onComplete() {
             animations.segments.delete(timeline);
           }
         });
@@ -448,7 +453,7 @@ export default defineComponent({
           console.log("Subgraph", Graph.getCurrentSubgraph(), "Value", gameValue.value);
         }
         // emit("update:subgraph", Graph.getCurrentSubgraph());
-        nextTick( () => nextTurn());
+        nextTick(() => nextTurn());
       }
     }
 
@@ -463,7 +468,11 @@ export default defineComponent({
       const CurrentPlayer = unref(currentPlayer);
 
       if (playerWon.value) {
-        emit("gameover", {winner: playerWon.value, playerDidWin: !ai.value.includes(playerWon.value), playingAgain: playingAgain.value})
+        emit("gameover", {
+          winner: playerWon.value,
+          playerDidWin: !ai.value.includes(playerWon.value),
+          playingAgain: playingAgain.value
+        })
         return;
       }
 
