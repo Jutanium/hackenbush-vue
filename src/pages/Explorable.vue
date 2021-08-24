@@ -1,14 +1,10 @@
 <template>
-  <div v-if="width > 1000">
     <TheTitle/>
+
     <LetsPlayAGame></LetsPlayAGame>
-    <GamesAndMath></GamesAndMath>
-    <FirstStrategies></FirstStrategies>
-    <QuantifyingAdvantage></QuantifyingAdvantage>
-  </div>
-  <div v-else class="p-4 text-xl">
-    A mobile version of this math exploration is coming soon; for now, open this site on a bigger screen!
-  </div>
+<!--    <GamesAndMath></GamesAndMath>-->
+<!--    <FirstStrategies></FirstStrategies>-->
+<!--    <QuantifyingAdvantage></QuantifyingAdvantage>-->
 </template>
 
 <script setup lang="ts">

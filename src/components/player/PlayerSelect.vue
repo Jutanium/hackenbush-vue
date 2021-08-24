@@ -5,20 +5,16 @@
       <button class="border-2 rounded-lg text-center border-transparent"
               :class="{'border-blue-400': choice.chosen == Color.Blue}"
               @click="choice.chosen = Color.Blue">
-        <Blue/>
+        <Blue :bold="choice.chosen == Color.Blue"/>
       </button>
       <button class="border-2 rounded-lg text-center border-transparent"
               :class="{'border-red-400': choice.chosen == Color.Red}"
               @click="choice.chosen = Color.Red">
-        <Red/>
+        <Red :bold="choice.chosen == Color.Red"/>
       </button>
     </template>
-    <div class="col-span-full flex items-center justify-center">
-      <button
-              @click="playButtonClick"
-              class="h-12 px-6 m-2 text-lg text-white transition-colors duration-150 bg-blue-400 rounded-lg focus:shadow-outline hover:bg-blue-600">
-        Start
-      </button>
+    <div class="col-span-full flex items-center justify-center m-2">
+      <BaseButton class="h-12" @click="playButtonClick">Start</BaseButton>
     </div>
   </div>
 </template>
@@ -28,6 +24,7 @@ import {ref, defineComponent, PropType, reactive} from "vue"
 import {Color} from "@/model/segment-color";
 import Blue from "@/components/explorable/text-elements/Blue.vue";
 import Red from "@/components/explorable/text-elements/Red.vue";
+import BaseButton from "@/components/shared/BaseButton.vue";
 
 type Player = Color.Red | Color.Blue
 
@@ -42,7 +39,7 @@ export default defineComponent({
       default: Color.Red
     },
   },
-  components: {Blue, Red},
+  components: {BaseButton, Blue, Red},
   // emits: ["update:starting", "update:playerControlled"],
   emits: ["submit"],
   setup: (props, {emit}) => {

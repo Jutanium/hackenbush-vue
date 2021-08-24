@@ -15,7 +15,10 @@ module.exports = {
           player: "#EF4444",
         },
         blue: {
-          player: "#2563EB"
+          player: "#3B82F6"
+        },
+        green: {
+          ground: "#059669"
         }
       }
     },

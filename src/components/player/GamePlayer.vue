@@ -39,11 +39,8 @@
       ></Scissors>
     </g>
 
-    <svg ref="svg" viewBox="0 0 100 100" class="border border-black">
-
-      <rect class="drawnGround"
-            :width="100" :height="5" :y="95" fill="green">
-      </rect>
+    <svg ref="svg" viewBox="0 0 100 100">
+      <DrawnGround/>
 
       <template
           v-for=" ([id, {segment, style, animating, cut}]) in Object.entries(segmentRenders).filter( ([_, val]) => Boolean(val))">
@@ -92,10 +89,11 @@ import cloneDeep from "lodash.clonedeep";
 import PlayerSelect from "@/components/player/PlayerSelect.vue";
 import Blue from "@/components/explorable/text-elements/Blue.vue";
 import Red from "@/components/explorable/text-elements/Red.vue";
+import DrawnGround from "@/components/shared/DrawnGround.vue";
 
 type Player = Color.Red | Color.Blue
 export default defineComponent({
-  components: {Blue, Red, PlayerSelect, Scissors, PiecePath},
+  components: {DrawnGround, Blue, Red, PlayerSelect, Scissors, PiecePath},
   emits: ['gameover', 'segmentClicked'],
   props: {
     pictureMode: {

@@ -1,9 +1,7 @@
 <template>
   <g>
-    <rect class="drawnGround"
-          :width="width" :height="height" :y="y" fill="green">
-    </rect>
 
+    <DrawnGround :width="width" :height="height" :y="y"/>
 
     <g @mousemove="onMouseMove" @mouseleave="onMouseLeave">
 
@@ -26,10 +24,11 @@ import {defineComponent, inject} from "vue"
 import {injections} from "../GameCreator.vue"
 import DragCircle from "./DragCircle.vue";
 import {Connection} from "@/model/segment";
+import DrawnGround from "@/components/shared/DrawnGround.vue";
 
 export default defineComponent({
     name: "Ground",
-    components: {DragCircle},
+    components: {DrawnGround, DragCircle},
     props: {
       height: {
         type: Number,

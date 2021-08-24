@@ -1,57 +1,76 @@
 <template>
-    <ScrollytellSection :topGap="false" :num-groups="7" @slideChange="slideChange">
-      <template v-slot:group1>
+  <ExplorableSection :num-groups="7" @slideChange="slideChange">
+
+    <template v-slot:group0>
       <b>Let's play a game.</b>
     </template>
+
+    <template v-slot:group1>
+      It’s a simple game, with two players —
+      <Blue/>
+      and
+      <Red/>
+      .
+    </template>
+
     <template v-slot:group2>
-      It’s a simple game, with two players — <Blue/> and <Red/>.
+      The game consists of a bunch of
+      <Blue/>
+      and
+      <Red/>
+      <b> strings</b> connected to the <b>ground</b>.
     </template>
+
     <template v-slot:group3>
-      The game consists of a bunch of <Blue/> and <Red/> <b>strings</b> connected to the <b>ground</b>.
-    </template>
-    <template v-slot:group4>
       Each player, on their turn, can <b>cut</b> a string of their own color.
     </template>
-    <template v-slot:group5>
+
+    <template v-slot:group4>
       Any pieces that are no longer connected to the ground will <b>float away.</b>
     </template>
-    <template v-slot:group6>
+
+    <template v-slot:group5>
       If you can’t make a move, you <b>lose</b>.
     </template>
-    <template v-slot:group7>
+
+    <template v-slot:group6>
       That’s it — those are the only rules. Try it out!
-      <div v-if="playerWon !== undefined">
-        <template v-if="playerWon">
-          Hey, look — you won your first game! Great job!
-        </template>
-        <template v-else>
-          You didn’t win this time, but don’t sweat it — you’ll have plenty more chances.
-        </template>
-      </div>
+      <!--      <div v-if="playerWon !== undefined">-->
+      <!--        <template v-if="playerWon">-->
+      <!--          Hey, look — you won your first game! Great job!-->
+      <!--        </template>-->
+      <!--        <template v-else>-->
+      <!--          You didn’t win this time, but don’t sweat it — you’ll have plenty more chances.-->
+      <!--        </template>-->
+      <!--      </div>-->
     </template>
-    <template v-slot:sticky="{current, progress, direction}">
-        <GamePlayer
-            :segments="person.segments"
-                    :subgraph="subgraph"
-                    :autoplay="autoplay"
-                    :flush="flushRef"
-                    :aiControls="current == 6 ? [Color.Blue] : [Color.Red, Color.Blue]"
-                    :preventClick="current == 6 ? false : !hasCompleted"
-                    :starting-player="startingPlayer"
-                    :show-turn="current > 2"
-                    :reset-scissors-on-flush="direction < 0"
-                    :segments-opacity="segmentOpacity(current, progress)"
-                    :scissors-opacity="scissorsOpacity(current, progress)"
-                    :prompt-reset="{text: hasCompleted > 1 ? 'Play Again' : 'Let Me Play', choosePlayer: true, subgraph: 'all'}"
-                    :scissors-offset-y="current == 0 ? (300 + (progress * -300)) : undefined"
-                    @gameover="onGameOver"
-        >
-        </GamePlayer>
+
+    <template v-slot:sticky="{current, enterProgress, leaveProgress}">
+      {{current}} {{enterProgress}} {{leaveProgress}}
+      <GamePlayer :segments="person.segments">
+        <!--        <GamePlayer-->
+        <!--            :segments="person.segments"-->
+        <!--                    :subgraph="subgraph"-->
+        <!--                    :autoplay="autoplay"-->
+        <!--                    :flush="flushRef"-->
+        <!--                    :aiControls="current == 6 ? [Color.Blue] : [Color.Red, Color.Blue]"-->
+        <!--                    :preventClick="current == 6 ? false : !hasCompleted"-->
+        <!--                    :starting-player="startingPlayer"-->
+        <!--                    :show-turn="current > 2"-->
+        <!--                    :reset-scissors-on-flush="true"-->
+        <!--                    :segments-opacity="segmentOpacity(current, progress)"-->
+        <!--                    :scissors-opacity="scissorsOpacity(current, progress)"-->
+        <!--                    :prompt-reset="{text: hasCompleted > 1 ? 'Play Again' : 'Let Me Play', choosePlayer: true, subgraph: 'all'}"-->
+        <!--                    :scissors-offset-y="current == 0 ? (300 + (progress * -300)) : undefined"-->
+        <!--                    @gameover="onGameOver"-->
+        <!--        >-->
+      </GamePlayer>
     </template>
-  </ScrollytellSection>
+  </ExplorableSection>
 </template>
 
 <script setup lang="ts">
+import ExplorableSection from "@/components/explorable/ExplorableSection.vue";
 import ScrollytellSection from "../scrollytell/ScrollytellSection.vue";
 import GamePlayer from "../player/GamePlayer.vue";
 import person from "@/game-files/person.json"
@@ -91,10 +110,12 @@ function onGameOver({winner, playerDidWin, playingAgain}) {
     playerWon.value = playerDidWin;
   }
 }
+
 function flush() {
   flushRef.value++;
 }
-function play () {
+
+function play() {
   autoplay.value = true;
   flush();
 }
@@ -106,8 +127,8 @@ function reset() {
 }
 
 
-const slideChange = (scrollData: {current: number, direction: number}) => {
-  const { current, direction } = scrollData;
+const slideChange = (scrollData: { current: number, direction: number }) => {
+  const {current, direction} = scrollData;
   console.log("slideChange", current, direction);
   if (current <= 3 && direction < 0) {
     reset();
