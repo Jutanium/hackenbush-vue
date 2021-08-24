@@ -46,24 +46,21 @@
     </template>
 
     <template v-slot:sticky="{current, enterProgress, leaveProgress}">
-      {{current}} {{enterProgress}} {{leaveProgress}}
-      <GamePlayer :segments="person.segments">
-        <!--        <GamePlayer-->
-        <!--            :segments="person.segments"-->
-        <!--                    :subgraph="subgraph"-->
-        <!--                    :autoplay="autoplay"-->
-        <!--                    :flush="flushRef"-->
-        <!--                    :aiControls="current == 6 ? [Color.Blue] : [Color.Red, Color.Blue]"-->
-        <!--                    :preventClick="current == 6 ? false : !hasCompleted"-->
-        <!--                    :starting-player="startingPlayer"-->
-        <!--                    :show-turn="current > 2"-->
-        <!--                    :reset-scissors-on-flush="true"-->
-        <!--                    :segments-opacity="segmentOpacity(current, progress)"-->
-        <!--                    :scissors-opacity="scissorsOpacity(current, progress)"-->
-        <!--                    :prompt-reset="{text: hasCompleted > 1 ? 'Play Again' : 'Let Me Play', choosePlayer: true, subgraph: 'all'}"-->
-        <!--                    :scissors-offset-y="current == 0 ? (300 + (progress * -300)) : undefined"-->
-        <!--                    @gameover="onGameOver"-->
-        <!--        >-->
+      <GamePlayer
+          :segments="person.segments"
+          :subgraph="subgraph"
+          :autoplay="autoplay"
+          :flush="flushRef"
+          :aiControls="aiControls(current)"
+          :preventClick="current == 6 ? false : !hasCompleted"
+          :starting-player="startingPlayer"
+          :show-turn="current > 2"
+          :reset-scissors-on-flush="true"
+          :segments-opacity="blinkSegments || enterProgress"
+          :scissors-opacity="Number(current >= 1)"
+          :prompt-reset="{text: hasCompleted > 1 ? 'Play Again' : 'Let Me Play', choosePlayer: true, subgraph: 'all'}"
+          @gameover="onGameOver"
+      >
       </GamePlayer>
     </template>
   </ExplorableSection>
@@ -78,24 +75,7 @@ import {Color} from "@/model/segment-color";
 import {computed, ref} from "vue"
 import Blue from "@/components/explorable/text-elements/Blue.vue";
 import Red from "@/components/explorable/text-elements/Red.vue"
-
-const segmentOpacity = (current, progress) => {
-  if (current < 1) {
-    return 0;
-  }
-  if (current == 1) {
-    return progress;
-  }
-}
-const scissorsOpacity = (current, progress) => {
-  if (current < 0) {
-    return 0;
-  }
-  if (current == 0) {
-    return 0.5 + progress / 2;
-  }
-  return 1;
-}
+import { gsap } from "gsap";
 
 const subgraph = ref("all");
 const autoplay = ref<boolean | number>(false);
@@ -103,6 +83,10 @@ const flushRef = ref(0);
 const hasCompleted = ref(0);
 const startingPlayer = ref();
 const playerWon = ref<true | false | undefined>();
+
+const aiControls = (current) => current == 6 ? [Color.Blue] : [Color.Red, Color.Blue];
+
+const blinkSegments = ref(0)
 
 function onGameOver({winner, playerDidWin, playingAgain}) {
   hasCompleted.value++;
@@ -127,6 +111,8 @@ function reset() {
 }
 
 
+let blinking = null;
+
 const slideChange = (scrollData: { current: number, direction: number }) => {
   const {current, direction} = scrollData;
   console.log("slideChange", current, direction);
@@ -141,6 +127,19 @@ const slideChange = (scrollData: { current: number, direction: number }) => {
   if (current < 6) {
     startingPlayer.value = Color.Blue;
   }
+  if (current == 2) {
+    if (blinking) {
+      blinking.restart();
+    }
+    blinking = gsap.fromTo(blinkSegments, { value: 1 }, { value: 0.2, yoyo: true, repeat: -2, duration: 1})
+  } else {
+    if (blinking) {
+      blinking.progress(1);
+      blinking.pause();
+      blinkSegments.value = 0;
+    }
+  }
+
   if (current == 3) {
     subgraph.value = "all";
     if (direction > 0)

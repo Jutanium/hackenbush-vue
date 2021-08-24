@@ -37,7 +37,7 @@ import {
   watch,
   onBeforeUnmount,
   unref,
-  onUnmounted
+  onUnmounted, toRef
 } from "vue"
 import {gsap} from "gsap";
 import {ScrollTrigger} from "gsap/ScrollTrigger";
@@ -117,7 +117,9 @@ export default defineComponent({
         revealed.value++;
         scrollData.current = revealed.value;
       }
-    }
+    };
+
+    watch(toRef(scrollData, 'current'), (current, last) => emit('slideChange', Object.assign({direction: current - last}, scrollData)))
 
     return {
       root,

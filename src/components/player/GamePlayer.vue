@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="!pictureMode" class="absolute text-xl lg:text-2xl">
+    <div v-if="!pictureMode && showTurn" class="absolute text-xl lg:text-2xl">
       <div class="relative top-10 left-10">
         <PlayerSelect v-if="!currentPlayer" :starting="startingPlayer" @submit="playerSelected"
                       class=""
@@ -275,12 +275,14 @@ export default defineComponent({
             const obj = reactive({
               ...segmentRendersInitial,
               segment,
-              style: computed(() => (
-                  {
-                    transform: `translateY(${obj.offsetY}px)`,
-                    opacity: typeof props.segmentsOpacity == "number" ? props.segmentsOpacity : obj.opacity
-                  }
-              )),
+              style: computed(() => {
+                const overrideOpacity = props.segmentsOpacity;
+                const opacity = (typeof overrideOpacity == "number" && overrideOpacity < 1) ?  overrideOpacity : obj.opacity
+                return {
+                  transform: `translateY(${obj.offsetY}px)`,
+                  opacity
+                }
+              })
             });
             return [segment.id, obj];
           })
