@@ -44,7 +44,7 @@
 
       <template
           v-for=" ([id, {segment, style, animating, cut}]) in Object.entries(segmentRenders).filter( ([_, val]) => Boolean(val))">
-        <g :style="style" v-if="animating || !cut">
+        <g class="absolute" :style="style" v-if="animating || !cut">
           <title v-if="debugMode">{{segment.id}}</title>
           <PiecePath :segment="segment" :class="{clickable: clickable(segment)}"
                      :ref="el => segmentRefs[segment.id] = el"

@@ -1,7 +1,7 @@
 <template>
   <div ref="root" class="w-full h-screen md:items-center flex flex-col md:flex-row justify-evenly scroll-snap">
     <div class="ml-4 md:ml-12 h-1/2 md:h-auto md:w-1/2 md:mt-8 flex flex-col gap-4">
-      <div>
+      <div class="pt-10">
         <div v-for="(_, i) in numGroups"
              :ref="el => { if (el) groups[i] = el }"
              class="md:text-lg h-12 flex items-center"
@@ -26,7 +26,7 @@
       </div>
     </div>
 
-    <div v-if="$slots.sticky" ref="sticky" class="md:w-1/2 md:ml-4 max-w-3xl flex-shrink">
+    <div v-if="$slots.sticky" ref="sticky" class="md:w-1/2 md:ml-4 max-w-3xl flex-shrink p-10">
       <div>
         <slot name="sticky" v-bind="scrollData"/>
       </div>
@@ -124,6 +124,8 @@ export default defineComponent({
       if (revealed.value + 1 < numGroups) {
         revealed.value++;
         scrollData.current = revealed.value;
+      } else if (scrollData.current + 1 < numGroups) {
+        scrollData.current++;
       }
     }
 
