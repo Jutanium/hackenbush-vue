@@ -17,7 +17,7 @@
       </div>
       <div class="self-center space-x-4">
         <div class="w-24 inline-block">
-          <BaseButton class="h-10 rounded" v-show="scrollData.current > 0" @click="prev">Prev</BaseButton>
+          <BaseButton class="h-10 rounded" v-show="scrollData.current > 0" @click="prevButtonClick">Prev</BaseButton>
         </div>
         <div class="w-24 inline-block">
           <BaseButton class="h-10" v-show="scrollData.current + 1 < numGroups" @click="nextButtonClick">
@@ -126,7 +126,13 @@ export default defineComponent({
         revealed.value++;
         scrollData.current = revealed.value;
       }
-    };
+    }
+
+    function prevButtonClick() {
+      if (scrollData.current > 0) {
+        scrollData.current--;
+      }
+    }
 
     watch(toRef(scrollData, 'current'), (current, last) => emit('slideChange', Object.assign({direction: current - last}, scrollData)))
 
@@ -137,6 +143,7 @@ export default defineComponent({
       scrollData,
       scrollTriggersRef,
       groupStyles,
+      prevButtonClick,
       nextButtonClick,
       revealed
     }

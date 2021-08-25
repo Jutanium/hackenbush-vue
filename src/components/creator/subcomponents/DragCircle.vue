@@ -1,6 +1,8 @@
 <template>
   <g>
-    <circle :cx="x" :cy="y" :r="radius"  @mousedown="onMouseDown"></circle>
+    <circle class="hidden lg:block" :cx="x" :cy="y" :r="1"  @mousedown="onMouseDown"></circle>
+    <circle class="lg:hidden" :cx="x" :cy="y" :r="1.5"  @mousedown="onMouseDown"></circle>
+
   </g>
 </template>
 
@@ -24,10 +26,6 @@
         type: Object as PropType<Connection>,
         required: true,
       },
-      radius: {
-        type: Number,
-        default: 1
-      }
     },
     setup: () => {
       return {

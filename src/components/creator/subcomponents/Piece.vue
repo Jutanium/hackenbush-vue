@@ -56,6 +56,10 @@
       segment: {
         type: Object as PropType<Segment>,
         required: true
+      },
+      demoMode: {
+        type: Boolean,
+        default: false
       }
     },
     setup: () => {
@@ -68,6 +72,9 @@
     },
     computed: {
       showingCurveControls (): Boolean {
+        if (this.demoMode) {
+          return false;
+        }
         return this.selectedMode == Mode.Moving || (this.selectedMode < Mode.Deleting && this.mouseIsOver)
       },
       pathStyle () {

@@ -1,8 +1,9 @@
 <template>
   <div>
 
-    <Toolbar v-model:mode="selectedMode"></Toolbar>
-    <svg ref="svg" viewBox="0 0 100 100"
+    <Toolbar v-if="!demoMode" v-model:mode="selectedMode"></Toolbar>
+
+    <svg ref="svg"  :class="{'border border-black': !demoMode}" viewBox="0 0 100 100"
          @click="bgClick"
          @mousemove="bgMouseMove"
          @mouseup="bgMouseUp"
@@ -16,7 +17,7 @@
       </g>
 
       <template v-for="segment in segmentsArray">
-        <Piece :segment="segment" @click="pieceClicked(segment)"></Piece>
+        <Piece :segment="segment" :demoMode="demoMode" @click="pieceClicked(segment)"></Piece>
       </template>
 
     </svg>
@@ -39,6 +40,8 @@ const svgCoordsKey: InjectionKey<(clientX: number, clientY: number) => { x: numb
 const connectionPressedKey: InjectionKey<(svgX: number, svgY: number, connection: Connection, ctrlKey: boolean) => void> = Symbol();
 const snapRadiusKey: InjectionKey<number> = Symbol();
 
+import dogcat from "@/game-files/dogcat.json"
+
 export const injections = {
   svgCoords: svgCoordsKey,
   connectionPressed: connectionPressedKey,
@@ -53,12 +56,16 @@ export default defineComponent({
     snapRadius: {
       type: Number,
       default: 4
+    },
+    demoMode: {
+      type: Boolean,
+      default: false
     }
   },
   setup: (props) => {
     const svg = ref();
 
-    const {segments, groundY} = state;
+    const {segments, groundY} = state(props.demoMode && dogcat.segments);
 
     const segmentsArray = computed( () => {
       return Object.values(segments);
@@ -83,7 +90,7 @@ export default defineComponent({
       return points;
     })
 
-    const selectedMode = ref<Mode>(Mode.DrawingBlue);
+    const selectedMode = ref<Mode>(props.demoMode ? Mode.Moving : Mode.DrawingBlue);
 
     const drawingColor = computed(() => {
       const mode = unref(selectedMode);
@@ -295,9 +302,4 @@ export default defineComponent({
 </script>
 
 <style scoped>
-svg {
-  width: 600px;
-  height: 600px;
-  border: 1px solid black;
-}
 </style>
