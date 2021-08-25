@@ -1,6 +1,5 @@
 <template>
-  <div ref="root" class="w-full h-screen md:items-center flex flex-col md:flex-row justify-evenly">
-
+  <div ref="root" class="w-full h-screen md:items-center flex flex-col md:flex-row justify-evenly scroll-snap">
     <div class="ml-4 md:ml-12 h-1/2 md:h-auto md:w-1/2 md:mt-8 flex flex-col gap-4">
       <div>
         <div v-for="(_, i) in numGroups"
@@ -150,7 +149,8 @@ export default defineComponent({
   },
 })
 </script>
-
 <style scoped>
-
+.scroll-snap {
+  scroll-snap-align: start;
+}
 </style>
