@@ -18,5 +18,9 @@ export default function () {
 
   const width = computed(() => windowWidth.value)
 
-  return { width, type }
+  const isMobile = computed(() => {
+    if (windowWidth.value < 768) return true;
+    return false;
+  })
+  return { width, isMobile }
 }

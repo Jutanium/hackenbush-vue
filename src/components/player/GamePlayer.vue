@@ -51,8 +51,8 @@
                      @click="pieceClicked(segment)"
           >
           </PiecePath>
-          <circle class="lg:hidden" :cx="segment.start.x" :cy="segment.start.y" :r="1.5"></circle>
-          <circle class="lg:hidden" :cx="segment.end.x" :cy="segment.end.y" :r="1.5"></circle>
+          <circle class="lg:hidden" :cx="segment.start.x" :cy="segment.start.y" :r="2"></circle>
+          <circle class="lg:hidden" :cx="segment.end.x" :cy="segment.end.y" :r="2"></circle>
           <circle class="hidden lg:block" :cx="segment.start.x" :cy="segment.start.y" :r="1"></circle>
           <circle class="hidden lg:block" :cx="segment.end.x" :cy="segment.end.y" :r="1"></circle>
         </g>

@@ -3,7 +3,7 @@
         :d="path"
         pointer-events="visible"
         :class="colorClass"
-        class="stroke-current stroke-3 lg:stroke-1"
+        class="stroke-current stroke-4 lg:stroke-1"
   ></path>
 </template>
 

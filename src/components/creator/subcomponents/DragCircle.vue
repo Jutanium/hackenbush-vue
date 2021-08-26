@@ -1,7 +1,7 @@
 <template>
   <g>
     <circle class="hidden lg:block" :cx="x" :cy="y" :r="1"  @mousedown="onMouseDown"></circle>
-    <circle class="lg:hidden" :cx="x" :cy="y" :r="1.5"  @mousedown="onMouseDown"></circle>
+    <circle class="lg:hidden" :cx="x" :cy="y" :r="2"  @mousedown="onMouseDown"></circle>
 
   </g>
 </template>

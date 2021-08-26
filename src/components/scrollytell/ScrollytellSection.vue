@@ -6,13 +6,14 @@
     <div v-if="topGap" class="w-1/2 h-96"></div>
     <div class="flex flex-row justify-center relative z-10">
       <div class="mx-12 max-w-2xl">
-        <div v-for="(i, zeroIndexed) in numGroups" class="flex items-center"
-             :ref="el => { if (el) groups[zeroIndexed] = el }"
-             :style="collectStyle(zeroIndexed)">
+        <div v-for="(_, i) in numGroups" class="flex items-center"
+             :ref="el => { if (el) groups[i] = el }"
+             :style="collectStyle(i)">
           <div class="text-lg">
             <slot :name="'group' + i" v-bind="scrollData"></slot>
           </div>
         </div>
+        <div class="w-full h-96"/>
       </div>
       <div v-if="$slots.sticky" class="w-5/12 max-w-2xl">
         <div :style="collectStyle(0)">
@@ -105,20 +106,17 @@ export default defineComponent({
           onUpdate: (instance) => {
             const {progress} = instance;
             // console.log(instance);
-            console.log("onUpdate", i)
             scrollData.current = i;
             scrollData.progress = progress;
           },
           onEnter: ({direction}) => {
             scrollData.direction = direction;
-            console.log("onEnter", i)
             emit("slideChange", scrollData);
             if (i == 0) {
               emit("enter");
             }
           },
           onLeaveBack: ({direction}) => {
-            console.log("onLeaveBack", i)
             scrollData.direction = direction;
             emit("slideChange", scrollData);
             if (i == 0) {
@@ -145,9 +143,11 @@ export default defineComponent({
           emit("enterBack");
         },
         onUpdate: ({progress, direction, start, end}) => {
+          console.log("leave update")
           scrollData.leaveProgress = progress;
           leaveOffset.value = (start - end) * progress;
-        }
+        },
+        markers: true
       }));
 
       scrollTriggersRef.value = scrollTriggers;
