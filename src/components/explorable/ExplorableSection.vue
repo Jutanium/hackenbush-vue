@@ -1,10 +1,10 @@
 <template>
-  <div ref="root" class="w-full h-screen md:items-center flex flex-col md:flex-row justify-evenly scroll-snap">
+  <div ref="root" class="w-full h-screen md:items-center flex flex-col md:flex-row justify-evenly lg:scroll-snap" :style="{opacity: scrollData.enterProgress}">
     <div class="ml-4 md:ml-12 h-1/2 md:h-auto md:w-1/2 md:mt-8 flex flex-col gap-4">
       <div class="pt-10">
         <div v-for="(_, i) in numGroups"
              :ref="el => { if (el) groups[i] = el }"
-             class="md:text-lg flex items-center"
+             class="md:text-lg flex items-center my-4"
              :class="{'bg-gradient-to-r to-transparent from-blue-100': scrollData.current == i}"
              @click="groupClick(i)"
              :style="groupStyles(i)">
@@ -113,18 +113,22 @@ export default defineComponent({
     })
 
     const groupStyles = (i: number) => {
-      const opacity = i == 0 ? scrollData.enterProgress : Number(revealed.value >= i)
+
+      // const opacity = i == 0 ? scrollData.enterProgress : Number(revealed.value >= i)
+      const opacity = Number(revealed.value >= i)
       return {
         opacity
       }
     }
 
     function nextButtonClick() {
+      if (scrollData.current < revealed.value) {
+        scrollData.current++;
+        return;
+      }
       if (revealed.value + 1 < numGroups) {
         revealed.value++;
         scrollData.current = revealed.value;
-      } else if (scrollData.current + 1 < numGroups) {
-        scrollData.current++;
       }
     }
 
@@ -157,8 +161,3 @@ export default defineComponent({
   },
 })
 </script>
-<style scoped>
-.scroll-snap {
-  scroll-snap-align: start;
-}
-</style>

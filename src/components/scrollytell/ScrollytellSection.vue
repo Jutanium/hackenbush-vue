@@ -9,7 +9,7 @@
         <div v-for="(_, i) in numGroups" class="flex items-center"
              :ref="el => { if (el) groups[i] = el }"
              :style="collectStyle(i)">
-          <div class="text-lg">
+          <div class="lg:text-lg my-2">
             <slot :name="'group' + i" v-bind="scrollData"></slot>
           </div>
         </div>
@@ -147,7 +147,6 @@ export default defineComponent({
           scrollData.leaveProgress = progress;
           leaveOffset.value = (start - end) * progress;
         },
-        markers: true
       }));
 
       scrollTriggersRef.value = scrollTriggers;

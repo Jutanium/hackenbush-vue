@@ -6,7 +6,7 @@
     <div class="text-2xl font-bold mt-12 " ref="subtitle">
       An Interactive Exploration
     </div>
-    <div class="mt-4 text-lg h-12" ref="taughtBy">
+    <div class="mt-4 text-lg h-12" ref="taughtBy" v-show="showTaughtBy">
       Taught by Bill Shillito
     </div>
     <div class="text-lg" ref="byline">
@@ -22,7 +22,7 @@
       <GameCreator :demoMode="true"/>
     </div>
   </div>
-  <div :style="{top: '100vh'}" class="absolute left-4 flex flex-col items-center" ref="billmoji">
+  <div :style="{top: '100vh'}" class="absolute left-4 lg:left-24 flex flex-col items-center" ref="billmoji">
     <Billmoji class="w-48 sm:w-64 md:w-80 lg:w-96"></Billmoji>
   </div>
   <div class="h-96 w-full">
@@ -71,6 +71,9 @@ const demo = ref();
 
 const billmoji = ref();
 
+const transitionUpScrub = ref(0);
+const showTaughtBy = ref(true);
+
 onMounted(() => {
 
   const blinker = gsap.fromTo(scroll.value, {opacity: 0}, {
@@ -96,32 +99,64 @@ onMounted(() => {
       }
   )
 
+  //
+  // const taughtbySlide = gsap.timeline({
+  //   scrollTrigger: {
+  //     trigger: billmoji.value,
+  //     start: "top bottom",
+  //     end: "top center+=200",
+  //     scrub: 1,
+  //   }
+  // });
+  //
+  // taughtbySlide.fromTo(billmoji.value, {opacity: 0, duration: 0.3}, {
+  //   opacity: 1
+  // })
+  //
+  // taughtbySlide.to(billmoji.value, {
+  //       y: "-=300", duration: 1,
+  //       // ease: "slow (0.7, 1, false)"
+  //     },
+  //     "<")
+  gsap.to(billmoji.value,
+    {top: 0,
+      scrollTrigger: {
+        trigger: taughtBy.value,
+        start: "top 200",
+        end: "top -600",
+        scrub: true,
+      }
+    })
 
-  const taughtbySlide = gsap.timeline({
-    scrollTrigger: {
-      trigger: billmoji.value,
-      start: "top bottom",
-      end: "top center+=200",
-      scrub: 1,
-    }
-  });
+  // gsap.to([taughtBy.value],
+  //   {y: "-=400",
+  //     scrollTrigger: {
+  //       trigger: taughtBy.value,
+  //       start: "top -200",
+  //       end: "top -600",
+  //       scrub: true,
+  //     }
+  //   })
 
-  taughtbySlide.fromTo(billmoji.value, {opacity: 0, duration: 0.3}, {
-    opacity: 1
-  })
+  gsap.to(taughtBy.value,
+    {y: "+=200",
+      scrollTrigger: {
+        trigger: taughtBy.value,
+        start: "top 200",
+        end: "top -600",
+        scrub: true
+      }
+    })
 
-  taughtbySlide.to(billmoji.value, {
-        y: "-=300", duration: 1,
-        // ease: "slow (0.7, 1, false)"
-      },
-      "<")
 
-  ScrollTrigger.create({
-    trigger: taughtBy.value,
-    start: "top 200",
-    end: "top -200",
-    pin: true,
-  })
+  // ScrollTrigger.create({
+  //   trigger: taughtBy.value,
+  //   start: "top 200",
+  //   end: "top -1200",
+  //   onLeave: () => showTaughtBy.value = false,
+  //   onEnterBack: () => showTaughtBy.value = true,
+  // })
+
 
 
   gsap.to([demo.value, title.value, subtitle.value, byline.value, artcredit.value, scroll.value], {
@@ -129,9 +164,11 @@ onMounted(() => {
       trigger: sectionOne.value,
       start: "top top",
       end: "200 top",
-      scrub: true
-    }
+      onUpdate({progress}) { transitionUpScrub.value = progress },
+      scrub: true,
+    },
   })
+
 })
 </script>
 

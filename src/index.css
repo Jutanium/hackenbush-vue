@@ -3,3 +3,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+    .scroll-snap {
+        scroll-snap-align: start;
+    }
+}
+
