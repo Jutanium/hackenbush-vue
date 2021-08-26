@@ -1,9 +1,9 @@
 <template>
-    <TheTitle/>
+<!--    <TheTitle/>-->
 
     <LetsPlayAGame></LetsPlayAGame>
 <!--    <GamesAndMath></GamesAndMath>-->
-<!--    <FirstStrategies></FirstStrategies>-->
+    <FirstStrategies></FirstStrategies>
 <!--    <QuantifyingAdvantage></QuantifyingAdvantage>-->
 </template>
 

@@ -1,26 +1,26 @@
 <template>
-  <ScrollytellSection :topGap="false" :num-groups="5" @slideChange="slideChange">
-    <template v-slot:group1="{enterProgress}">
+  <ExplorableSection :num-groups="5" @slideChange="slideChange">
+    <template v-slot:group0="{enterProgress}">
       Suppose you’re
       <Blue/>, and it’s your move. What should you do?
       <div class="h-6"><i v-show="enterProgress == 1">Make your move!</i></div>
     </template>
-    <template v-slot:group2="{current}">
+    <template v-slot:group1="{current}">
       Well&hellip;I guess you really only have one choice, since there’s only one move you can make.
       Sometimes things are like that in life — there’s only one thing you can do.
       Likewise, if you’re <Red/>, you’ve got only one move to make at this point.
     </template>
-    <template v-slot:group3>
+    <template v-slot:group2>
       But what if it had been <Red/>'s turn to start off with? Now you have two options. What should you do?
     </template>
-    <template v-slot:group4>
+    <template v-slot:group3>
       Hopefully it seems reasonable to assume that each player wants to try to win the game. So, from now on, we’ll assume that
       <b>a player will always make the “best” move available to them.</b>
     </template>
-    <template v-slot:group5>
+    <template v-slot:group4>
       It may not always be obvious which move that is, though. We still have to figure out how to &hellip; well &hellip; figure that out.
     </template>
-    <template v-slot:sticky="{current, enterProgress, progress, direction}">
+    <template v-slot:sticky="{current, enterProgress, direction}">
       <GamePlayer :segments="firststrat.segments"
                   :style="translateUp(400 - Math.max(enterProgress, 0.5)*400)"
                   :subgraph="subgraph"
@@ -37,7 +37,7 @@
 
       </GamePlayer>
     </template>
-  </ScrollytellSection>
+  </ExplorableSection>
 </template>
 
 <script setup lang="ts">
@@ -48,24 +48,7 @@ import {Color} from "@/model/segment-color";
 import {computed, ref} from "vue"
 import Blue from "@/components/explorable/text-elements/Blue.vue";
 import Red from "@/components/explorable/text-elements/Red.vue"
-
-const segmentOpacity = (current, progress) => {
-  if (current < 1) {
-    return 0;
-  }
-  if (current == 1) {
-    return progress;
-  }
-}
-const scissorsOpacity = (current, progress) => {
-  if (current < 0) {
-    return 0;
-  }
-  if (current == 0) {
-    return 0.5 + progress / 2;
-  }
-  return 1;
-}
+import ExplorableSection from "@/components/explorable/ExplorableSection.vue";
 
 const translateUp = (amount: number) => ({
   transform: `translateY(${-amount}px)`
@@ -116,7 +99,6 @@ function reset() {
   segmentClicks.value = 0;
   flush();
 }
-
 
 const slideChange = (scrollData: { current: number, direction: number }) => {
   const {current, direction} = scrollData;
