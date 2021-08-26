@@ -1,7 +1,7 @@
 <template>
   <div ref="root" class="w-full h-screen py-32 md:pt-0 md:items-center flex flex-col md:flex-row justify-evenly lg:scroll-snap" :style="{opacity: scrollData.enterProgress}">
     <div class="ml-4 md:ml-12 h-1/2 min-height-half md:h-auto md:w-1/2 md:mt-8 flex flex-col gap-4">
-      <div class="h-full min-h-full overflow-y-auto">
+      <div class="h-full min-h-full overflow-y-auto" ref="scroller">
         <div v-for="(_, i) in numGroups"
              :ref="el => { if (el) groups[i] = el }"
              class="md:text-lg flex items-center md:my-4"
@@ -43,7 +43,7 @@ import {
   watch,
   onBeforeUnmount,
   unref,
-  onUnmounted, toRef
+  onUnmounted, toRef, nextTick
 } from "vue"
 import {gsap} from "gsap";
 import {ScrollTrigger} from "gsap/ScrollTrigger";
@@ -65,6 +65,7 @@ export default defineComponent({
     const groups = ref<Array<HTMLDivElement>>([]);
     const root = ref<HTMLDivElement>();
     const sticky = ref<HTMLDivElement>();
+    const scroller = ref<HTMLDivElement>();
 
     const {isMobile} = useBreakpoints();
 
@@ -127,6 +128,9 @@ export default defineComponent({
       if (revealed.value + 1 < numGroups) {
         revealed.value++;
         scrollData.current = revealed.value;
+        nextTick(() => {
+          scroller.value!.scrollTop = scroller.value!.scrollHeight;
+        })
       }
     }
 
@@ -150,6 +154,7 @@ export default defineComponent({
       groups,
       scrollData,
       scrollTriggersRef,
+      scroller,
       groupStyles,
       groupClick,
       prevButtonClick,
