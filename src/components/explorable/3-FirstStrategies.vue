@@ -22,7 +22,6 @@
     </template>
     <template v-slot:sticky="{current, enterProgress, direction}">
       <GamePlayer :segments="firststrat.segments"
-                  :style="translateUp(400 - Math.max(enterProgress, 0.5)*400)"
                   :subgraph="subgraph"
                   :show-turn="enterProgress >= 1 && !preventClick"
                   :starting-player="startingPlayer"

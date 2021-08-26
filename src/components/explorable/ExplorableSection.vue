@@ -4,7 +4,7 @@
       <div class="pt-10">
         <div v-for="(_, i) in numGroups"
              :ref="el => { if (el) groups[i] = el }"
-             class="md:text-lg flex items-center my-4"
+             class="md:text-lg flex items-center md:my-4"
              :class="{'bg-gradient-to-r to-transparent from-blue-100': scrollData.current == i}"
              @click="groupClick(i)"
              :style="groupStyles(i)">
@@ -13,7 +13,7 @@
           </div>
         </div>
       </div>
-      <div class="self-center space-x-4">
+      <div class="w-full flex justify-between md:justify-center space-x-4 relative z-20">
         <div class="w-24 inline-block" @click="prevButtonClick">
           <BaseButton class="h-10 rounded" v-show="scrollData.current > 0">Prev</BaseButton>
         </div>
@@ -26,6 +26,7 @@
     </div>
 
     <div v-if="$slots.sticky" ref="sticky" class="md:w-1/2 md:ml-4 max-w-3xl flex-shrink p-10">
+
       <div>
         <slot name="sticky" v-bind="scrollData"/>
       </div>
@@ -49,6 +50,7 @@ import {
 import {gsap} from "gsap";
 import {ScrollTrigger} from "gsap/ScrollTrigger";
 import BaseButton from "@/components/shared/BaseButton.vue";
+import useBreakpoints from "@/components/shared/useBreakpoints";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -66,6 +68,8 @@ export default defineComponent({
     const root = ref<HTMLDivElement>();
     const sticky = ref<HTMLDivElement>();
 
+    const {isMobile} = useBreakpoints();
+
     const revealed = ref(0);
 
     onBeforeUpdate(() => {
@@ -73,7 +77,7 @@ export default defineComponent({
     })
 
     const scrollData = reactive({
-      current: -1,
+      current: 0,
       enterProgress: 0,
       leaveProgress: 0,
     })
@@ -90,14 +94,10 @@ export default defineComponent({
     function registerScrollTriggers() {
       // let scrollTriggers = unref(scrollTriggersRef);
       scrollTriggersRef.value.push(ScrollTrigger.create({
-        trigger: sticky.value,
-        endTrigger: root.value,
+        trigger: root.value,
         start: "top bottom",
-        end: "top top",
+        end: "top 200",
         onUpdate: ({progress}) => scrollData.enterProgress = progress,
-        onLeave: () => {
-          scrollData.current = 0
-        },
         // onEnterBack: () => scrollData.current = 0
       }))
     }

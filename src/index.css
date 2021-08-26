@@ -5,8 +5,10 @@
 @tailwind utilities;
 
 @layer utilities {
-    .scroll-snap {
-        scroll-snap-align: start;
+    @variants responsive {
+        .scroll-snap {
+            scroll-snap-align: start;
+        }
     }
 }
 
