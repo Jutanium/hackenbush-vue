@@ -4,7 +4,7 @@
     <LetsPlayAGame></LetsPlayAGame>
 <!--    <GamesAndMath></GamesAndMath>-->
     <FirstStrategies></FirstStrategies>
-<!--    <QuantifyingAdvantage></QuantifyingAdvantage>-->
+    <QuantifyingAdvantage></QuantifyingAdvantage>
 </template>
 
 <script setup lang="ts">

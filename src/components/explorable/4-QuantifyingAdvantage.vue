@@ -1,29 +1,29 @@
 <template>
-  <ScrollytellSection :topGap="true" :num-groups="7" @slideChange="slideChange">
-    <template v-slot:group1>
+  <ExplorableSection :topGap="true" :num-groups="7" @slideChange="slideChange">
+    <template v-slot:group0>
       Now we’re starting to get a general strategy for Hackenbush: choose your move based on which one gives you a bigger advantage.
       That’s great … but we still need a way to <b>quantify</b> that advantage.
     </template>
-    <template v-slot:group2="{current}">
+    <template v-slot:group1="{current}">
       Take a look at this game. Who would you like to be, and who should go first?
     </template>
-    <template v-slot:group3>
+    <template v-slot:group2>
       You may have noticed that the <Blue/> dog has 7 strings, while the <Red/> cat only has 6. That means that <Blue/>
       can force a win (as long as they’re careful not to let any pieces float away) because <Red/> will run out of pieces. It seems that <Blue/> has a 1-string advantage over
       <Red/>.
     </template>
-    <template v-slot:group4>
+    <template v-slot:group3>
       But what if <Blue/> and <Red/> have the same number of pieces?
     </template>
-    <template v-slot:group5>
+    <template v-slot:group4>
       Well, then neither player would have an advantage! The players would take their turns whittling away their pieces (again careful not to let anything float away), and
       <Purple>whoever goes first would lose.</Purple>
     </template>
-    <template v-slot:group6>
+    <template v-slot:group5>
       This works great when games are neatly separated into <Blue/> and <Red/> components, but what happens when pieces of different colors are connected?
       Things can get a lot more complicated, even for really simple games like this.
     </template>
-    <template v-slot:group7>
+    <template v-slot:group6>
       This one has the same number of <Blue/>
       and <Red/> strings, so nobody should have an advantage, right? But look closely — if
       <Blue/> plays first, they cut the string and instantly win, while if <Red/> goes first, they cut their string,
@@ -44,7 +44,7 @@
       </GamePlayer>
     </template>
 
-  </ScrollytellSection>
+  </ExplorableSection>
 </template>
 
 <script setup lang="ts">
@@ -58,6 +58,7 @@ import {computed, ref} from "vue"
 import Blue from "@/components/explorable/text-elements/Blue.vue";
 import Red from "@/components/explorable/text-elements/Red.vue"
 import Purple from "@/components/explorable/text-elements/Purple.vue"
+import ExplorableSection from "@/components/explorable/ExplorableSection.vue";
 
 const segmentOpacity = (current, progress) => {
   if (current < 1) {
