@@ -116,13 +116,9 @@ let blinking = null;
 const slideChange = (scrollData: { current: number, direction: number }) => {
   const {current, direction} = scrollData;
   console.log("slideChange", current, direction);
-  if (current <= 3 && direction < 0) {
+  if (current <= 3) {
     reset();
-    return;
-  }
-  if (direction < 0) {
-    autoplay.value = false;
-    // flush();
+    // return;
   }
   if (current < 6) {
     startingPlayer.value = Color.Blue;
@@ -144,26 +140,19 @@ const slideChange = (scrollData: { current: number, direction: number }) => {
 
   if (current == 3) {
     subgraph.value = "all";
-    if (direction > 0)
-      autoplay.value = 4;
+    autoplay.value = 4;
     flush();
     return;
   }
   if (current == 4) {
     subgraph.value = "3013424114154337507810986";
-    if (direction > 0) {
-      autoplay.value = 1;
-    }
+    autoplay.value = 1;
     flush();
     return;
   }
   if (current == 5) {
     subgraph.value = "3014157507810986"
-    if (direction > 0) {
-      autoplay.value = true;
-    } else {
-      autoplay.value = false;
-    }
+    autoplay.value = true;
     flush();
     return;
   }

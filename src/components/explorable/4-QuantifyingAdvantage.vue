@@ -154,14 +154,11 @@ const slideChange = (scrollData: { current: number, direction: number }) => {
     flush();
   }
   if (current == 4) {
-    if (direction < 0) {
-      reset();
-    } else {
-      autoplay.value = true;
-      startingPlayer.value = Color.Red;
-      aiControls.value = [Color.Red, Color.Blue];
-      flush();
-    }
+    reset();
+    autoplay.value = true;
+    startingPlayer.value = Color.Red;
+    aiControls.value = [Color.Red, Color.Blue];
+    flush();
   }
   if (current == 5) {
     startingPlayer.value = undefined;
