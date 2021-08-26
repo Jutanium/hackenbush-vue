@@ -4,22 +4,21 @@
       <div class="pt-10">
         <div v-for="(_, i) in numGroups"
              :ref="el => { if (el) groups[i] = el }"
-             class="md:text-lg h-12 flex items-center"
-             @click="scrollData.current = i"
+             class="md:text-lg flex items-center"
+             :class="{'bg-gradient-to-r to-transparent from-blue-100': scrollData.current == i}"
+             @click="groupClick(i)"
              :style="groupStyles(i)">
-          <div class="absolute w-full md:w-1/2 h-12 -left-2 z-0"
-               :class="{'bg-gradient-to-r to-transparent from-blue-100': scrollData.current == i}"></div>
           <div class="relative">
             <slot :name="'group' + i" v-bind="scrollData"></slot>
           </div>
         </div>
       </div>
       <div class="self-center space-x-4">
-        <div class="w-24 inline-block">
-          <BaseButton class="h-10 rounded" v-show="scrollData.current > 0" @click="prevButtonClick">Prev</BaseButton>
+        <div class="w-24 inline-block" @click="prevButtonClick">
+          <BaseButton class="h-10 rounded" v-show="scrollData.current > 0">Prev</BaseButton>
         </div>
-        <div class="w-24 inline-block">
-          <BaseButton class="h-10" v-show="scrollData.current + 1 < numGroups" @click="nextButtonClick">
+        <div class="w-24 inline-block" @click="nextButtonClick">
+          <BaseButton class="h-10" v-show="scrollData.current + 1 < numGroups">
             Next
           </BaseButton>
         </div>
@@ -135,6 +134,12 @@ export default defineComponent({
       }
     }
 
+    function groupClick(i) {
+      if (revealed.value >= i) {
+        scrollData.current = i;
+      }
+    }
+
     watch(toRef(scrollData, 'current'), (current, last) => emit('slideChange', Object.assign({direction: current - last}, scrollData)))
 
     return {
@@ -144,6 +149,7 @@ export default defineComponent({
       scrollData,
       scrollTriggersRef,
       groupStyles,
+      groupClick,
       prevButtonClick,
       nextButtonClick,
       revealed
