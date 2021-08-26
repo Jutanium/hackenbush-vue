@@ -13,7 +13,6 @@
             <slot :name="'group' + i" v-bind="scrollData"></slot>
           </div>
         </div>
-        <div class="w-2 h-screen"></div>
       </div>
       <div v-if="$slots.sticky" class="w-5/12 max-w-2xl">
         <div :style="collectStyle(0)">

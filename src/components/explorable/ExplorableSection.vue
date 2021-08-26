@@ -14,11 +14,11 @@
         </div>
       </div>
       <div class="self-center space-x-4">
-        <div class="w-24 inline-block">
-          <BaseButton class="h-10 rounded" v-show="scrollData.current > 0" @click="prevButtonClick">Prev</BaseButton>
+        <div class="w-24 inline-block" @click="prevButtonClick">
+          <BaseButton class="h-10 rounded" v-show="scrollData.current > 0">Prev</BaseButton>
         </div>
-        <div class="w-24 inline-block">
-          <BaseButton class="h-10" v-show="scrollData.current + 1 < numGroups" @click="nextButtonClick">
+        <div class="w-24 inline-block" @click="nextButtonClick">
+          <BaseButton class="h-10" v-show="scrollData.current + 1 < numGroups">
             Next
           </BaseButton>
         </div>

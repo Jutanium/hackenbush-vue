@@ -1,10 +1,12 @@
 <template>
-<!--    <TheTitle/>-->
-
+    <TheTitle/>
     <LetsPlayAGame></LetsPlayAGame>
-<!--    <GamesAndMath></GamesAndMath>-->
+    <GamesAndMath></GamesAndMath>
     <FirstStrategies></FirstStrategies>
     <QuantifyingAdvantage></QuantifyingAdvantage>
+    <div class="w-full flex justify-center items-center">
+      Check back tomorrow - a new section gets uploaded every day!
+    </div>
 </template>
 
 <script setup lang="ts">
