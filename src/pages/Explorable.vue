@@ -1,4 +1,5 @@
 <template>
+  <div class="space-y-20">
     <TheTitle/>
     <LetsPlayAGame></LetsPlayAGame>
     <GamesAndMath></GamesAndMath>
@@ -7,6 +8,7 @@
     <div class="w-full flex justify-center items-center">
       Check back tomorrow - a new section gets uploaded every day!
     </div>
+  </div>
 </template>
 
 <script setup lang="ts">

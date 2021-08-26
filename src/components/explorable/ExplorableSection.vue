@@ -1,12 +1,13 @@
 <template>
-  <div ref="root" class="w-full h-screen md:items-center flex flex-col md:flex-row justify-evenly lg:scroll-snap" :style="{opacity: scrollData.enterProgress}">
-    <div class="ml-4 md:ml-12 h-1/2 md:h-auto md:w-1/2 md:mt-8 flex flex-col gap-4">
-      <div class="pt-10">
+  <div ref="root" class="w-full h-screen py-32 md:pt-0 md:items-center flex flex-col md:flex-row justify-evenly lg:scroll-snap" :style="{opacity: scrollData.enterProgress}">
+    <div class="ml-4 md:ml-12 h-1/2 min-height-half md:h-auto md:w-1/2 md:mt-8 flex flex-col gap-4">
+      <div class="h-full min-h-full overflow-y-auto">
         <div v-for="(_, i) in numGroups"
              :ref="el => { if (el) groups[i] = el }"
              class="md:text-lg flex items-center md:my-4"
              :class="{'bg-gradient-to-r to-transparent from-blue-100': scrollData.current == i}"
              @click="groupClick(i)"
+             v-show="revealed >= i"
              :style="groupStyles(i)">
           <div class="relative">
             <slot :name="'group' + i" v-bind="scrollData"></slot>
@@ -26,10 +27,7 @@
     </div>
 
     <div v-if="$slots.sticky" ref="sticky" class="md:w-1/2 md:ml-4 max-w-3xl flex-shrink p-10">
-
-      <div>
         <slot name="sticky" v-bind="scrollData"/>
-      </div>
     </div>
 
   </div>
@@ -161,3 +159,8 @@ export default defineComponent({
   },
 })
 </script>
+<style scoped>
+  .min-height-half {
+    min-height: 50%;
+  }
+</style>
