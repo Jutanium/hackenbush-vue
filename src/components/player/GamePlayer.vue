@@ -1,8 +1,8 @@
 <template>
   <div>
-    <div v-if="showValue" class="absolute left-10 text-xl lg:text-xl">
-      <div class="relative top-10">
-        Game Value: {{ gameValue }}
+    <div v-if="showValue" class="relative left-10 text-xl lg:text-xl">
+      <div class="relative top-10" :class="{'top-24': !showTurn}">
+        Game Value: <component :is="gameValueWrapper">{{ gameValue }}</component>
       </div>
     </div>
     <div v-if="!pictureMode && showTurn" class="absolute text-xl lg:text-2xl">
@@ -94,6 +94,7 @@ import cloneDeep from "lodash.clonedeep";
 import PlayerSelect from "@/components/player/PlayerSelect.vue";
 import Blue from "@/components/explorable/text-elements/Blue.vue";
 import Red from "@/components/explorable/text-elements/Red.vue";
+import Purple from "@/components/explorable/text-elements/Purple.vue";
 import DrawnGround from "@/components/shared/DrawnGround.vue";
 
 type Player = Color.Red | Color.Blue
@@ -544,6 +545,18 @@ export default defineComponent({
 
     const segmentRefs = {};
 
+    const gameValueWrapper = computed(() => {
+      if (gameValue.value < 0) {
+        return Red;
+      }
+      if (gameValue.value == 0) {
+        return Purple;
+      }
+      if (gameValue.value > 0) {
+        return Blue;
+      }
+    })
+
     return {
       graph,
       scissorsRenders,
@@ -555,6 +568,7 @@ export default defineComponent({
       svg,
       Color,
       gameValue,
+      gameValueWrapper,
       autoplayCounter,
       autoplaying,
       playerWon,

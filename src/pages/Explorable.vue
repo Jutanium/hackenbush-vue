@@ -1,15 +1,12 @@
 <template>
   <NavBar/>
   <div class="space-y-20">
-<!--    <TheTitle/>-->
-<!--    <LetsPlayAGame></LetsPlayAGame>-->
-<!--    <GamesAndMath></GamesAndMath>-->
-<!--    <FirstStrategies></FirstStrategies>-->
-<!--    <QuantifyingAdvantage></QuantifyingAdvantage>-->
+    <TheTitle/>
+    <LetsPlayAGame></LetsPlayAGame>
+    <GamesAndMath></GamesAndMath>
+    <FirstStrategies></FirstStrategies>
+    <QuantifyingAdvantage></QuantifyingAdvantage>
     <ThreeRules></ThreeRules>
-    <div class="w-full flex justify-center items-center">
-      Check back tomorrow - a new section gets uploaded every day!
-    </div>
   </div>
 </template>
 
