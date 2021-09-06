@@ -3,7 +3,7 @@
        class="w-full h-screen py-32 md:pt-0 md:items-center flex flex-col justify-evenly lg:scroll-snap"
        :class="reverse ? 'md:flex-row-reverse md:-ml-16' : 'md:flex-row'"
        :style="{opacity: scrollData.enterProgress}">
-    <div class="ml-4 md:ml-12 h-1/2 min-height-half md:h-auto md:w-1/2 md:mt-8 flex flex-col gap-4">
+    <div class="ml-4 md:ml-12 h-1/2 min-height-half md:w-1/2 md:mt-8 flex flex-col gap-4">
       <div class="h-full min-h-full overflow-y-auto" ref="scroller">
         <div v-for="(_, i) in numGroups"
              :ref="el => { if (el) groups[i] = el }"
@@ -47,7 +47,7 @@ import {
   watch,
   onBeforeUnmount,
   unref,
-  onUnmounted, toRef, nextTick
+  onUnmounted, toRef, nextTick, PropType
 } from "vue"
 import {gsap} from "gsap";
 import {ScrollTrigger} from "gsap/ScrollTrigger";
@@ -74,9 +74,13 @@ export default defineComponent({
     reverse: {
       type: Boolean,
       default: false
+    },
+    divisions: {
+      //Divide after these slides
+      type: Array as PropType<number[]>
     }
   },
-  setup: ({numGroups, title}, {emit}) => {
+  setup: ({numGroups, title, divisions}, {emit}) => {
     const groups = ref<Array<HTMLDivElement>>([]);
     const root = ref<HTMLDivElement>();
     const sticky = ref<HTMLDivElement>();
@@ -141,6 +145,17 @@ export default defineComponent({
     const groupStyles = (i: number) => {
 
       // const opacity = i == 0 ? scrollData.enterProgress : Number(revealed.value >= i)
+      if (divisions?.length) {
+        if (revealed.value >= i) {
+          const currentDivision = divisions.sort( (a,b) => b - a).find(num => scrollData.current > num);
+          if (i <= currentDivision) {
+            return {
+              opacity: 0.2
+            }
+          }
+        }
+      }
+
       const opacity = Number(revealed.value >= i)
       return {
         opacity

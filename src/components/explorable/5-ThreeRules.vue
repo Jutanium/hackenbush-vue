@@ -104,65 +104,8 @@ const rulesegments = current => {
   return [rulezero.segments, ruleone.segments, ruleone.segments][current - 5];
 }
 
-const subgraph = ref("all");
-const autoplay = ref<boolean | number>(false);
-const flushRef = ref(0);
-const hasCompleted = ref(0);
-
-
-const playerWon = ref<true | false | undefined>();
-
-const segmentClicks = ref(0);
-const currentSlide = ref(-1);
-
-// const startingPlayer = computed( () => {
-//   if (curren < 0) {
-//     return Color.Blue;
-//   }
-//   return undefined;
-// })
-
-const startingPlayer = ref(Color.Blue);
-
-const preventClick = computed( () => {
-  if (currentSlide.value < 1) {
-    return segmentClicks.value >= 1
-  }
-});
-
-const aiControls = ref( []);
-
-function onGameOver({winner, playerDidWin, playingAgain}) {
-  hasCompleted.value++;
-  if (playingAgain) {
-    playerWon.value = playerDidWin;
-  }
-}
-
-function onSegmentClicked({segment, player}) {
-  segmentClicks.value++;
-}
-
-function flush() {
-  flushRef.value++;
-}
-
-function play() {
-  autoplay.value = true;
-  flush();
-}
-
-function reset() {
-  autoplay.value = false;
-  subgraph.value = "all";
-  segmentClicks.value = 0;
-  flush();
-}
-
-
 const slideChange = (scrollData: { current: number, direction: number }) => {
   const {current, direction} = scrollData;
-
 
 }
 

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="showValue" class="relative left-10 text-xl lg:text-xl">
-      <div class="relative top-10" :class="{'top-24': !showTurn}">
+      <div class="absolute top-10" :class="{'top-24': !showTurn}">
         Game Value: <component :is="gameValueWrapper">{{ gameValue }}</component>
       </div>
     </div>
@@ -348,6 +348,9 @@ export default defineComponent({
       const {choosePlayer, subgraph} = props.promptReset;
       if (choosePlayer) {
         currentPlayer.value = false;
+        graph.value.setSubgraph(subgraph || "all");
+        gameValue.value = graph.value.evaluate();
+        resetSegments();
       } else {
         resetGame(true, true, props.startingPlayer, subgraph || props.subgraph)
       }

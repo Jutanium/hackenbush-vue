@@ -7,6 +7,8 @@
     <FirstStrategies></FirstStrategies>
     <QuantifyingAdvantage></QuantifyingAdvantage>
     <ThreeRules></ThreeRules>
+    <RulesExamples></RulesExamples>
+
     <div class="w-full h-screen flex flex-col justify-center items-center lg:scroll-snap">
       <p>
         This is our entry for the <a href="https://www.3blue1brown.com/blog/some1" class="text-blue-500 hover:text-blue-600 cursor-pointer"> SOME1 </a>
@@ -32,6 +34,7 @@
   import FirstStrategies from "@/components/explorable/3-FirstStrategies.vue"
   import QuantifyingAdvantage from "@/components/explorable/4-QuantifyingAdvantage.vue"
   import ThreeRules from "@/components/explorable/5-ThreeRules.vue"
+  import RulesExamples from "@/components/explorable/6-RulesExamples.vue"
   import TheTitle from "@/components/explorable/0-Title.vue"
   import NavBar from "@/components/explorable/NavBar.vue"
 

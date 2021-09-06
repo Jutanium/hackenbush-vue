@@ -15,7 +15,7 @@ import board from "@/assets/bill/BillBoard.png"
 const sprites = { pointera, pointerb, thinkina, thinkinb, eureka, eurekaa, eurekab, board}
 
 const props = withDefaults(defineProps<{
-  sprite: keyof typeof sprites
+  sprite?: keyof typeof sprites
 }>(), {sprite: "pointera"});
 
 </script>
