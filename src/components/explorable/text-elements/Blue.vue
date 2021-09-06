@@ -1,7 +1,7 @@
 <template>
   <span class="text-blue-player" :class="{'font-bold': this.bold}">
     <slot v-if="$slots.default"></slot>
-    <template v-else>bLue</template>
+    <template v-else>Blue</template>
   </span>
 </template>
 
