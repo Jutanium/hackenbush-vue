@@ -1,9 +1,6 @@
 <template>
   <div class="fixed m-8">
 
-    {{currentSection}}
-    {{sections.length}}
-
   </div>
 </template>
 

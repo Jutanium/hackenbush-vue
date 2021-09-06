@@ -1,47 +1,39 @@
 <template>
-  <ExplorableSection :topGap="true" :num-groups="7" @slideChange="slideChange" title="Quantifying Advantages">
+  <ExplorableSection :topGap="true" :num-groups="7" @slideChange="slideChange" title="The Three Rules">
     <template v-slot:group0>
-      Now we’re starting to get a general strategy for Hackenbush: choose your move based on which one gives you a bigger advantage.
-      That’s great … but we still need a way to <b>quantify</b> that advantage.
+      We’re going to need to step things up a bit to be able to make sense of these games. Luckily, we’ve already developed a decent bit of intuition by playing a few games already!
     </template>
-    <template v-slot:group1="{current}">
-      Take a look at this game. Who would you like to be, and who should go first?
+    <template v-slot:group1="">
+      What we’re going to do could be said to be the true heart of mathematics:
+      <div class="text-center">
+        <b>Invent</b> some rules, <b>discover</b> their consequences.
+      </div>
     </template>
     <template v-slot:group2>
-      You may have noticed that the <Blue/> dog has 7 strings, while the <Red/> cat only has 6. That means that <Blue/>
-      can force a win (as long as they’re careful not to let any pieces float away) because <Red/> will run out of pieces. It seems that <Blue/> has a 1-string advantage over
-      <Red/>.
+      For the first part, we’re the ones in control! We decide what seems most important to us, what we like about our analysis we’ve done so far that we want to keep.
     </template>
     <template v-slot:group3>
-      But what if <Blue/> and <Red/> have the same number of pieces?
+      But then, once we’ve set those rules, the consequences spring forth out of nothing but pure, beautiful, mathematical logic.
     </template>
     <template v-slot:group4>
-      Well, then neither player would have an advantage! The players would take their turns whittling away their pieces (again careful not to let anything float away), and
-      <Purple>whoever goes first would lose.</Purple>
     </template>
     <template v-slot:group5>
-      This works great when games are neatly separated into <Blue/> and <Red/> components, but what happens when pieces of different colors are connected?
-      Things can get a lot more complicated, even for really simple games like this.
     </template>
     <template v-slot:group6>
-      This one has the same number of <Blue/>
-      and <Red/> strings, so nobody should have an advantage, right? But look closely — if
-      <Blue/> plays first, they cut the string and instantly win, while if <Red/> goes first, they cut their string,
-      and then <Blue/> cuts theirs and still wins! Does that mean that <Red/> string is “not worth as much,” somehow, since it’s tethered to the ground by a <Blue/>?
     </template>
     <template v-slot:sticky="{current, enterProgress, progress, direction}">
-      <GamePlayer :segments="segments"
-                  :subgraph="subgraph"
-                  :show-turn="current >= 1 && current != 5"
-                  :starting-player="startingPlayer"
-                  :flush="flushRef"
-                  :segments-opacity="enterProgress < 1 ? enterProgress : undefined"
-                  :preventClick="preventClick"
-                  @segmentClicked="onSegmentClicked"
-                  :aiControls="aiControls"
-                  :autoplay="autoplay"
-      >
-      </GamePlayer>
+      <Billmoji class="w-3/4"></Billmoji>
+<!--      <GamePlayer :segments="segments"-->
+<!--                  :subgraph="subgraph"-->
+<!--                  :show-turn="current >= 1 && current != 5"-->
+<!--                  :starting-player="startingPlayer"-->
+<!--                  :flush="flushRef"-->
+<!--                  :preventClick="preventClick"-->
+<!--                  @segmentClicked="onSegmentClicked"-->
+<!--                  :aiControls="aiControls"-->
+<!--                  :autoplay="autoplay"-->
+<!--      >-->
+<!--      </GamePlayer>-->
     </template>
 
   </ExplorableSection>
@@ -59,6 +51,7 @@ import Blue from "@/components/explorable/text-elements/Blue.vue";
 import Red from "@/components/explorable/text-elements/Red.vue"
 import Purple from "@/components/explorable/text-elements/Purple.vue"
 import ExplorableSection from "@/components/explorable/ExplorableSection.vue";
+import Billmoji from "@/components/explorable/Billmoji.vue";
 
 const segmentOpacity = (current, progress) => {
   if (current < 1) {
@@ -147,22 +140,7 @@ function reset() {
 
 const slideChange = (scrollData: { current: number, direction: number }) => {
   const {current, direction} = scrollData;
-  currentSlide.value = current;
-  if (current == 1) {
-    startingPlayer.value = undefined;
-    flush();
-  }
-  if (current == 4) {
-    reset();
-    autoplay.value = true;
-    startingPlayer.value = Color.Red;
-    aiControls.value = [Color.Red, Color.Blue];
-    flush();
-  }
-  if (current == 5) {
-    startingPlayer.value = undefined;
-    reset();
-  }
+
 
 }
 

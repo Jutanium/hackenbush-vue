@@ -6,6 +6,7 @@
     <GamesAndMath></GamesAndMath>
     <FirstStrategies></FirstStrategies>
     <QuantifyingAdvantage></QuantifyingAdvantage>
+    <ThreeRules></ThreeRules>
     <div class="w-full flex justify-center items-center">
       Check back tomorrow - a new section gets uploaded every day!
     </div>
@@ -22,10 +23,12 @@
   import GamesAndMath from "@/components/explorable/2-GamesAndMath.vue"
   import FirstStrategies from "@/components/explorable/3-FirstStrategies.vue"
   import QuantifyingAdvantage from "@/components/explorable/4-QuantifyingAdvantage.vue"
+  import ThreeRules from "@/components/explorable/5-ThreeRules.vue"
   import TheTitle from "@/components/explorable/0-Title.vue"
   import NavBar from "@/components/explorable/NavBar.vue"
 
   import useBreakpoints from "@/components/shared/useBreakpoints";
+
   const { isMobile } = useBreakpoints();
 </script>
 
