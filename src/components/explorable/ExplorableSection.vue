@@ -1,6 +1,6 @@
 <template>
   <div ref="root"
-       class="w-full h-screen py-32 md:pt-0 md:items-center flex flex-col md:flex-row justify-evenly lg:scroll-snap"
+       class="w-full bg-yellow-200 h-screen py-32 md:pt-0 md:items-center flex flex-col md:flex-row justify-evenly lg:scroll-snap"
        :style="{opacity: scrollData.enterProgress}">
     <div class="ml-4 md:ml-12 h-1/2 min-height-half md:h-auto md:w-1/2 md:mt-8 flex flex-col gap-4">
       <div class="h-full min-h-full overflow-y-auto" ref="scroller">
@@ -108,11 +108,18 @@ export default defineComponent({
         start: "top bottom",
         end: "top 200",
         onUpdate: ({progress}) => scrollData.enterProgress = progress,
-        onEnter: () => setSection(sectionIndex),
         // onEnterBack: () => scrollData.current = 0
       }))
 
-      
+      scrollTriggersRef.value.push(ScrollTrigger.create({
+        trigger: root.value,
+        start: "top top",
+        end: "bottom bottom+=50",
+        onEnter: () => setSection(sectionIndex),
+        onEnterBack: () => setSection(sectionIndex),
+        onLeaveBack: () => setSection(sectionIndex - 1),
+      }))
+
     }
 
 
