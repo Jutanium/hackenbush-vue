@@ -7,6 +7,17 @@
     <FirstStrategies></FirstStrategies>
     <QuantifyingAdvantage></QuantifyingAdvantage>
     <ThreeRules></ThreeRules>
+    <div class="w-full h-screen flex flex-col justify-center items-center lg:scroll-snap">
+      <p>
+        This is our entry for the <a href="https://www.3blue1brown.com/blog/some1" class="text-blue-500 hover:text-blue-600 cursor-pointer"> SOME1 </a>
+        competition. Thanks so much for checking it out!<br>
+        We're a teacher-student team and this is the start of a longform explorable explanation we've been working on.
+        <br>We're adding new sections often so be sure to check back here to continue the journey&mdash;we're excited to have you along.<br>
+      </p>
+      <p class="text-center mt-4">
+        Dan Jutan and Bill Shillito
+      </p>
+    </div>
   </div>
 </template>
 
