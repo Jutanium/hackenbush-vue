@@ -27,7 +27,7 @@
   </div>
   <div class="h-96 w-full">
   </div>
-  <div class="h-screen w-full flex justify-center items-center">
+  <div class="h-screen w-full flex justify-center items-center" ref="dedication">
     <div class="flex flex-col lg:flex-row gap-4 md:gap-8 lg:gap-12 items-center">
       <div class="ml-4 lg:ml-0">
         <i>Dedicated to <b>John Horton Conway</b> (1937 - 2020), who showed us how to <b>play with mathematics</b></i>
@@ -53,14 +53,20 @@ import {gsap} from "gsap"
 
 import {ScrollTrigger} from "gsap/ScrollTrigger";
 
+import useSections from "@/components/explorable/useSections";
+
+const { registerSection, setSection } = useSections();
+
+
 gsap.registerPlugin(ScrollTrigger);
 
-const slideChange = (scrollData: { current: number, direction: number }) => {
-  const {current, direction} = scrollData;
-  console.log("slideChange", current, direction);
-}
-
 const sectionOne = ref();
+const dedication = ref();
+
+const titleSectionIndex = registerSection("The Most Mathematical Game", sectionOne, 0);
+const dedicationSectionIndex = registerSection("Dedication", dedication, 0);
+console.log(titleSectionIndex, dedicationSectionIndex)
+
 const title = ref();
 const subtitle = ref();
 const scroll = ref();
@@ -75,6 +81,12 @@ const transitionUpScrub = ref(0);
 const showTaughtBy = ref(true);
 
 onMounted(() => {
+
+  ScrollTrigger.create({
+    trigger: dedication.value,
+    onEnter: () => setSection(dedicationSectionIndex),
+    onLeaveBack: () => setSection(titleSectionIndex),
+  })
 
   const blinker = gsap.fromTo(scroll.value, {opacity: 0}, {
         paused: true,
@@ -156,7 +168,6 @@ onMounted(() => {
   //   onLeave: () => showTaughtBy.value = false,
   //   onEnterBack: () => showTaughtBy.value = true,
   // })
-
 
 
   gsap.to([demo.value, title.value, subtitle.value, byline.value, artcredit.value, scroll.value], {

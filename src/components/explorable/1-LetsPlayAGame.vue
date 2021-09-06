@@ -1,5 +1,5 @@
 <template>
-  <ExplorableSection :num-groups="7" @slideChange="slideChange">
+  <ExplorableSection :num-groups="7" @slideChange="slideChange" title="Let's Play a Game">
 
     <template v-slot:group0>
       <b>Let's play a game.</b>

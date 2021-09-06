@@ -1,5 +1,5 @@
 <template>
-  <ExplorableSection :topGap="true" :num-groups="7" @slideChange="slideChange">
+  <ExplorableSection :topGap="true" :num-groups="7" @slideChange="slideChange" title="Quantifying Advantages">
     <template v-slot:group0>
       Now we’re starting to get a general strategy for Hackenbush: choose your move based on which one gives you a bigger advantage.
       That’s great … but we still need a way to <b>quantify</b> that advantage.

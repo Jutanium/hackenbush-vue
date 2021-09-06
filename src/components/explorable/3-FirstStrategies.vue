@@ -1,5 +1,5 @@
 <template>
-  <ExplorableSection :num-groups="5" @slideChange="slideChange">
+  <ExplorableSection :num-groups="5" @slideChange="slideChange" title="First Strategies">
     <template v-slot:group0="{enterProgress}">
       Suppose you’re
       <Blue/>, and it’s your move. What should you do?

@@ -1,4 +1,5 @@
 <template>
+  <NavBar/>
   <div class="space-y-20">
     <TheTitle/>
     <LetsPlayAGame></LetsPlayAGame>
@@ -22,9 +23,10 @@
   import FirstStrategies from "@/components/explorable/3-FirstStrategies.vue"
   import QuantifyingAdvantage from "@/components/explorable/4-QuantifyingAdvantage.vue"
   import TheTitle from "@/components/explorable/0-Title.vue"
-  import useBreakpoints from "@/components/shared/useBreakpoints";
+  import NavBar from "@/components/explorable/NavBar.vue"
 
-  const { width, type } = useBreakpoints();
+  import useBreakpoints from "@/components/shared/useBreakpoints";
+  const { isMobile } = useBreakpoints();
 </script>
 
 <style scoped>

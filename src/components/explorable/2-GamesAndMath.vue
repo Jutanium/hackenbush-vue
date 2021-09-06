@@ -1,5 +1,5 @@
 <template>
-  <ScrollytellSection :num-groups="7" @slideChange="slideChange">
+  <ScrollytellSection :num-groups="7" @slideChange="slideChange" title="Games and Math">
     <template v-slot:group0>
       The game you just played is called <b>Hackenbush</b>.
       It’s one of many games explored by the mathematician <b>John Horton Conway</b>.
