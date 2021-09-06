@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full relative">
+  <div class="w-full relative" ref="root">
     <div class="absolute z-0 w-1/2 h-1/2 top-0 left-1/2">
       <slot name="absolute" v-bind="scrollData"/>
     </div>
@@ -28,6 +28,7 @@
 import {ref, defineComponent, onBeforeUpdate, onMounted, reactive, watch, onBeforeUnmount, unref} from "vue"
 import {gsap} from "gsap";
 import {ScrollTrigger} from "gsap/ScrollTrigger";
+import useSections from "@/components/explorable/useSections";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -42,6 +43,10 @@ export default defineComponent({
       type: Number,
       default: 100
     },
+    title: {
+      type: String,
+      required: true
+    },
     topGap: {
       type: Boolean,
       default: false
@@ -52,7 +57,12 @@ export default defineComponent({
     }
 
   },
-  setup: ({top, numGroups, spacing}, {emit}) => {
+  setup: ({top, numGroups, spacing, title}, {emit}) => {
+    const root = ref();
+
+    const { registerSection, setSection } = useSections();
+    const sectionIndex = registerSection(title, root, numGroups);
+
     const groups = ref<Array<HTMLDivElement>>([]);
     onBeforeUpdate(() => {
       groups.value = [];
@@ -112,6 +122,7 @@ export default defineComponent({
           onEnter: ({direction}) => {
             scrollData.direction = direction;
             emit("slideChange", scrollData);
+            setSection(sectionIndex, scrollData.current)
             if (i == 0) {
               emit("enter");
             }
@@ -119,6 +130,7 @@ export default defineComponent({
           onLeaveBack: ({direction}) => {
             scrollData.direction = direction;
             emit("slideChange", scrollData);
+            setSection(sectionIndex, scrollData.current)
             if (i == 0) {
               emit("leaveBack");
             }
@@ -175,6 +187,7 @@ export default defineComponent({
       }
     }
     return {
+      root,
       groups,
       cumulativeHeights,
       leaveOffset,

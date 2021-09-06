@@ -1,5 +1,5 @@
 <template>
-  <ExplorableSection :topGap="true" :num-groups="7" @slideChange="slideChange">
+  <ExplorableSection :topGap="true" :num-groups="7" @slideChange="slideChange" title="Quantifying Advantages">
     <template v-slot:group0>
       Now we’re starting to get a general strategy for Hackenbush: choose your move based on which one gives you a bigger advantage.
       That’s great … but we still need a way to <b>quantify</b> that advantage.
@@ -52,7 +52,7 @@ import ScrollytellSection from "../scrollytell/ScrollytellSection.vue";
 import GamePlayer from "../player/GamePlayer.vue";
 import dogcat from "@/game-files/dogcat.json"
 import twocats from "@/game-files/twocats.json"
-import onehalf from "@/game-files/onehalf.json"
+import onehalf from "@/game-files/small/onehalf.json"
 import {Color} from "@/model/segment-color";
 import {computed, ref} from "vue"
 import Blue from "@/components/explorable/text-elements/Blue.vue";
@@ -148,7 +148,6 @@ function reset() {
 const slideChange = (scrollData: { current: number, direction: number }) => {
   const {current, direction} = scrollData;
   currentSlide.value = current;
-  console.log("slideChange", current, direction);
   if (current == 1) {
     startingPlayer.value = undefined;
     flush();
@@ -165,60 +164,6 @@ const slideChange = (scrollData: { current: number, direction: number }) => {
     reset();
   }
 
-  // if (current < 1 && direction < 0) {
-  //   reset();
-  // }
-  // if (current == 0) {
-  //   startingPlayer.value = Color.Blue;
-  //   reset();
-  // }
-  // if (current == 1) {
-  //   startingPlayer.value = Color.Red;
-  //   flush();
-  // }
-  // if (current == 2) {
-  //   startingPlayer.value = Color.Red;
-  //   reset();
-  // }
-  // if (direction < 0) {
-  //   autoplay.value = false;
-  //   // flush();
-  // }
-  // if (current < 6) {
-  //   startingPlayer.value = Color.Blue;
-  // }
-  // if (current == 3) {
-  //   subgraph.value = "all";
-  //   if (direction > 0)
-  //     autoplay.value = 4;
-  //   flush();
-  //   return;
-  // }
-  // if (current == 4) {
-  //   subgraph.value = "3013424114154337507810986";
-  //   if (direction > 0) {
-  //     autoplay.value = 1;
-  //   }
-  //   flush();
-  //   return;
-  // }
-  // if (current == 5) {
-  //   subgraph.value = "3014157507810986"
-  //   if (direction > 0) {
-  //     autoplay.value = true;
-  //   } else {
-  //     autoplay.value = false;
-  //   }
-  //   flush();
-  //   return;
-  // }
-  // if (current == 6) {
-  //   if (direction < 0) {
-  //     subgraph.value = "all"
-  //     startingPlayer.value = "";
-  //     flush();
-  //   }
-  // }
 }
 
 </script>

@@ -1,7 +1,12 @@
 <template>
   <div>
+    <div v-if="showValue" class="relative left-10 text-xl lg:text-xl">
+      <div class="relative top-10" :class="{'top-24': !showTurn}">
+        Game Value: <component :is="gameValueWrapper">{{ gameValue }}</component>
+      </div>
+    </div>
     <div v-if="!pictureMode && showTurn" class="absolute text-xl lg:text-2xl">
-      <div class="relative top-10 left-10">
+      <div class="relative top-20 left-10">
         <PlayerSelect v-if="!currentPlayer" :starting="startingPlayer" @submit="playerSelected"
                       class=""
         />
@@ -89,6 +94,7 @@ import cloneDeep from "lodash.clonedeep";
 import PlayerSelect from "@/components/player/PlayerSelect.vue";
 import Blue from "@/components/explorable/text-elements/Blue.vue";
 import Red from "@/components/explorable/text-elements/Red.vue";
+import Purple from "@/components/explorable/text-elements/Purple.vue";
 import DrawnGround from "@/components/shared/DrawnGround.vue";
 
 type Player = Color.Red | Color.Blue
@@ -114,6 +120,10 @@ export default defineComponent({
     showTurn: {
       type: Boolean,
       default: true
+    },
+    showValue: {
+      type: Boolean,
+      default: false
     },
     promptReset: {
       type: [Object, Boolean] as PropType<{ text: string, choosePlayer?: boolean, subgraph?: string } | false>,
@@ -277,7 +287,7 @@ export default defineComponent({
               segment,
               style: computed(() => {
                 const overrideOpacity = props.segmentsOpacity;
-                const opacity = (typeof overrideOpacity == "number" && overrideOpacity < 1) ?  overrideOpacity : obj.opacity
+                const opacity = (typeof overrideOpacity == "number" && overrideOpacity < 1) ? overrideOpacity : obj.opacity
                 return {
                   transform: `translateY(${obj.offsetY}px)`,
                   opacity
@@ -535,6 +545,18 @@ export default defineComponent({
 
     const segmentRefs = {};
 
+    const gameValueWrapper = computed(() => {
+      if (gameValue.value < 0) {
+        return Red;
+      }
+      if (gameValue.value == 0) {
+        return Purple;
+      }
+      if (gameValue.value > 0) {
+        return Blue;
+      }
+    })
+
     return {
       graph,
       scissorsRenders,
@@ -546,6 +568,7 @@ export default defineComponent({
       svg,
       Color,
       gameValue,
+      gameValueWrapper,
       autoplayCounter,
       autoplaying,
       playerWon,

@@ -1,10 +1,13 @@
 <template>
-  <div ref="root" class="w-full h-screen py-32 md:pt-0 md:items-center flex flex-col md:flex-row justify-evenly lg:scroll-snap" :style="{opacity: scrollData.enterProgress}">
+  <div ref="root"
+       class="w-full h-screen py-32 md:pt-0 md:items-center flex flex-col justify-evenly lg:scroll-snap"
+       :class="reverse ? 'md:flex-row-reverse md:-ml-16' : 'md:flex-row'"
+       :style="{opacity: scrollData.enterProgress}">
     <div class="ml-4 md:ml-12 h-1/2 min-height-half md:h-auto md:w-1/2 md:mt-8 flex flex-col gap-4">
       <div class="h-full min-h-full overflow-y-auto" ref="scroller">
         <div v-for="(_, i) in numGroups"
              :ref="el => { if (el) groups[i] = el }"
-             class="md:text-lg flex items-center md:my-4"
+             class="md:text-lg flex items-center my-4"
              :class="{'bg-gradient-to-r to-transparent from-blue-100': scrollData.current == i}"
              @click="groupClick(i)"
              v-show="revealed >= i"
@@ -14,6 +17,7 @@
           </div>
         </div>
       </div>
+
       <div class="w-full flex justify-between md:justify-center space-x-4 relative z-20">
         <div class="w-24 inline-block" @click="prevButtonClick">
           <BaseButton class="h-10 rounded" v-show="scrollData.current > 0">Prev</BaseButton>
@@ -27,7 +31,7 @@
     </div>
 
     <div v-if="$slots.sticky" ref="sticky" class="md:w-1/2 md:ml-4 max-w-3xl flex-shrink p-10">
-        <slot name="sticky" v-bind="scrollData"/>
+      <slot name="sticky" v-bind="scrollData"/>
     </div>
 
   </div>
@@ -49,6 +53,9 @@ import {gsap} from "gsap";
 import {ScrollTrigger} from "gsap/ScrollTrigger";
 import BaseButton from "@/components/shared/BaseButton.vue";
 import useBreakpoints from "@/components/shared/useBreakpoints";
+import useSections from "@/components/explorable/useSections";
+
+const {registerSection, setSection} = useSections();
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -56,16 +63,26 @@ export default defineComponent({
   components: {BaseButton},
   emits: ["slideChange"],
   props: {
+    title: {
+      type: String,
+      required: true
+    },
     numGroups: {
       type: Number,
       required: true
     },
+    reverse: {
+      type: Boolean,
+      default: false
+    }
   },
-  setup: ({numGroups}, {emit}) => {
+  setup: ({numGroups, title}, {emit}) => {
     const groups = ref<Array<HTMLDivElement>>([]);
     const root = ref<HTMLDivElement>();
     const sticky = ref<HTMLDivElement>();
     const scroller = ref<HTMLDivElement>();
+
+    const sectionIndex = registerSection(title, root, numGroups);
 
     const {isMobile} = useBreakpoints();
 
@@ -99,6 +116,16 @@ export default defineComponent({
         onUpdate: ({progress}) => scrollData.enterProgress = progress,
         // onEnterBack: () => scrollData.current = 0
       }))
+
+      scrollTriggersRef.value.push(ScrollTrigger.create({
+        trigger: root.value,
+        start: "top top",
+        end: "bottom bottom+=50",
+        onEnter: () => setSection(sectionIndex),
+        onEnterBack: () => setSection(sectionIndex),
+        onLeaveBack: () => setSection(sectionIndex - 1),
+      }))
+
     }
 
 
@@ -146,7 +173,10 @@ export default defineComponent({
       }
     }
 
-    watch(toRef(scrollData, 'current'), (current, last) => emit('slideChange', Object.assign({direction: current - last}, scrollData)))
+    watch(toRef(scrollData, 'current'), (current, last) => {
+      emit('slideChange', Object.assign({direction: current - last}, scrollData));
+      setSection(sectionIndex, current);
+    })
 
     return {
       root,
@@ -165,7 +195,7 @@ export default defineComponent({
 })
 </script>
 <style scoped>
-  .min-height-half {
-    min-height: 50%;
-  }
+.min-height-half {
+  min-height: 50%;
+}
 </style>
