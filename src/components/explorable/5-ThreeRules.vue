@@ -1,5 +1,5 @@
 <template>
-  <ExplorableSection :topGap="true" :num-groups="7" @slideChange="slideChange" title="The Three Rules">
+  <ExplorableSection reverse :topGap="true" :num-groups="7" @slideChange="slideChange" title="The Three Rules">
     <template v-slot:group0>
       We’re going to need to step things up a bit to be able to make sense of these games. Luckily, we’ve already developed a decent bit of intuition by playing a few games already!
     </template>
@@ -16,13 +16,22 @@
       But then, once we’ve set those rules, the consequences spring forth out of nothing but pure, beautiful, mathematical logic.
     </template>
     <template v-slot:group4>
+      So let’s decide, right here and now, on three simple rules, to quantify who has the advantage in a game:
     </template>
     <template v-slot:group5>
+        <b class="ml-12">Rule 0:</b>	Any game where whoever goes first loses has a value of <Purple>zero</Purple>.
     </template>
     <template v-slot:group6>
+      <b class="ml-12">Rule 1:</b> The game with a single <Blue/> string has a value of <Blue>1</Blue>.
     </template>
     <template v-slot:sticky="{current, enterProgress, progress, direction}">
-      <Billmoji class="w-3/4"></Billmoji>
+      <Billmoji class="max-h-96 ml-auto mr-auto" v-if="current < billmojis.length" :sprite="billmojis[current]"></Billmoji>
+      <GamePlayer v-else-if="current < 8"
+                  pictureMode
+                  :segments="rulesegments(current)"
+                  showValue
+      >
+      </GamePlayer>
 <!--      <GamePlayer :segments="segments"-->
 <!--                  :subgraph="subgraph"-->
 <!--                  :show-turn="current >= 1 && current != 5"-->
@@ -42,9 +51,8 @@
 <script setup lang="ts">
 import ScrollytellSection from "../scrollytell/ScrollytellSection.vue";
 import GamePlayer from "../player/GamePlayer.vue";
-import dogcat from "@/game-files/dogcat.json"
-import twocats from "@/game-files/twocats.json"
-import onehalf from "@/game-files/small/onehalf.json"
+import rulezero from "@/game-files/small/1+-1game.json"
+import ruleone from "@/game-files/small/1game.json"
 import {Color} from "@/model/segment-color";
 import {computed, ref} from "vue"
 import Blue from "@/components/explorable/text-elements/Blue.vue";
@@ -53,22 +61,10 @@ import Purple from "@/components/explorable/text-elements/Purple.vue"
 import ExplorableSection from "@/components/explorable/ExplorableSection.vue";
 import Billmoji from "@/components/explorable/Billmoji.vue";
 
-const segmentOpacity = (current, progress) => {
-  if (current < 1) {
-    return 0;
-  }
-  if (current == 1) {
-    return progress;
-  }
-}
-const scissorsOpacity = (current, progress) => {
-  if (current < 0) {
-    return 0;
-  }
-  if (current == 0) {
-    return 0.5 + progress / 2;
-  }
-  return 1;
+const billmojis = ["pointerb", "pointera", "eurekab", "eurekaa", "board"];
+
+const rulesegments = current => {
+  return [rulezero.segments, ruleone.segments][current - billmojis.length];
 }
 
 const subgraph = ref("all");
@@ -90,17 +86,6 @@ const currentSlide = ref(-1);
 // })
 
 const startingPlayer = ref(Color.Blue);
-
-const segments = computed( () => {
-  console.log("recomputing segments")
-  if (currentSlide.value > 4) {
-    return onehalf.segments;
-  }
-  if (currentSlide.value > 2) {
-    return twocats.segments;
-  }
-  return dogcat.segments;
-})
 
 const preventClick = computed( () => {
   if (currentSlide.value < 1) {

@@ -1,7 +1,12 @@
 <template>
   <div>
+    <div v-if="showValue" class="absolute left-10 text-xl lg:text-xl">
+      <div class="relative top-10">
+        Game Value: {{ gameValue }}
+      </div>
+    </div>
     <div v-if="!pictureMode && showTurn" class="absolute text-xl lg:text-2xl">
-      <div class="relative top-10 left-10">
+      <div class="relative top-20 left-10">
         <PlayerSelect v-if="!currentPlayer" :starting="startingPlayer" @submit="playerSelected"
                       class=""
         />
@@ -114,6 +119,10 @@ export default defineComponent({
     showTurn: {
       type: Boolean,
       default: true
+    },
+    showValue: {
+      type: Boolean,
+      default: false
     },
     promptReset: {
       type: [Object, Boolean] as PropType<{ text: string, choosePlayer?: boolean, subgraph?: string } | false>,
@@ -277,7 +286,7 @@ export default defineComponent({
               segment,
               style: computed(() => {
                 const overrideOpacity = props.segmentsOpacity;
-                const opacity = (typeof overrideOpacity == "number" && overrideOpacity < 1) ?  overrideOpacity : obj.opacity
+                const opacity = (typeof overrideOpacity == "number" && overrideOpacity < 1) ? overrideOpacity : obj.opacity
                 return {
                   transform: `translateY(${obj.offsetY}px)`,
                   opacity

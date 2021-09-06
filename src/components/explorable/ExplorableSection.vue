@@ -1,6 +1,7 @@
 <template>
   <div ref="root"
-       class="w-full h-screen py-32 md:pt-0 md:items-center flex flex-col md:flex-row justify-evenly lg:scroll-snap"
+       class="w-full h-screen py-32 md:pt-0 md:items-center flex flex-col justify-evenly lg:scroll-snap"
+       :class="reverse ? 'md:flex-row-reverse md:-ml-16' : 'md:flex-row'"
        :style="{opacity: scrollData.enterProgress}">
     <div class="ml-4 md:ml-12 h-1/2 min-height-half md:h-auto md:w-1/2 md:mt-8 flex flex-col gap-4">
       <div class="h-full min-h-full overflow-y-auto" ref="scroller">
@@ -16,6 +17,7 @@
           </div>
         </div>
       </div>
+
       <div class="w-full flex justify-between md:justify-center space-x-4 relative z-20">
         <div class="w-24 inline-block" @click="prevButtonClick">
           <BaseButton class="h-10 rounded" v-show="scrollData.current > 0">Prev</BaseButton>
@@ -69,6 +71,10 @@ export default defineComponent({
       type: Number,
       required: true
     },
+    reverse: {
+      type: Boolean,
+      default: false
+    }
   },
   setup: ({numGroups, title}, {emit}) => {
     const groups = ref<Array<HTMLDivElement>>([]);

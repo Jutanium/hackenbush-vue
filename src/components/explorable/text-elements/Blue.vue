@@ -1,5 +1,5 @@
 <template>
-  <span class="text-blue-player" :class="{'font-bold': this.bold}">Blue</span>
+  <span class="text-blue-player" :class="{'font-bold': this.bold}">{{$slots.default || 'bLue'}}</span>
 </template>
 
 <script>

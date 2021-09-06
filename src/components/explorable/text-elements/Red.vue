@@ -1,5 +1,6 @@
 <template>
-  <span class="text-red-player" :class="{'font-bold': this.bold}">Red</span>
+
+  <span class="text-red-player" :class="{'font-bold': this.bold}">{{$slots.default || 'Red'}}</span>
 </template>
 
 <script>
