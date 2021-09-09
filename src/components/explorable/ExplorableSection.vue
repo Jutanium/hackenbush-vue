@@ -31,7 +31,7 @@
     </div>
 
     <div v-if="$slots.sticky" ref="sticky" class="md:w-1/2 md:ml-4 max-w-3xl flex-shrink p-10">
-      <slot name="sticky" v-bind="scrollData"/>
+        <slot name="sticky" v-bind="scrollData"/>
     </div>
 
   </div>
@@ -92,6 +92,11 @@ export default defineComponent({
 
     const revealed = ref(0);
 
+    const inView = ref(false);
+    watch(inView, () => {
+      console.log(inView, sectionIndex)
+    })
+
     onBeforeUpdate(() => {
       groups.value = [];
     })
@@ -123,8 +128,16 @@ export default defineComponent({
 
       scrollTriggersRef.value.push(ScrollTrigger.create({
         trigger: root.value,
+        start: "top 200",
+        end: "bottom top",
+        onUpdate: ({progress}) => scrollData.leaveProgress = progress,
+        // onEnterBack: () => scrollData.current = 0
+      }))
+      scrollTriggersRef.value.push(ScrollTrigger.create({
+        trigger: root.value,
         start: "top top",
         end: "bottom bottom+=50",
+        onToggle: ({isActive}) => inView.value = isActive,
         onEnter: () => setSection(sectionIndex),
         onEnterBack: () => setSection(sectionIndex),
         onLeaveBack: () => setSection(sectionIndex - 1),
@@ -204,6 +217,7 @@ export default defineComponent({
       groupClick,
       prevButtonClick,
       nextButtonClick,
+      inView,
       revealed
     }
   },

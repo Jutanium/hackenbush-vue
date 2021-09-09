@@ -191,9 +191,11 @@ export default defineComponent({
 
     const otherPlayer = (player: Player) => player == Color.Red ? Color.Blue : Color.Red;
 
-    const graph = computed(() => {
-      return buildGraph(props.segments, props.groundY);
-    });
+    const graph = ref(buildGraph(props.segments, props.groundY));
+
+    watch(toRef(props, "segments"), () => {
+      graph.value = buildGraph(props.segments, props.groundY);
+    })
 
     const gameValue = ref<number>(graph.value.evaluate());
 
