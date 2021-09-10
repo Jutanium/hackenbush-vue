@@ -7,8 +7,8 @@
       <div class="h-full min-h-full overflow-y-auto" ref="scroller">
         <div v-for="(_, i) in numGroups"
              :ref="el => { if (el) groups[i] = el }"
-             class="md:text-lg flex items-center my-4"
-             :class="{'bg-gradient-to-r to-transparent from-blue-100': scrollData.current == i}"
+             class="md:text-lg flex items-center my-4 hover:bg-blue-100"
+             :class="{'bg-gradient-to-r to-transparent from-blue-200': scrollData.current == i}"
              @click="groupClick(i)"
              :style="groupStyles(i)">
           <div class="relative" v-show="revealed >= i">
