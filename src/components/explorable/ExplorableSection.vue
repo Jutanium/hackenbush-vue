@@ -10,9 +10,8 @@
              class="md:text-lg flex items-center my-4"
              :class="{'bg-gradient-to-r to-transparent from-blue-100': scrollData.current == i}"
              @click="groupClick(i)"
-             v-show="revealed >= i"
              :style="groupStyles(i)">
-          <div class="relative">
+          <div class="relative" v-show="revealed >= i">
             <slot :name="'group' + i" v-bind="scrollData"></slot>
           </div>
         </div>
@@ -155,23 +154,26 @@ export default defineComponent({
       killScrollTriggers();
     })
 
-    const groupStyles = (i: number) => {
 
+
+    let divisionSections: number[][]; //[start, end]
+    if (divisions?.length) {
+      divisionSections = [...divisions, numGroups - 1].map( (num, i) => (
+            [(divisions[i - 1] || -1) + 1, num]
+      ))
+      console.log("division", divisionSections)
+    }
+    const getSection = (current: number) => divisionSections.find( ([start, end]) => current >= start && current <= end) || [0, numGroups];
+
+    const groupStyles = (i: number) => {
       // const opacity = i == 0 ? scrollData.enterProgress : Number(revealed.value >= i)
-      if (divisions?.length) {
-        if (revealed.value >= i) {
-          const currentDivision = divisions.sort( (a,b) => b - a).find(num => scrollData.current > num);
-          if (i <= currentDivision) {
+      if (divisionSections) {
+          const [start, end] = getSection(scrollData.current);
+          if (i < start || i > end) {
             return {
               opacity: 0.2
             }
           }
-        }
-      }
-
-      const opacity = Number(revealed.value >= i)
-      return {
-        opacity
       }
     }
 
