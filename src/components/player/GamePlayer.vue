@@ -44,7 +44,7 @@
       ></Scissors>
     </g>
 
-    <svg ref="svg" viewBox="0 0 100 100">
+    <svg ref="svg" class="w-full" viewBox="0 0 100 100">
       <DrawnGround/>
 
       <template
@@ -592,10 +592,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-svg {
-  width: 100%
-}
-
 .clickable:hover {
   opacity: 40%
 }
