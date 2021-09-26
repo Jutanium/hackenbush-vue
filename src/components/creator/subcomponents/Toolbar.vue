@@ -4,8 +4,8 @@
                  color="red" @click="modeSelect(0)"></ToolbarItem>
     <ToolbarItem :selected="mode == 1"
                  color="blue" @click="modeSelect(1)"></ToolbarItem>
-    <ToolbarItem :selected="mode == 2"
-                 color="green" @click="modeSelect(2)"></ToolbarItem>
+<!--    <ToolbarItem :selected="mode == 2"-->
+<!--                 color="green" @click="modeSelect(2)"></ToolbarItem>-->
     <ToolbarItem :selected="mode == 3" @click="modeSelect(3)">
       <img :src="img.move" alt="">
     </ToolbarItem>

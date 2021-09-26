@@ -1,12 +1,12 @@
 <template>
-  <div>
+  <div class="w-full h-full">
     <div v-if="showValue" class="relative left-10 text-xl lg:text-xl">
       <div class="absolute top-10" :class="{'top-24': !showTurn}">
         Game Value: <component :is="gameValueWrapper">{{ gameValue }}</component>
       </div>
     </div>
     <div v-if="!pictureMode && showTurn" class="absolute text-xl lg:text-2xl">
-      <div class="relative top-20 left-10">
+      <div class="relative top-10 left-10">
         <PlayerSelect v-if="!currentPlayer" :starting="startingPlayer" @submit="playerSelected"
                       class=""
         />
@@ -44,7 +44,7 @@
       ></Scissors>
     </g>
 
-    <svg ref="svg" class="w-full" viewBox="0 0 100 100">
+    <svg ref="svg" class="w-full h-full" viewBox="0 0 100 100">
       <DrawnGround/>
 
       <template
