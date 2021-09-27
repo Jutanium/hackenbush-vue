@@ -1,6 +1,12 @@
 <template>
-  <div class="my-12">
+  <div class="my-8 gap-4 flex flex-col items-center">
     <h1 class="text-4xl text-center">Hackenbush: The Most Mathematical Game</h1>
+    <div class="text-center max-w-xl">
+      Play Hackenbush below, or learn more about the game with our
+      <span class="font-bold transition-colors duration-150 text-blue-player rounded-lg focus:shadow-outline hover:text-blue-600"><router-link to="/explorable">interactive entry</router-link>
+      </span>
+      for the Summer of Math Exposition.
+    </div>
   </div>
   <div class="flex flex-col-reverse md:flex-row justify-center items-center gap-6 h-full">
     <div class="flex md:flex-col gap-2 overflow-auto max-h-xl w-full md:w-auto">
@@ -15,7 +21,6 @@
       <div v-if="importBox" class="flex flex-col">
         <input ref="importInput" class="w-32 border rounded" type="text" v-model="importText" @change="inputChanged"/>
       </div>
-
 
       <div v-if="importError" class="w-32 md:ml-2 text-red-500">
         {{importError}}
