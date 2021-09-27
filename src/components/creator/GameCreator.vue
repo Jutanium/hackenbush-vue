@@ -1,9 +1,10 @@
 <template>
   <div>
 
-    <Toolbar v-if="!demoMode" v-model:mode="selectedMode"></Toolbar>
+    <Toolbar v-if="!demoMode" class="mb-1" v-model:mode="selectedMode" @exportClick="exportClicked"></Toolbar>
+    <input v-show="showExport" @click="exportClicked" ref="exportInput" class="w-full" type="text" :value="exportString"/>
 
-    <svg ref="svg"  :class="{'border border-black': !demoMode}" viewBox="0 0 100 100"
+    <svg ref="svg" :class="{'border-2 border-gray-300 rounded-b-none rounded-2xl': !demoMode}" viewBox="0 0 100 100"
          @click="bgClick"
          @mousemove="bgMouseMove"
          @mouseup="bgMouseUp"
@@ -25,7 +26,7 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, InjectionKey, provide, reactive, Ref, ref, unref} from "vue"
+import {computed, defineComponent, InjectionKey, nextTick, provide, reactive, Ref, ref, unref} from "vue"
 import Toolbar, {Mode} from "./subcomponents/Toolbar.vue";
 import Ground from "./subcomponents/Ground.vue";
 import Piece from "./subcomponents/Piece.vue"
@@ -33,7 +34,7 @@ import PiecePath from "@/components/shared/PiecePath.vue";
 
 import {Color} from "@/model/segment-color";
 import {Connection, connectionsEqual, Point, pointsEqual, Segment, Side, Sides} from "@/model/segment";
-import {addSegment, removeSegment, state} from "@/components/creator/state/game-file"
+import {useGameState} from "@/components/creator/state/game-file"
 
 const selectedModeKey: InjectionKey<Ref<Mode>> = Symbol();
 const svgCoordsKey: InjectionKey<(clientX: number, clientY: number) => { x: number, y: number } | false> = Symbol();
@@ -41,6 +42,7 @@ const connectionPressedKey: InjectionKey<(svgX: number, svgY: number, connection
 const snapRadiusKey: InjectionKey<number> = Symbol();
 
 import dogcat from "@/game-files/dogcat.json"
+import {SegmentsMap} from "@/model/graph";
 
 export const injections = {
   svgCoords: svgCoordsKey,
@@ -65,7 +67,9 @@ export default defineComponent({
   setup: (props) => {
     const svg = ref();
 
-    const {segments, groundY} = state(props.demoMode && dogcat.segments);
+    const {state, addSegment, removeSegment, fileString} = useGameState(props.demoMode && dogcat.segments as SegmentsMap);
+
+    const {segments, groundY} = state;
 
     const segmentsArray = computed( () => {
       return Object.values(segments);
@@ -130,7 +134,10 @@ export default defineComponent({
       pt.x = clientX;
       pt.y = clientY;
 
-      return pt.matrixTransform(svg.value.getScreenCTM().inverse());
+      const {x, y} = pt.matrixTransform(svg.value.getScreenCTM().inverse());
+
+      const round = (num: number) => Math.round((num + Number.EPSILON) * 100) / 100;
+      return {x: round(x), y: round(y)};
     }
 
     const connectionPressed = (svgX: number, svgY: number, connection: Connection, ctrlKey = false) => {
@@ -165,6 +172,18 @@ export default defineComponent({
     provide(snapRadiusKey, props.snapRadius);
     provide(selectedModeKey, selectedMode);
 
+    const exportInput = ref<HTMLInputElement>(null);
+    const showExport = ref(false);
+    const exportString = ref(fileString());
+
+    const exportClicked = () => {
+      showExport.value = true;
+      exportString.value = fileString();
+      nextTick(() => {
+        exportInput.value.select();
+        document.execCommand("copy");
+      })
+    }
 
     return {
       selectedMode,
@@ -177,7 +196,13 @@ export default defineComponent({
       newSegment,
       isDrawing,
       movingPoint,
-      drawingColor
+      drawingColor,
+      addSegment,
+      removeSegment,
+      exportClicked,
+      showExport,
+      exportString,
+      exportInput
     }
   },
   computed: {
@@ -218,7 +243,7 @@ export default defineComponent({
         return;
       }
       if (this.selectedMode == Mode.Deleting) {
-        removeSegment(segment);
+        this.removeSegment(segment);
       }
     },
     bgClick(event: MouseEvent) {
@@ -270,7 +295,7 @@ export default defineComponent({
         const yDiff = end.y - start.y;
         const id = "segment" + Date.now() % 100 + this.counter++;
 
-        addSegment(Object.assign({}, this.newSegment, {
+        this.addSegment(Object.assign({}, this.newSegment, {
           id,
           color: this.drawingColor,
           curveControlStart: {
