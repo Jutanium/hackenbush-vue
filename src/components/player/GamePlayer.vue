@@ -48,6 +48,7 @@
       <DrawnGround/>
 
       <template
+          v-if="segmentRenders"
           v-for=" ([id, {segment, style, animating, cut}]) in Object.entries(segmentRenders).filter( ([_, val]) => Boolean(val))">
         <g class="absolute" :style="style" v-if="animating || !cut">
           <title v-if="debugMode">{{segment.id}}</title>
@@ -310,6 +311,7 @@ export default defineComponent({
       turn.value = 0;
 
       if (props.pictureMode) {
+        console.log("picture mode");
         resetSegments();
         return;
       }
@@ -349,7 +351,7 @@ export default defineComponent({
       }
     }
 
-    watch([toRef(props, "flush"), graph, svg], ([flush]) => {
+    watch([toRef(props, "flush"), svg], ([flush]) => {
       resetGame(false, flush == 0 || props.resetScissorsOnFlush);
     }, {immediate: true})
 
