@@ -23,7 +23,7 @@ type GraphData = {
   subgameCache: { [id: string]: {value: number, segmentIds: string[]}}
 }
 
-type SegmentsMap = { [id: string]: Segment };
+export type SegmentsMap = { [id: string]: Segment };
 export type Graph = {
   removeEdge: (segmentId: string) => string[],
   graphData: GraphData,

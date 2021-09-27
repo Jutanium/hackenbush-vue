@@ -1,12 +1,12 @@
 <template>
-  <div>
+  <div class="w-full h-full">
     <div v-if="showValue" class="relative left-10 text-xl lg:text-xl">
       <div class="absolute top-10" :class="{'top-24': !showTurn}">
         Game Value: <component :is="gameValueWrapper">{{ gameValue }}</component>
       </div>
     </div>
     <div v-if="!pictureMode && showTurn" class="absolute text-xl lg:text-2xl">
-      <div class="relative top-20 left-10">
+      <div class="relative top-10 left-10">
         <PlayerSelect v-if="!currentPlayer" :starting="startingPlayer" @submit="playerSelected"
                       class=""
         />
@@ -44,7 +44,7 @@
       ></Scissors>
     </g>
 
-    <svg ref="svg" viewBox="0 0 100 100">
+    <svg ref="svg" class="w-full h-full" viewBox="0 0 100 100">
       <DrawnGround/>
 
       <template
@@ -193,11 +193,11 @@ export default defineComponent({
 
     const graph = ref(buildGraph(props.segments, props.groundY));
 
-    watch(toRef(props, "segments"), () => {
+    watch(toRef(props, "segments"), (prev) => {
       graph.value = buildGraph(props.segments, props.groundY);
     })
 
-    const gameValue = ref<number>(graph.value.evaluate());
+    const gameValue = ref<number | undefined>(props.pictureMode ? undefined : graph.value.evaluate());
 
     const currentPlayer = ref<Player | false>(false);
     const ai = ref(props.aiControls);
@@ -309,8 +309,14 @@ export default defineComponent({
 
       turn.value = 0;
 
+      if (props.pictureMode) {
+        resetSegments();
+        return;
+      }
+
       graph.value.evaluate();
       graph.value.setSubgraph(subgraph || "all");
+
 
       playingAgain.value = playerInitiated;
 
@@ -330,6 +336,7 @@ export default defineComponent({
         animations.scissors.clear();
         animations.segments.clear();
       }
+
       if (doResetScissors) resetScissors();
       resetSegments();
       if (!startingPlayer) {
@@ -592,10 +599,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-svg {
-  width: 100%
-}
-
 .clickable:hover {
   opacity: 40%
 }

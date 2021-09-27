@@ -1,7 +1,7 @@
 <template>
-  <div :style="computedStyles">
+  <button :style="computedStyles">
     <slot></slot>
-  </div>
+  </button>
 </template>
 
 <script lang="ts">
@@ -44,7 +44,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-div {
+button {
   width: 40px;
   height: 40px;
   border-radius: 5px;
