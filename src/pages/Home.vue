@@ -39,7 +39,14 @@
       <div v-show="chosenIndex == 0">
         <GameCreator class="max-w-creator"></GameCreator>
       </div>
+      <template v-if="mounted">
         <GamePlayer v-for="(game, i) in games" :key="game.name" :segments="game.segments" v-show="chosenIndex == i + 1"></GamePlayer>
+      </template>
+      <template v-else>
+        <div class="w-96 h-96 flex justify-center items-center text-center">
+          Loading games...
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -62,12 +69,16 @@ import { SegmentsMap } from "@/model/graph";
 const games = ref([square, person, dogcat, racket, twins].map(g => ({name: Math.random(), segments: g.segments as SegmentsMap})));
 const choices: ComputedRef<Array<"create" | SegmentsMap>> = computed(() => ["create", ...games.value]);
 
+
+
 const chosenIndex = ref(1);
 const chosenGame = computed(() => games.value[chosenIndex.value]);
 
 const mounted = ref(false);
 onMounted(() => {
-  mounted.value = true;
+  setTimeout(() => {
+    mounted.value = true;
+  }, 2000);
 })
 
 
