@@ -11,14 +11,21 @@
       <RoundedButton class="min-w-24" @click="importClicked">
         Import Game
       </RoundedButton>
+
+      <div v-if="importBox" class="flex flex-col">
+        <input ref="importInput" class="w-32 border rounded" type="text" v-model="importText" @change="inputChanged"/>
+      </div>
+
+
       <div v-if="importError" class="w-32 md:ml-2 text-red-500">
         {{importError}}
       </div>
 
       <button v-for="(game, i) in games" class="game-button"
+              :key="game.name"
            :class="{'bg-gray-100': chosenIndex == i + 1}"
         @click="chosenIndex = i + 1">
-        <GamePlayer :segments="game" picture-mode>
+        <GamePlayer :segments="game.segments" picture-mode>
         </GamePlayer>
       </button>
     </div>
@@ -27,14 +34,14 @@
       <div v-show="chosenIndex == 0">
         <GameCreator class="max-w-creator"></GameCreator>
       </div>
-        <GamePlayer v-for="(game, i) in games" :segments="game" v-show="chosenIndex == i + 1"></GamePlayer>
+        <GamePlayer v-for="(game, i) in games" :key="game.name" :segments="game.segments" v-show="chosenIndex == i + 1"></GamePlayer>
     </div>
   </div>
 </template>
 
 
 <script setup lang="ts">
-import {computed, ComputedRef, onMounted, Ref, ref} from "vue"
+import {computed, ComputedRef, nextTick, onMounted, Ref, ref} from "vue"
 import GamePlayer from "@/components/player/GamePlayer.vue";
 import GameCreator from "@/components/creator/GameCreator.vue";
 import RoundedButton from "@/components/shared/RoundedButton.vue";
@@ -47,7 +54,7 @@ import twins from "@/game-files/twins.json"
 
 import { SegmentsMap } from "@/model/graph";
 
-const games = ref([square, person, dogcat, racket, twins].map(g => g.segments as SegmentsMap));
+const games = ref([square, person, dogcat, racket, twins].map(g => ({name: Math.random(), segments: g.segments as SegmentsMap})));
 const choices: ComputedRef<Array<"create" | SegmentsMap>> = computed(() => ["create", ...games.value]);
 
 const chosenIndex = ref(1);
@@ -58,21 +65,43 @@ onMounted(() => {
   mounted.value = true;
 })
 
+
+const importInput = ref(null);
 const importError: Ref<string | false> = ref(false);
+const importText = ref("Paste Game Data...");
+const importBox = ref(false);
+
+function inputChanged() {
+  let obj;
+  try {
+    obj = JSON.parse(importText.value);
+  } catch (e) {
+    return;
+  }
+  games.value.unshift({name: Math.random(), segments: obj});
+  importText.value = "";
+}
 
 function importClicked () {
-  navigator.clipboard.readText().then(
-    clipText => {
-      let obj;
-      try {
-        obj = JSON.parse(clipText);
-      } catch (e) {
-        importError.value = "Clipboard data isn't a valid game"
-        return;
-      }
-      games.value.unshift(obj);
-      importError.value = false;
+  if (!importBox.value) {
+    importBox.value = true;
+    nextTick(() => {
+      importInput.value.focus();
+      importInput.value.select();
     })
+  }
+  // navigator.clipboard.readText().then(
+  //   clipText => {
+  //     let obj;
+  //     try {
+  //       obj = JSON.parse(clipText);
+  //     } catch (e) {
+  //       importError.value = "Clipboard data isn't a valid game"
+  //       return;
+  //     }
+  //     games.value.unshift(obj);
+  //     importError.value = false;
+  //   })
 }
 
 </script>
