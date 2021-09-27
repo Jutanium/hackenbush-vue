@@ -24,12 +24,10 @@
     </div>
 
     <div class="w-full max-w-lg md:max-w-xl border-b-0 border-gray-300 rounded-b-none rounded-2xl" :class="{'border-2': chosenIndex > 0}">
-      <div v-if="chosenIndex == 0">
+      <div v-show="chosenIndex == 0">
         <GameCreator class="max-w-creator"></GameCreator>
       </div>
-      <template v-else-if="mounted">
         <GamePlayer v-for="(game, i) in games" :segments="game" v-show="chosenIndex == i + 1"></GamePlayer>
-      </template>
     </div>
   </div>
 </template>
