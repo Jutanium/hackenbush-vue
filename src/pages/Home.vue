@@ -8,6 +8,13 @@
       <RoundedButton class="min-w-24" @click="chosenIndex = 0" :class="{'bg-gray-100': chosenIndex == 0}">
         Create Your Own
       </RoundedButton>
+      <RoundedButton class="min-w-24" @click="importClicked">
+        Import Game
+      </RoundedButton>
+      <div v-if="importError" class="w-32 md:ml-2 text-red-500">
+        {{importError}}
+      </div>
+
       <button v-for="(game, i) in games" class="game-button"
            :class="{'bg-gray-100': chosenIndex == i + 1}"
         @click="chosenIndex = i + 1">
@@ -29,7 +36,7 @@
 
 
 <script setup lang="ts">
-import {computed, onMounted, ref} from "vue"
+import {computed, ComputedRef, onMounted, Ref, ref} from "vue"
 import GamePlayer from "@/components/player/GamePlayer.vue";
 import GameCreator from "@/components/creator/GameCreator.vue";
 import RoundedButton from "@/components/shared/RoundedButton.vue";
@@ -42,16 +49,34 @@ import twins from "@/game-files/twins.json"
 
 import { SegmentsMap } from "@/model/graph";
 
-const games = [square, person, dogcat, racket, twins].map(g => g.segments as SegmentsMap);
-const choices: Array<"create" | SegmentsMap> = ["create", ...games];
+const games = ref([square, person, dogcat, racket, twins].map(g => g.segments as SegmentsMap));
+const choices: ComputedRef<Array<"create" | SegmentsMap>> = computed(() => ["create", ...games.value]);
 
 const chosenIndex = ref(1);
-const chosenGame = computed(() => games[chosenIndex.value]);
+const chosenGame = computed(() => games.value[chosenIndex.value]);
 
 const mounted = ref(false);
 onMounted(() => {
   mounted.value = true;
 })
+
+const importError: Ref<string | false> = ref(false);
+
+function importClicked () {
+  navigator.clipboard.readText().then(
+    clipText => {
+      let obj;
+      try {
+        obj = JSON.parse(clipText);
+      } catch (e) {
+        importError.value = "Clipboard data isn't a valid game"
+        return;
+      }
+      games.value.unshift(obj);
+      importError.value = false;
+    })
+}
+
 </script>
 
 <style scoped>

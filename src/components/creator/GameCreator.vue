@@ -1,27 +1,29 @@
 <template>
   <div>
+  <Toolbar v-if="!demoMode" class="mb-1" v-model:mode="selectedMode" v-model:playing="playing" @exportClick="exportClicked"></Toolbar>
+  <input v-show="showExport" @click="exportClicked" ref="exportInput" class="w-full" type="text" :value="exportString"/>
+    <GamePlayer v-if="playing" :segments="segments"></GamePlayer>
 
-    <Toolbar v-if="!demoMode" class="mb-1" v-model:mode="selectedMode" @exportClick="exportClicked"></Toolbar>
-    <input v-show="showExport" @click="exportClicked" ref="exportInput" class="w-full" type="text" :value="exportString"/>
+    <div v-else>
+      <svg ref="svg" :class="{'border-2 border-gray-300 rounded-b-none rounded-2xl': !demoMode}" viewBox="0 0 100 100"
+           @click="bgClick"
+           @mousemove="bgMouseMove"
+           @mouseup="bgMouseUp"
+           @mousedown="bgMouseDown"
+      >
 
-    <svg ref="svg" :class="{'border-2 border-gray-300 rounded-b-none rounded-2xl': !demoMode}" viewBox="0 0 100 100"
-         @click="bgClick"
-         @mousemove="bgMouseMove"
-         @mouseup="bgMouseUp"
-         @mousedown="bgMouseDown"
-    >
+        <Ground :y="groundY" :height="100 - groundY"></Ground>
 
-      <Ground :y="groundY" :height="100 - groundY"></Ground>
+        <g v-if="isDrawing">
+          <PiecePath :segment="newSegment"></PiecePath>
+        </g>
 
-      <g v-if="isDrawing">
-        <PiecePath :segment="newSegment"></PiecePath>
-      </g>
+        <template v-for="segment in segmentsArray">
+          <Piece :segment="segment" :demoMode="demoMode" @click="pieceClicked(segment)"></Piece>
+        </template>
 
-      <template v-for="segment in segmentsArray">
-        <Piece :segment="segment" :demoMode="demoMode" @click="pieceClicked(segment)"></Piece>
-      </template>
-
-    </svg>
+      </svg>
+    </div>
   </div>
 </template>
 
@@ -43,6 +45,7 @@ const snapRadiusKey: InjectionKey<number> = Symbol();
 
 import dogcat from "@/game-files/dogcat.json"
 import {SegmentsMap} from "@/model/graph";
+import GamePlayer from "@/components/player/GamePlayer.vue";
 
 export const injections = {
   svgCoords: svgCoordsKey,
@@ -53,7 +56,7 @@ export const injections = {
 
 export default defineComponent({
   name: "GameCreator",
-  components: {Piece, Toolbar, Ground, PiecePath},
+  components: {GamePlayer, Piece, Toolbar, Ground, PiecePath},
   props: {
     snapRadius: {
       type: Number,
@@ -185,6 +188,8 @@ export default defineComponent({
       })
     }
 
+    const playing = ref(false);
+
     return {
       selectedMode,
       segments,
@@ -202,7 +207,8 @@ export default defineComponent({
       exportClicked,
       showExport,
       exportString,
-      exportInput
+      exportInput,
+      playing
     }
   },
   computed: {

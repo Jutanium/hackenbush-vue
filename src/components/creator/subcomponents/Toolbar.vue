@@ -1,20 +1,25 @@
 <template>
   <div class="flex w-full justify-between items-center">
     <div class="flex">
-      <ToolbarItem :selected="mode == 0"
-                   color="red" @click="modeSelect(0)"></ToolbarItem>
-      <ToolbarItem :selected="mode == 1"
-                   color="blue" @click="modeSelect(1)"></ToolbarItem>
-      <!--    <ToolbarItem :selected="mode == 2"-->
-      <!--                 color="green" @click="modeSelect(2)"></ToolbarItem>-->
-      <ToolbarItem :selected="mode == 3" @click="modeSelect(3)">
-        <img :src="img.move" alt="">
-      </ToolbarItem>
-      <ToolbarItem :selected="mode == 4" @click="modeSelect(4)">
-        <img :src="img.eraser" alt="">
-      </ToolbarItem>
+      <template v-if="!playing">
+        <ToolbarItem :selected="mode == 0"
+                     color="red" @click="modeSelect(0)"></ToolbarItem>
+        <ToolbarItem :selected="mode == 1"
+                     color="blue" @click="modeSelect(1)"></ToolbarItem>
+        <!--    <ToolbarItem :selected="mode == 2"-->
+        <!--                 color="green" @click="modeSelect(2)"></ToolbarItem>-->
+        <ToolbarItem :selected="mode == 3" @click="modeSelect(3)">
+          <img :src="img.move" alt="">
+        </ToolbarItem>
+        <ToolbarItem :selected="mode == 4" @click="modeSelect(4)">
+          <img :src="img.eraser" alt="">
+        </ToolbarItem>
+      </template>
     </div>
-    <RoundedButton @click="$emit('exportClick')" class="w-32">Export Game</RoundedButton>
+    <div class="flex gap-2">
+      <RoundedButton @click="togglePlaying" class="px-4">{{!playing ? "Play" : "Edit"}}</RoundedButton>
+      <RoundedButton @click="$emit('exportClick')" class="px-4">Export</RoundedButton>
+    </div>
   </div>
 </template>
 
@@ -39,15 +44,19 @@ export enum Mode {
 export default defineComponent({
   name: "Toolbar",
   components: {RoundedButton, ToolbarItem},
-  emits: ["update:mode", "exportClick"],
+  emits: ["update:mode", "update:playing", "exportClick"],
   props: {
-    mode: Number as PropType<Mode>
+    mode: Number as PropType<Mode>,
+    playing: Boolean
   },
   setup: () => {
   },
   methods: {
     modeSelect(mode: Mode) {
       this.$emit('update:mode', mode);
+    },
+    togglePlaying() {
+      this.$emit('update:playing', !this.playing);
     },
   },
   data() {

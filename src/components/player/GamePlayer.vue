@@ -193,11 +193,11 @@ export default defineComponent({
 
     const graph = ref(buildGraph(props.segments, props.groundY));
 
-    watch(toRef(props, "segments"), () => {
+    watch(toRef(props, "segments"), (prev) => {
       graph.value = buildGraph(props.segments, props.groundY);
     })
 
-    const gameValue = ref<number>(graph.value.evaluate());
+    const gameValue = ref<number | undefined>(props.pictureMode ? undefined : graph.value.evaluate());
 
     const currentPlayer = ref<Player | false>(false);
     const ai = ref(props.aiControls);
@@ -309,8 +309,14 @@ export default defineComponent({
 
       turn.value = 0;
 
+      if (props.pictureMode) {
+        resetSegments();
+        return;
+      }
+
       graph.value.evaluate();
       graph.value.setSubgraph(subgraph || "all");
+
 
       playingAgain.value = playerInitiated;
 
@@ -330,6 +336,7 @@ export default defineComponent({
         animations.scissors.clear();
         animations.segments.clear();
       }
+
       if (doResetScissors) resetScissors();
       resetSegments();
       if (!startingPlayer) {
