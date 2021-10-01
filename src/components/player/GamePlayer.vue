@@ -48,7 +48,6 @@
       <DrawnGround/>
 
       <template
-          v-if="segmentRenders"
           v-for=" ([id, {segment, style, animating, cut}]) in Object.entries(segmentRenders).filter( ([_, val]) => Boolean(val))">
         <g class="absolute" :style="style" v-if="animating || !cut">
           <title v-if="debugMode">{{segment.id}}</title>
@@ -194,11 +193,11 @@ export default defineComponent({
 
     const graph = ref(buildGraph(props.segments, props.groundY));
 
-    watch(toRef(props, "segments"), (prev) => {
+    watch(toRef(props, "segments"), () => {
       graph.value = buildGraph(props.segments, props.groundY);
     })
 
-    const gameValue = ref<number | undefined>(props.pictureMode ? undefined : graph.value.evaluate());
+    const gameValue = ref<number>();
 
     const currentPlayer = ref<Player | false>(false);
     const ai = ref(props.aiControls);
@@ -308,17 +307,14 @@ export default defineComponent({
         console.log("resetting");
       }
 
+
       turn.value = 0;
 
-      if (props.pictureMode) {
-        console.log("picture mode");
-        resetSegments();
-        return;
-      }
-
-      graph.value.evaluate();
       graph.value.setSubgraph(subgraph || "all");
 
+      if (props.showValue) {
+        gameValue.value = graph.value.evaluate();
+      }
 
       playingAgain.value = playerInitiated;
 
@@ -328,8 +324,6 @@ export default defineComponent({
         ai.value = props.aiControls;
       }
 
-      gameValue.value = graph.value.evaluate();
-
       if (props.stopAnimationOnFlush) {
         if (animations.scissors.size)
           [...animations.scissors, ...animations.segments].forEach(tl => {
@@ -338,7 +332,6 @@ export default defineComponent({
         animations.scissors.clear();
         animations.segments.clear();
       }
-
       if (doResetScissors) resetScissors();
       resetSegments();
       if (!startingPlayer) {
@@ -351,9 +344,15 @@ export default defineComponent({
       }
     }
 
-    watch([toRef(props, "flush"), svg], ([flush]) => {
+    watch([toRef(props, "flush"), graph, svg], ([flush]) => {
       resetGame(false, flush == 0 || props.resetScissorsOnFlush);
     }, {immediate: true})
+
+    watch(toRef(props, "showValue"), (showValue) => {
+      if (showValue) {
+        gameValue.value = graph.value.evaluate();
+      }
+    })
 
     function resetButtonClick() {
       const {choosePlayer, subgraph} = props.promptReset;

@@ -76,9 +76,7 @@ const chosenGame = computed(() => games.value[chosenIndex.value]);
 
 const mounted = ref(false);
 onMounted(() => {
-  setTimeout(() => {
-    mounted.value = true;
-  }, 2000);
+  mounted.value = true;
 })
 
 

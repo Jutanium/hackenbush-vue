@@ -2,6 +2,7 @@ import {Connection, Segment} from "@/model/segment";
 import {pointsEqual} from "@/model/segment";
 import {Color} from "@/model/segment-color";
 import {simplestBetween, stalkValue} from "@/model/stalk-math";
+// import SubgameWorker from "./subgameWorker?worker";
 
 type Edge = {
   segmentId: string,
@@ -191,7 +192,14 @@ export function buildGraph(segments: SegmentsMap, groundY: number): Graph {
   }
 
   function evaluate(graph: GraphData = graphData): number {
-    return graph.ground.reduce((acc, curr) => acc + evaluateSubgame(curr), 0);
+      // const worker = new SubgameWorker();
+      //
+      // worker.postMessage(graph.ground);
+      //
+      // worker.onmessage = ev => {
+      //   console.log("recieved", ev.data);
+      // }
+      return graph.ground.reduce((acc, curr) => acc + evaluateSubgame(curr), 0);
   }
 
   function bestMoveForColor(color: Color): Segment {
