@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-full">
     <div v-if="showValue" class="relative left-10 text-xl lg:text-xl">
-      <div class="absolute top-10" :class="{'top-24': !showTurn}">
+      <div class="absolute top-10" :class="{'top-24': showTurn}">
         Game Value: <component :is="gameValueWrapper">{{ gameValue }}</component>
       </div>
     </div>

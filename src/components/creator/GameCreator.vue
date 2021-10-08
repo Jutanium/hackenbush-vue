@@ -2,7 +2,7 @@
   <div>
   <Toolbar v-if="!demoMode" class="mb-1" v-model:mode="selectedMode" v-model:playing="playing" @exportClick="exportClicked"></Toolbar>
   <input v-show="showExport" @click="exportClicked" ref="exportInput" class="w-full" type="text" :value="exportString"/>
-    <GamePlayer v-if="playing" :segments="segments"></GamePlayer>
+    <GamePlayer v-if="playing" :segments="segments" :show-value="true"></GamePlayer>
 
     <div v-else>
       <svg ref="svg" :class="{'border-2 border-gray-300 rounded-b-none rounded-2xl': !demoMode}" viewBox="0 0 100 100"
