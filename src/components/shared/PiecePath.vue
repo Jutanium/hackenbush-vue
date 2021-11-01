@@ -40,6 +40,10 @@ import {Color} from "@/model/segment-color";
         if (this.segment.color == Color.Blue) {
           return "text-blue-player";
         }
+        if (this.segment.color == Color.Green) {
+          return "text-green-500";
+        }
+
       }
     },
     data () {

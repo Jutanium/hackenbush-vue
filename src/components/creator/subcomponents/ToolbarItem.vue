@@ -1,5 +1,5 @@
 <template>
-  <button :style="computedStyles">
+  <button :class="[textColorClass, {'bg-current': selected}]" class="border-current border-4 rounded-md w-11 h-11 flex justify-center items-center m-1">
     <slot></slot>
   </button>
 </template>
@@ -10,49 +10,12 @@ import {ref, defineComponent} from "vue"
 export default defineComponent({
   name: "ToolbarItem",
   props: {
-    color: String,
+    textColorClass: {
+      type: String,
+      default: "text-gray-300"
+    },
     selected: Boolean
   },
-  computed: {
-    computedStyles(): object {
-      if (this.color) {
-        if (this.selected) {
-          return {
-            backgroundColor: this.color,
-            borderColor: "rgba(0,0,0,0.25)"
-          }
-        }
-        return {
-          borderColor: this.color,
-        }
-      }
-      if (this.selected) {
-        return {
-          backgroundColor: "lightgray"
-        }
-      }
-      return {
-        backgroundColor: "white"
-      }
-    }
-  },
-  methods: {},
-  data() {
-    return {}
-  }
 })
 </script>
 
-<style scoped>
-button {
-  width: 40px;
-  height: 40px;
-  border-radius: 5px;
-  border-width: 4px;
-  border-style: solid;
-  margin: 3px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-</style>

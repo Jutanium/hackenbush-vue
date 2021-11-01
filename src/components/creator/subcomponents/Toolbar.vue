@@ -3,11 +3,11 @@
     <div class="flex">
       <template v-if="!playing">
         <ToolbarItem :selected="mode == 0"
-                     color="red" @click="modeSelect(0)"></ToolbarItem>
+                     textColorClass="text-red-player" @click="modeSelect(0)"></ToolbarItem>
         <ToolbarItem :selected="mode == 1"
-                     color="blue" @click="modeSelect(1)"></ToolbarItem>
-        <!--    <ToolbarItem :selected="mode == 2"-->
-        <!--                 color="green" @click="modeSelect(2)"></ToolbarItem>-->
+                     textColorClass="text-blue-player" @click="modeSelect(1)"></ToolbarItem>
+           <ToolbarItem :selected="mode == 2"
+                        textColorClass="text-green-500" @click="modeSelect(2)"></ToolbarItem> 
         <ToolbarItem :selected="mode == 3" @click="modeSelect(3)">
           <img :src="img.move" alt="">
         </ToolbarItem>
