@@ -1,7 +1,7 @@
-import {Connection, Segment} from "@/model/segment";
-import {pointsEqual} from "@/model/segment";
-import {Color} from "@/model/segment-color";
-import {simplestBetween, stalkValue} from "@/model/stalk-math";
+import {Connection, Segment} from "./segment";
+import {pointsEqual} from "./segment";
+import {Color} from "./segment-color";
+import {simplestBetween, stalkValue} from "./stalk-math";
 // import SubgameWorker from "./subgameWorker?worker";
 
 type Edge = {
@@ -13,12 +13,12 @@ type EdgeMap = {
   [id: string]: Edge
 }
 
-type SubgraphData = {
+export type SubgraphData = {
   ids: string[],
   isStalk: boolean
 }
 
-type GraphData = {
+export type GraphData = {
   edgeMap: EdgeMap,
   ground: SubgraphData[],
   subgameCache: { [id: string]: {value: number, segmentIds: string[]}}
@@ -169,27 +169,7 @@ export function buildGraph(segments: SegmentsMap, groundY: number): Graph {
       .sort((a, b) => (a.value - b.value));
   }
 
-  function evaluateSubgame(subgame: SubgraphData): number {
-    const segments = Object.fromEntries(subgame.ids.map(id => [id, liveSegments[id]]));
-    const segmentsArray = Object.values(segments);
-    const key = idString(segmentsArray);
-    if (key in subgameCache) {
-      return subgameCache[key].value;
-    }
-    if (subgame.isStalk) {
-      const value = stalkValue(segmentsArray);
-      subgameCache[key] = {
-        segmentIds: segmentsArray.map(s => s.id),
-        value
-      }
-      return value;
-    }
 
-    const [leftMoveValues, rightMoveValues] = [Color.Blue, Color.Red]
-      .map(color => possibleMoves(color, segments).map(({value}) => value));
-
-    return simplestBetween(leftMoveValues[leftMoveValues.length - 1], rightMoveValues[0]);
-  }
 
   function evaluate(graph: GraphData = graphData): number {
       // const worker = new SubgameWorker();

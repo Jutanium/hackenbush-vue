@@ -1,5 +1,5 @@
-import {Segment} from "@/model/segment";
-import {colorToLetter} from "@/model/segment-color";
+import {Segment} from "./segment";
+import {colorToLetter} from "./segment-color";
 
 
 export function stalkValue(stalk: string | Segment[]) {

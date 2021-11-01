@@ -1,1 +1,565 @@
-{"segments":{"segment70":{"id":"segment70","color":"blue","start":{"x":20.33333396911621,"y":95},"end":{"x":25.66666603088379,"y":80.5},"curveControlStart":{"x":22.111111323038738,"y":90.16666666666667},"curveControlEnd":{"x":23.888888676961262,"y":85.33333333333333},"startConnection":[{"id":"ground","side":"end"}],"endConnection":[{"id":"segment191","side":"start"}]},"segment191":{"id":"segment191","color":"blue","start":{"x":25.66666603088379,"y":80.5},"end":{"x":30.66666603088379,"y":66.33333587646484},"curveControlStart":{"x":27.333332697550457,"y":75.77777862548828},"curveControlEnd":{"x":28.99999936421712,"y":71.05555725097656},"startConnection":[{"id":"segment70","side":"end"},{"id":"segment7310","side":"start"}],"endConnection":[{"id":"segment172","side":"start"}]},"segment172":{"id":"segment172","color":"blue","start":{"x":30.66666603088379,"y":66.33333587646484},"end":{"x":28,"y":52.33333206176758},"curveControlStart":{"x":29.777777353922527,"y":61.66666793823242},"curveControlEnd":{"x":28.888888676961262,"y":57},"startConnection":[{"id":"segment191","side":"end"},{"id":"segment947","side":"start"}],"endConnection":[{"id":"segment903","side":"start"}]},"segment903":{"id":"segment903","color":"blue","start":{"x":28,"y":52.33333206176758},"end":{"x":25.5,"y":39.66666793823242},"curveControlStart":{"x":27.166666666666668,"y":48.11111068725586},"curveControlEnd":{"x":26.333333333333332,"y":43.88888931274414},"startConnection":[{"id":"segment172","side":"end"},{"id":"segment885","side":"end"}],"endConnection":[{"id":"segment314","side":"start"}]},"segment314":{"id":"segment314","color":"blue","start":{"x":25.5,"y":39.66666793823242},"end":{"x":9.666666984558105,"y":53.16666793823242},"curveControlStart":{"x":21.83333396911621,"y":47.66666793823242},"curveControlEnd":{"x":12,"y":42.33333206176758},"startConnection":[{"id":"segment903","side":"end"}],"endConnection":[{"id":"segment885","side":"start"}]},"segment885":{"id":"segment885","color":"blue","start":{"x":9.666666984558105,"y":53.16666793823242},"end":{"x":28,"y":52.33333206176758},"curveControlStart":{"x":15.777777989705402,"y":52.88888931274414},"curveControlEnd":{"x":21.888888994852703,"y":52.61111068725586},"startConnection":[{"id":"segment314","side":"end"}],"endConnection":[{"id":"segment903","side":"start"}]},"segment947":{"id":"segment947","color":"red","start":{"x":30.66666603088379,"y":66.33333587646484},"end":{"x":67.33333587646484,"y":66.33333587646484},"curveControlStart":{"x":42.88888931274414,"y":66.33333587646484},"curveControlEnd":{"x":55.11111259460449,"y":66.33333587646484},"startConnection":[{"id":"segment172","side":"start"}],"endConnection":[{"id":"segment678","side":"start"}]},"segment678":{"id":"segment678","color":"red","start":{"x":67.33333587646484,"y":66.33333587646484},"end":{"x":72,"y":80.16666412353516},"curveControlStart":{"x":68.88889058430989,"y":70.94444529215495},"curveControlEnd":{"x":70.44444529215495,"y":75.55555470784505},"startConnection":[{"id":"segment947","side":"end"},{"id":"segment014","side":"start"}],"endConnection":[{"id":"segment639","side":"start"}]},"segment639":{"id":"segment639","color":"red","start":{"x":72,"y":80.16666412353516},"end":{"x":77,"y":95},"curveControlStart":{"x":73.66666666666667,"y":85.11110941569011},"curveControlEnd":{"x":75.33333333333333,"y":90.05555470784505},"startConnection":[{"id":"segment678","side":"end"},{"id":"segment9312","side":"end"}],"endConnection":[{"id":"ground","side":"end"}]},"segment7310":{"id":"segment7310","color":"red","start":{"x":25.66666603088379,"y":80.5},"end":{"x":36.33333206176758,"y":80.66666412353516},"curveControlStart":{"x":29.22222137451172,"y":80.55555470784505},"curveControlEnd":{"x":32.77777671813965,"y":80.61110941569011},"startConnection":[{"id":"segment191","side":"start"}],"endConnection":[{"id":"segment1311","side":"start"}]},"segment1311":{"id":"segment1311","color":"red","start":{"x":36.33333206176758,"y":80.66666412353516},"end":{"x":62.83333206176758,"y":80.33333587646484},"curveControlStart":{"x":45.166665395100914,"y":80.55555470784505},"curveControlEnd":{"x":53.99999872843424,"y":80.44444529215495},"startConnection":[{"id":"segment7310","side":"end"},{"id":"segment9713","side":"start"}],"endConnection":[{"id":"segment9312","side":"start"}]},"segment9312":{"id":"segment9312","color":"red","start":{"x":62.83333206176758,"y":80.33333587646484},"end":{"x":72,"y":80.16666412353516},"curveControlStart":{"x":65.88888804117839,"y":80.27777862548828},"curveControlEnd":{"x":68.94444402058919,"y":80.22222137451172},"startConnection":[{"id":"segment1311","side":"end"},{"id":"segment014","side":"end"}],"endConnection":[{"id":"segment639","side":"start"}]},"segment9713":{"id":"segment9713","color":"red","start":{"x":36.33333206176758,"y":80.66666412353516},"end":{"x":40.5,"y":95},"curveControlStart":{"x":37.72222137451172,"y":85.44444274902344},"curveControlEnd":{"x":39.11111068725586,"y":90.22222137451172},"startConnection":[{"id":"segment1311","side":"start"}],"endConnection":[{"id":"ground","side":"end"}]},"segment014":{"id":"segment014","color":"blue","start":{"x":67.33333587646484,"y":66.33333587646484},"end":{"x":62.83333206176758,"y":80.33333587646484},"curveControlStart":{"x":65.8333346048991,"y":71.00000254313152},"curveControlEnd":{"x":64.33333333333333,"y":75.66666920979817},"startConnection":[{"id":"segment678","side":"start"},{"id":"segment6216","side":"start"}],"endConnection":[{"id":"segment9312","side":"start"},{"id":"segment915","side":"start"}]},"segment915":{"id":"segment915","color":"blue","start":{"x":62.83333206176758,"y":80.33333587646484},"end":{"x":58.5,"y":95},"curveControlStart":{"x":61.38888804117838,"y":85.22222391764323},"curveControlEnd":{"x":59.944444020589195,"y":90.11111195882161},"startConnection":[{"id":"segment014","side":"end"}],"endConnection":[{"id":"ground","side":"end"}]},"segment6216":{"id":"segment6216","color":"blue","start":{"x":67.33333587646484,"y":66.33333587646484},"end":{"x":83.83333587646484,"y":53.83333206176758},"curveControlStart":{"x":75,"y":68.33333587646484},"curveControlEnd":{"x":74.5,"y":53.5},"startConnection":[{"id":"segment014","side":"start"}],"endConnection":[]}},"groundConnections":[{"id":"segment70","side":"start"},{"id":"segment639","side":"end"},{"id":"segment9713","side":"end"},{"id":"segment915","side":"end"}]}
+{
+  "segments": {
+    "segment70": {
+      "id": "segment70",
+      "color": "blue",
+      "start": {
+        "x": 20.33333396911621,
+        "y": 95
+      },
+      "end": {
+        "x": 25.66666603088379,
+        "y": 80.5
+      },
+      "curveControlStart": {
+        "x": 22.111111323038738,
+        "y": 90.16666666666667
+      },
+      "curveControlEnd": {
+        "x": 23.888888676961262,
+        "y": 85.33333333333333
+      },
+      "startConnection": [
+        {
+          "id": "ground",
+          "side": "end"
+        }
+      ],
+      "endConnection": [
+        {
+          "id": "segment191",
+          "side": "start"
+        }
+      ]
+    },
+    "segment191": {
+      "id": "segment191",
+      "color": "blue",
+      "start": {
+        "x": 25.66666603088379,
+        "y": 80.5
+      },
+      "end": {
+        "x": 30.66666603088379,
+        "y": 66.33333587646484
+      },
+      "curveControlStart": {
+        "x": 27.333332697550457,
+        "y": 75.77777862548828
+      },
+      "curveControlEnd": {
+        "x": 28.99999936421712,
+        "y": 71.05555725097656
+      },
+      "startConnection": [
+        {
+          "id": "segment70",
+          "side": "end"
+        },
+        {
+          "id": "segment7310",
+          "side": "start"
+        }
+      ],
+      "endConnection": [
+        {
+          "id": "segment172",
+          "side": "start"
+        }
+      ]
+    },
+    "segment172": {
+      "id": "segment172",
+      "color": "blue",
+      "start": {
+        "x": 30.66666603088379,
+        "y": 66.33333587646484
+      },
+      "end": {
+        "x": 28,
+        "y": 52.33333206176758
+      },
+      "curveControlStart": {
+        "x": 29.777777353922527,
+        "y": 61.66666793823242
+      },
+      "curveControlEnd": {
+        "x": 28.888888676961262,
+        "y": 57
+      },
+      "startConnection": [
+        {
+          "id": "segment191",
+          "side": "end"
+        },
+        {
+          "id": "segment947",
+          "side": "start"
+        }
+      ],
+      "endConnection": [
+        {
+          "id": "segment903",
+          "side": "start"
+        }
+      ]
+    },
+    "segment903": {
+      "id": "segment903",
+      "color": "blue",
+      "start": {
+        "x": 28,
+        "y": 52.33333206176758
+      },
+      "end": {
+        "x": 25.5,
+        "y": 39.66666793823242
+      },
+      "curveControlStart": {
+        "x": 27.166666666666668,
+        "y": 48.11111068725586
+      },
+      "curveControlEnd": {
+        "x": 26.333333333333332,
+        "y": 43.88888931274414
+      },
+      "startConnection": [
+        {
+          "id": "segment172",
+          "side": "end"
+        },
+        {
+          "id": "segment885",
+          "side": "end"
+        }
+      ],
+      "endConnection": [
+        {
+          "id": "segment314",
+          "side": "start"
+        }
+      ]
+    },
+    "segment314": {
+      "id": "segment314",
+      "color": "blue",
+      "start": {
+        "x": 25.5,
+        "y": 39.66666793823242
+      },
+      "end": {
+        "x": 9.666666984558105,
+        "y": 53.16666793823242
+      },
+      "curveControlStart": {
+        "x": 21.83333396911621,
+        "y": 47.66666793823242
+      },
+      "curveControlEnd": {
+        "x": 12,
+        "y": 42.33333206176758
+      },
+      "startConnection": [
+        {
+          "id": "segment903",
+          "side": "end"
+        }
+      ],
+      "endConnection": [
+        {
+          "id": "segment885",
+          "side": "start"
+        }
+      ]
+    },
+    "segment885": {
+      "id": "segment885",
+      "color": "blue",
+      "start": {
+        "x": 9.666666984558105,
+        "y": 53.16666793823242
+      },
+      "end": {
+        "x": 28,
+        "y": 52.33333206176758
+      },
+      "curveControlStart": {
+        "x": 15.777777989705402,
+        "y": 52.88888931274414
+      },
+      "curveControlEnd": {
+        "x": 21.888888994852703,
+        "y": 52.61111068725586
+      },
+      "startConnection": [
+        {
+          "id": "segment314",
+          "side": "end"
+        }
+      ],
+      "endConnection": [
+        {
+          "id": "segment903",
+          "side": "start"
+        }
+      ]
+    },
+    "segment947": {
+      "id": "segment947",
+      "color": "red",
+      "start": {
+        "x": 30.66666603088379,
+        "y": 66.33333587646484
+      },
+      "end": {
+        "x": 67.33333587646484,
+        "y": 66.33333587646484
+      },
+      "curveControlStart": {
+        "x": 42.88888931274414,
+        "y": 66.33333587646484
+      },
+      "curveControlEnd": {
+        "x": 55.11111259460449,
+        "y": 66.33333587646484
+      },
+      "startConnection": [
+        {
+          "id": "segment172",
+          "side": "start"
+        }
+      ],
+      "endConnection": [
+        {
+          "id": "segment678",
+          "side": "start"
+        }
+      ]
+    },
+    "segment678": {
+      "id": "segment678",
+      "color": "red",
+      "start": {
+        "x": 67.33333587646484,
+        "y": 66.33333587646484
+      },
+      "end": {
+        "x": 72,
+        "y": 80.16666412353516
+      },
+      "curveControlStart": {
+        "x": 68.88889058430989,
+        "y": 70.94444529215495
+      },
+      "curveControlEnd": {
+        "x": 70.44444529215495,
+        "y": 75.55555470784505
+      },
+      "startConnection": [
+        {
+          "id": "segment947",
+          "side": "end"
+        },
+        {
+          "id": "segment014",
+          "side": "start"
+        }
+      ],
+      "endConnection": [
+        {
+          "id": "segment639",
+          "side": "start"
+        }
+      ]
+    },
+    "segment639": {
+      "id": "segment639",
+      "color": "red",
+      "start": {
+        "x": 72,
+        "y": 80.16666412353516
+      },
+      "end": {
+        "x": 77,
+        "y": 95
+      },
+      "curveControlStart": {
+        "x": 73.66666666666667,
+        "y": 85.11110941569011
+      },
+      "curveControlEnd": {
+        "x": 75.33333333333333,
+        "y": 90.05555470784505
+      },
+      "startConnection": [
+        {
+          "id": "segment678",
+          "side": "end"
+        },
+        {
+          "id": "segment9312",
+          "side": "end"
+        }
+      ],
+      "endConnection": [
+        {
+          "id": "ground",
+          "side": "end"
+        }
+      ]
+    },
+    "segment7310": {
+      "id": "segment7310",
+      "color": "red",
+      "start": {
+        "x": 25.66666603088379,
+        "y": 80.5
+      },
+      "end": {
+        "x": 36.33333206176758,
+        "y": 80.66666412353516
+      },
+      "curveControlStart": {
+        "x": 29.22222137451172,
+        "y": 80.55555470784505
+      },
+      "curveControlEnd": {
+        "x": 32.77777671813965,
+        "y": 80.61110941569011
+      },
+      "startConnection": [
+        {
+          "id": "segment191",
+          "side": "start"
+        }
+      ],
+      "endConnection": [
+        {
+          "id": "segment1311",
+          "side": "start"
+        }
+      ]
+    },
+    "segment1311": {
+      "id": "segment1311",
+      "color": "red",
+      "start": {
+        "x": 36.33333206176758,
+        "y": 80.66666412353516
+      },
+      "end": {
+        "x": 62.83333206176758,
+        "y": 80.33333587646484
+      },
+      "curveControlStart": {
+        "x": 45.166665395100914,
+        "y": 80.55555470784505
+      },
+      "curveControlEnd": {
+        "x": 53.99999872843424,
+        "y": 80.44444529215495
+      },
+      "startConnection": [
+        {
+          "id": "segment7310",
+          "side": "end"
+        },
+        {
+          "id": "segment9713",
+          "side": "start"
+        }
+      ],
+      "endConnection": [
+        {
+          "id": "segment9312",
+          "side": "start"
+        }
+      ]
+    },
+    "segment9312": {
+      "id": "segment9312",
+      "color": "red",
+      "start": {
+        "x": 62.83333206176758,
+        "y": 80.33333587646484
+      },
+      "end": {
+        "x": 72,
+        "y": 80.16666412353516
+      },
+      "curveControlStart": {
+        "x": 65.88888804117839,
+        "y": 80.27777862548828
+      },
+      "curveControlEnd": {
+        "x": 68.94444402058919,
+        "y": 80.22222137451172
+      },
+      "startConnection": [
+        {
+          "id": "segment1311",
+          "side": "end"
+        },
+        {
+          "id": "segment014",
+          "side": "end"
+        }
+      ],
+      "endConnection": [
+        {
+          "id": "segment639",
+          "side": "start"
+        }
+      ]
+    },
+    "segment9713": {
+      "id": "segment9713",
+      "color": "red",
+      "start": {
+        "x": 36.33333206176758,
+        "y": 80.66666412353516
+      },
+      "end": {
+        "x": 40.5,
+        "y": 95
+      },
+      "curveControlStart": {
+        "x": 37.72222137451172,
+        "y": 85.44444274902344
+      },
+      "curveControlEnd": {
+        "x": 39.11111068725586,
+        "y": 90.22222137451172
+      },
+      "startConnection": [
+        {
+          "id": "segment1311",
+          "side": "start"
+        }
+      ],
+      "endConnection": [
+        {
+          "id": "ground",
+          "side": "end"
+        }
+      ]
+    },
+    "segment014": {
+      "id": "segment014",
+      "color": "blue",
+      "start": {
+        "x": 67.33333587646484,
+        "y": 66.33333587646484
+      },
+      "end": {
+        "x": 62.83333206176758,
+        "y": 80.33333587646484
+      },
+      "curveControlStart": {
+        "x": 65.8333346048991,
+        "y": 71.00000254313152
+      },
+      "curveControlEnd": {
+        "x": 64.33333333333333,
+        "y": 75.66666920979817
+      },
+      "startConnection": [
+        {
+          "id": "segment678",
+          "side": "start"
+        },
+        {
+          "id": "segment6216",
+          "side": "start"
+        }
+      ],
+      "endConnection": [
+        {
+          "id": "segment9312",
+          "side": "start"
+        },
+        {
+          "id": "segment915",
+          "side": "start"
+        }
+      ]
+    },
+    "segment915": {
+      "id": "segment915",
+      "color": "blue",
+      "start": {
+        "x": 62.83333206176758,
+        "y": 80.33333587646484
+      },
+      "end": {
+        "x": 58.5,
+        "y": 95
+      },
+      "curveControlStart": {
+        "x": 61.38888804117838,
+        "y": 85.22222391764323
+      },
+      "curveControlEnd": {
+        "x": 59.944444020589195,
+        "y": 90.11111195882161
+      },
+      "startConnection": [
+        {
+          "id": "segment014",
+          "side": "end"
+        }
+      ],
+      "endConnection": [
+        {
+          "id": "ground",
+          "side": "end"
+        }
+      ]
+    },
+    "segment6216": {
+      "id": "segment6216",
+      "color": "blue",
+      "start": {
+        "x": 67.33333587646484,
+        "y": 66.33333587646484
+      },
+      "end": {
+        "x": 83.83333587646484,
+        "y": 53.83333206176758
+      },
+      "curveControlStart": {
+        "x": 75,
+        "y": 68.33333587646484
+      },
+      "curveControlEnd": {
+        "x": 74.5,
+        "y": 53.5
+      },
+      "startConnection": [
+        {
+          "id": "segment014",
+          "side": "start"
+        }
+      ],
+      "endConnection": []
+    }
+  },
+  "groundConnections": [
+    {
+      "id": "segment70",
+      "side": "start"
+    },
+    {
+      "id": "segment639",
+      "side": "end"
+    },
+    {
+      "id": "segment9713",
+      "side": "end"
+    },
+    {
+      "id": "segment915",
+      "side": "end"
+    }
+  ]
+}
