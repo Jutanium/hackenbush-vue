@@ -1,11 +1,11 @@
 <template>
   <div class="grid grid-cols-4 items-center gap-y-2 bg-white border bg-opacity-60 border-gray-200  p-2 rounded-md filter drop-shadow-md ">
     <template v-if="aiEnabled">
-      <button class="col-span-2" :class="{'border-gray-400': twoPlayers}"
+      <button class="col-span-2 text-md" :class="{'border-gray-400': twoPlayers}"
               @click="twoPlayers = true">
         2 Players
       </button>
-      <button class="col-span-2" :class="{'border-gray-400': !twoPlayers}"
+      <button class="col-span-2 text-md" :class="{'border-gray-400': !twoPlayers}"
               @click="twoPlayers = false">
         Versus AI
       </button>
