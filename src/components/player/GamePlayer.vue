@@ -1,14 +1,13 @@
 <template>
   <div class="w-full h-full">
-    <div v-if="showValue" class="relative left-10 text-xl lg:text-xl">
+    <div v-if="showValue && currentPlayer" class="relative left-10 text-xl lg:text-xl">
       <div class="absolute top-10" :class="{'top-24': showTurn}">
         Game Value: <component :is="gameValueWrapper">{{ gameValue }}</component>
       </div>
     </div>
     <div v-if="!pictureMode && showTurn" class="absolute text-xl lg:text-2xl">
       <div class="relative top-10 left-10">
-        <PlayerSelect v-if="!currentPlayer" :starting="startingPlayer" @submit="playerSelected"
-                      class=""
+        <PlayerSelect v-if="!currentPlayer" :ai-enabled="!hasGreen" :starting="startingPlayer" @submit="playerSelected"
         />
         <div v-if="playerWon">
           <Blue v-if="playerWon == Color.Red"/>
@@ -199,8 +198,10 @@ export default defineComponent({
 
     const gameValue = ref<number>();
 
+    const hasGreen = computed(() => Object.values(graph.value.getLiveSegments()).some(segment => segment.color == Color.Green));
+
     const currentPlayer = ref<Player | false>(false);
-    const ai = ref(props.aiControls);
+    const ai = ref<Player[]>([]);
     const turn = ref(0);
 
     const autoplayCounter = ref(0);
@@ -307,7 +308,6 @@ export default defineComponent({
         console.log("resetting");
       }
 
-
       turn.value = 0;
 
       graph.value.setSubgraph(subgraph || "all");
@@ -366,8 +366,8 @@ export default defineComponent({
       }
     }
 
-    function playerSelected(params: { playerControlled: Player, starting: Player }) {
-      ai.value = [otherPlayer(params.playerControlled)];
+    function playerSelected(params: { aiControls: Player[], starting: Player }) {
+      ai.value = params.aiControls;
       resetGame(true, true, params.starting, props.promptReset.subgraph || props.subgraph);
     }
 
@@ -582,6 +582,7 @@ export default defineComponent({
       Color,
       gameValue,
       gameValueWrapper,
+      hasGreen,
       autoplayCounter,
       autoplaying,
       playerWon,
