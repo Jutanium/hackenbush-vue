@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-full">
     <div
-      v-if="showValue && currentPlayer"
+      v-if="showValue && currentPlayer && !hasGreen"
       class="relative left-10 text-xl lg:text-xl"
     >
       <div class="absolute top-10" :class="{ 'top-24': showTurn }">
@@ -154,14 +154,14 @@ const props = defineProps({
   },
   debugMode: {
     type: Boolean,
-    default: true,
+    default: false,
   },
   startingPlayer: {
     type: String as PropType<Player>,
   },
   aiControls: {
     type: Array as PropType<Array<Player>>,
-    default: () => [Color.Blue],
+    default: () => [],
   },
   showTurn: {
     type: Boolean,
@@ -538,7 +538,6 @@ function removeEdge(segment: Segment) {
         },
         onComplete() {
           cutSegment.animating = false;
-          console.log("complete");
         },
       }
     );
@@ -639,10 +638,10 @@ const playerWon = computed<false | Player>(() => {
   const colorsLeft = Object.values(graph.value.getLiveSegments()).map(
     (s) => s.color
   );
-  if (!colorsLeft.includes(CurrentPlayer)) {
-    return otherPlayer(CurrentPlayer);
+  if (colorsLeft.some(color => color == CurrentPlayer || color == Color.Green)) {
+    return false;
   }
-  return false;
+  return otherPlayer(CurrentPlayer);
 });
 
 const currentPlayerClass = computed<String | undefined>(() => {
