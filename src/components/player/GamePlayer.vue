@@ -14,7 +14,8 @@
         <PlayerSelect
           v-if="!currentPlayer"
           :ai-enabled="!hasGreen"
-          :starting="startingPlayer"
+          :starting="lastSettings.starting"
+          :ai-controls="lastSettings.aiControls"
           @submit="playerSelected"
         />
         <div v-if="playerWon">
@@ -160,7 +161,7 @@ const props = defineProps({
   },
   aiControls: {
     type: Array as PropType<Array<Player>>,
-    default: () => [],
+    default: () => [Color.Blue],
   },
   showTurn: {
     type: Boolean,
@@ -256,6 +257,11 @@ const hasGreen = computed(() =>
 const currentPlayer = ref<Player | false>(false);
 const ai = ref<Player[]>([]);
 const turn = ref(0);
+
+const lastSettings = reactive({
+  aiControls: props.aiControls,
+  starting: props.startingPlayer
+})
 
 const autoplayCounter = ref(0);
 const aiIsMoving = ref(false);
@@ -431,6 +437,7 @@ function resetButtonClick() {
 }
 
 function playerSelected(params: { aiControls: Player[]; starting: Player }) {
+  Object.assign(lastSettings, params);
   ai.value = params.aiControls;
   resetGame(
     true,

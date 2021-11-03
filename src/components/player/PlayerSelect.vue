@@ -58,7 +58,7 @@ export default defineComponent({
 
     const otherPlayer = (player: Player): Player => player == Color.Red ? Color.Blue : Color.Red;
 
-    const twoPlayers = ref(!props.aiEnabled);
+    const twoPlayers = ref(!props.aiEnabled || props.aiControls.length == 0);
 
     const choices = reactive({
       playerControlled: {
