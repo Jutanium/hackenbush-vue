@@ -5,7 +5,7 @@
       class="relative left-10 text-xl lg:text-xl"
     >
       <div class="absolute top-10" :class="{ 'top-24': showTurn }">
-        Game Value:
+        Game Value: 
         <component :is="gameValueWrapper">{{ gameValue }}</component>
       </div>
     </div>
@@ -378,9 +378,7 @@ function resetGame(
 
   graph.value.setSubgraph(subgraph || "all");
 
-  if (props.showValue) {
-    gameValue.value = graph.value.evaluate();
-  }
+  gameValue.value = graph.value.evaluate();
 
   playingAgain.value = playerInitiated;
 

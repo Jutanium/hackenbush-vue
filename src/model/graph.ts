@@ -136,6 +136,7 @@ export function buildGraph(segments: SegmentsMap, groundY: number): Graph {
 
     if (idString == "all") {
       liveSegments = Object.assign({}, segments);
+      populate();
     }
 
     if (idString in subgameCache) {
