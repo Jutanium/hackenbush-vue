@@ -12,9 +12,11 @@
     </div>
 
     <div class="relative" v-if="currentPlayer">
-      <button class="absolute top-10 right-10 text-3xl transform -rotate-45" @click="resetButtonClick">
-        ↺
-      </button>
+      <BaseButton class="absolute top-10 right-10 transform" @click="resetButtonClick">
+        <div class="-rotate-45 text-3xl mb-1">
+          ↺
+        </div>
+      </BaseButton>
     </div>
 
     <div v-if="!pictureMode && showTurn" class="absolute text-xl lg:text-2xl">
@@ -152,6 +154,7 @@ import Blue from "@/components/explorable/text-elements/Blue.vue";
 import Red from "@/components/explorable/text-elements/Red.vue";
 import Purple from "@/components/explorable/text-elements/Purple.vue";
 import DrawnGround from "@/components/shared/DrawnGround.vue";
+import BaseButton from "@/components/shared/BaseButton.vue";
 
 type Player = Color.Red | Color.Blue;
 const emit = defineEmits(["gameover", "segmentClicked"]);
