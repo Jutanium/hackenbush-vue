@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col items-center">
-      <h1 v-if="gameFile?.name" class="text-4xl">{{gameFile.name}}</h1>
+<!--      <h1 v-if="gameFile?.name" class="text-4xl">{{gameFile.name}}</h1>-->
       <GamePlayer v-if="gameFile?.segments"
                   :segments="gameFile.segments"
       ></GamePlayer>
