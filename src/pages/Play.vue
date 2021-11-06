@@ -1,24 +1,33 @@
 <template>
-  <div>
+  <div class="flex flex-col items-center">
+      <h1 v-if="gameFile?.name" class="text-4xl">{{gameFile.name}}</h1>
       <GamePlayer v-if="gameFile?.segments"
                   :segments="gameFile.segments"
-                  :ground-connections="gameFile.groundConnections"
       ></GamePlayer>
   </div>
 </template>
 
 <script lang="ts">
-  import { ref, defineComponent } from "vue"
+import {ref, defineComponent, PropType} from "vue"
   import GamePlayer from "@/components/player/GamePlayer.vue";
+
+  const folderImports = {
+    presentation: (file: string) => import(`../game-files/presentation/${file}.json`)
+  }
+
   export default defineComponent({
     components: {GamePlayer},
     props: {
-      file: String
+      file: String,
+      folder: String as PropType<keyof typeof folderImports>,
     },
     async mounted () {
-      if (!this.gameFile) {
-        const gameFile = await import("../game-files/" + this.file + ".json");
-        this.gameFile = gameFile;
+      if (!this.gameFile && this.file) {
+        if (this.folder && this.folder in folderImports) {
+          this.gameFile = await folderImports.presentation(this.file);
+          return;
+        }
+        this.gameFile = await import(`../game-files/${this.file}.json`);
       }
     },
     data () {
@@ -28,12 +37,3 @@
     },
   })
 </script>
-
-<style scoped>
-
-@media (min-width:1025px) {
-  div {
-    width: 70%
-  }
-}
-</style>

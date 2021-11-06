@@ -10,7 +10,8 @@ const routes = [
   {path: '/', name: "Home", component: Home, },
   {path: '/explorable', name: "Explorable", component: Explorable},
   {path: '/demo', name: "Demo", component: Demo},
-  {path: '/play/:file', component: Play, props: true}
+  {path: '/play/:file', component: Play, props: true},
+  {path: '/play/:folder/:file', component: Play, props: true}
 ]
 
 const router = createRouter({

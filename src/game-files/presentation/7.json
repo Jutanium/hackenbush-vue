@@ -1,0 +1,4 @@
+{
+  "name": "2 + -1 + -1",
+  "segments": {"segment200":{"id":"segment200","color":"blue","start":{"x":32.35,"y":95},"end":{"x":32.16,"y":70.42},"curveControlStart":{"x":32.28666666666667,"y":86.80666666666667},"curveControlEnd":{"x":32.22333333333333,"y":78.61333333333333}},"segment472":{"id":"segment472","color":"red","start":{"x":64.6,"y":95},"end":{"x":64.22,"y":70.61},"curveControlStart":{"x":64.47333333333333,"y":86.87},"curveControlEnd":{"x":64.34666666666666,"y":78.74}},"segment943":{"id":"segment943","color":"blue","start":{"x":32.16,"y":70.42},"end":{"x":32.16,"y":42.94},"curveControlStart":{"x":32.16,"y":61.26},"curveControlEnd":{"x":32.16,"y":52.1}},"segment124":{"id":"segment124","color":"red","start":{"x":48.19,"y":95},"end":{"x":48.38,"y":69.85},"curveControlStart":{"x":48.25333333333333,"y":86.61666666666666},"curveControlEnd":{"x":48.31666666666667,"y":78.23333333333333}}}
+}

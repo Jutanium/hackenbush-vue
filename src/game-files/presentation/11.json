@@ -1,0 +1,4 @@
+{
+  "name": "1/4",
+  "segments": {"segment2710":{"id":"segment2710","color":"blue","start":{"x":47.61,"y":95},"end":{"x":47.61,"y":76.91},"curveControlStart":{"x":47.61,"y":88.97},"curveControlEnd":{"x":47.61,"y":82.94}},"segment5711":{"id":"segment5711","color":"red","start":{"x":47.61,"y":76.91},"end":{"x":47.61,"y":60.31},"curveControlStart":{"x":47.61,"y":71.37666666666667},"curveControlEnd":{"x":47.61,"y":65.84333333333333}},"segment6512":{"id":"segment6512","color":"red","start":{"x":47.61,"y":60.31},"end":{"x":47.81,"y":43.7},"curveControlStart":{"x":47.67666666666667,"y":54.77333333333333},"curveControlEnd":{"x":47.74333333333333,"y":49.23666666666667}}}
+}
