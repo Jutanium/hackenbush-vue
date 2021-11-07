@@ -11,7 +11,7 @@
       </div>
     </div>
 
-    <div class="relative" v-if="currentPlayer">
+    <div class="relative" v-if="currentPlayer && !playerWon">
       <BaseButton class="absolute top-10 right-10 transform" @click="resetButtonClick">
         <div class="-rotate-45 text-3xl mb-1">
           ↺
