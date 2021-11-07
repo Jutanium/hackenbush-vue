@@ -58,7 +58,6 @@ import GamePlayer from "@/components/player/GamePlayer.vue";
 import GameCreator from "@/components/creator/GameCreator.vue";
 import RoundedButton from "@/components/shared/RoundedButton.vue";
 
-import square from "@/game-files/square.json"
 import person from "@/game-files/person.json"
 import dogcat from "@/game-files/dogcat.json"
 import racket from "@/game-files/racket.json"
@@ -66,7 +65,7 @@ import twins from "@/game-files/twins.json"
 
 import { SegmentsMap } from "@/model/graph";
 
-const games = ref([square, person, dogcat, racket, twins].map(g => ({name: Math.random(), segments: g.segments as SegmentsMap})));
+const games = ref([person, dogcat, racket, twins].map(g => ({name: Math.random(), segments: g.segments as SegmentsMap})));
 const choices: ComputedRef<Array<"create" | SegmentsMap>> = computed(() => ["create", ...games.value]);
 
 
