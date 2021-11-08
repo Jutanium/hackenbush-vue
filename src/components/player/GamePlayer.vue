@@ -389,7 +389,7 @@ function resetGame(
 
   graph.value.setSubgraph(subgraph || "all");
 
-  gameValue.value = graph.value.evaluate();
+  if (props.showValue) gameValue.value = graph.value.evaluate();
 
   playingAgain.value = playerInitiated;
 
