@@ -1,4 +1,4 @@
 {
   "name": "-1",
-  "segments": "{\"segment605\":{\"id\":\"segment605\",\"color\":\"red\",\"start\":{\"x\":47.61,\"y\":95},\"end\":{\"x\":47.61,\"y\":68.32},\"curveControlStart\":{\"x\":47.61,\"y\":86.10666666666667},\"curveControlEnd\":{\"x\":47.61,\"y\":77.21333333333332}}}"
+  "segments": {"segment605":{"id":"segment605","color":"red","start":{"x":47.61,"y":95},"end":{"x":47.61,"y":68.32},"curveControlStart":{"x":47.61,"y":86.10666666666667},"curveControlEnd":{"x":47.61,"y":77.21333333333332}}}
 }
