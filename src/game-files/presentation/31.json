@@ -1,4 +1,65 @@
 {
   "name": "↑",
-  "segments": {"segment390":{"segment170":{"id":"segment170","color":"green","start":{"x":45.53,"y":95},"end":{"x":45.72,"y":63.21},"curveControlStart":{"x":45.593333333333334,"y":84.40333333333334},"curveControlEnd":{"x":45.656666666666666,"y":73.80666666666667}},"segment281":{"id":"segment281","color":"green","start":{"x":45.53,"y":95},"end":{"x":45.53,"y":95},"curveControlStart":{"x":4.69,"y":89.36},"curveControlEnd":{"x":35.79,"y":53.29}},"segment122":{"id":"segment122","color":"blue","start":{"x":45.72,"y":63.21},"end":{"x":45.72,"y":63.21},"curveControlStart":{"x":93.62,"y":64.74},"curveControlEnd":{"x":54.88,"y":21.04}}}
-}
+  "segments": {
+      "segment170": {
+        "id": "segment170",
+        "color": "green",
+        "start": {
+          "x": 45.53,
+          "y": 95
+        },
+        "end": {
+          "x": 45.72,
+          "y": 63.21
+        },
+        "curveControlStart": {
+          "x": 45.593333333333334,
+          "y": 84.40333333333334
+        },
+        "curveControlEnd": {
+          "x": 45.656666666666666,
+          "y": 73.80666666666667
+        }
+      },
+      "segment281": {
+        "id": "segment281",
+        "color": "green",
+        "start": {
+          "x": 45.53,
+          "y": 95
+        },
+        "end": {
+          "x": 45.53,
+          "y": 95
+        },
+        "curveControlStart": {
+          "x": 4.69,
+          "y": 89.36
+        },
+        "curveControlEnd": {
+          "x": 35.79,
+          "y": 53.29
+        }
+      },
+      "segment122": {
+        "id": "segment122",
+        "color": "blue",
+        "start": {
+          "x": 45.72,
+          "y": 63.21
+        },
+        "end": {
+          "x": 45.72,
+          "y": 63.21
+        },
+        "curveControlStart": {
+          "x": 93.62,
+          "y": 64.74
+        },
+        "curveControlEnd": {
+          "x": 54.88,
+          "y": 21.04
+        }
+      }
+    }
+  }
