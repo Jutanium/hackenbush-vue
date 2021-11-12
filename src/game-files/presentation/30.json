@@ -1,0 +1,4 @@
+{
+  "name": "*+1",
+  "segments": {"segment390":{"id":"segment390","color":"green","start":{"x":35.4,"y":95},"end":{"x":35.59,"y":64.89},"curveControlStart":{"x":35.46333333333333,"y":84.96333333333334},"curveControlEnd":{"x":35.52666666666667,"y":74.92666666666666}},"segment311":{"id":"segment311","color":"blue","start":{"x":62.31,"y":95},"end":{"x":62.31,"y":64.89},"curveControlStart":{"x":62.31,"y":84.96333333333334},"curveControlEnd":{"x":62.31,"y":74.92666666666666}}}
+}
