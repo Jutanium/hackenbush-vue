@@ -65,7 +65,7 @@ import twins from "@/game-files/twins.json"
 
 import { SegmentsMap } from "@/model/graph";
 
-const games = ref([person, dogcat, racket, twins].map(g => ({name: Math.random(), segments: g.segments as SegmentsMap})));
+const games = ref([person, racket, twins].map(g => ({name: Math.random(), segments: g.segments as SegmentsMap})));
 const choices: ComputedRef<Array<"create" | SegmentsMap>> = computed(() => ["create", ...games.value]);
 
 
